@@ -159,9 +159,13 @@ immer mitgesendet.
 
 ## Sicherheit
 
-- Jede Anfrage wird mit **HMAC-SHA256** über das gemeinsame Netzwerk-Secret signiert.
+- Jede Anfrage wird mit **HMAC-SHA256** über das gemeinsame Netzwerk-Secret signiert (zeitkonstanter Vergleich via `hash_equals`).
 - Zeitstempel-Prüfung (±5 Min.) als Replay-Schutz.
-- REST-Endpunkte lehnen Anfragen ohne gültige Signatur ab (HTTP 401).
+- **Alle** REST-Endpunkte lehnen Anfragen ohne gültige Signatur ab (HTTP 401) – es gibt keinen Zugriff ohne Token. Kein `nopriv`-AJAX; jede Admin-Aktion ist Nonce- und Capability-geschützt (`manage_woocommerce`).
+- **Starkes Secret erzwungen:** zu kurze Secrets (< 16 Zeichen) werden nicht gespeichert; „Neu erzeugen" liefert 48 Zeichen aus einem sicheren Zufallsgenerator.
+- **Topologie-Schutz:** Änderungen an Shop-Liste/Hauptshop (`/config`) werden nur vom konfigurierten Hauptshop akzeptiert.
+- **Eingangs-Validierung:** Steuer-/Lagerstatus und Lieferrückstand werden gegen Whitelists geprüft; Beschreibungen laufen durch `wp_kses_post`; Ausgaben im Backend sind konsequent escaped.
+- **SSRF-Schutz:** der Bild-Import akzeptiert nur externe http(s)-URLs (interne/Loopback-Adressen werden via `wp_http_validate_url` blockiert).
 
 ## Dateien
 

@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,9 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.1.0 =
+* Sicherheits-Härtung (Defense-in-Depth): erzwingt ein starkes Netzwerk-Secret (mind. 16 Zeichen) beim Speichern – zu kurze Secrets werden nicht übernommen. Topologie-Änderungen (Shop-Liste/Hauptshop über /config) werden nur noch vom konfigurierten Hauptshop akzeptiert. Eingehende Aufzähl-Felder (Steuer-/Lagerstatus, Lieferrückstand) werden gegen Whitelists geprüft. SSRF-Schutz beim Bild-Import (nur externe http(s)-URLs, keine internen/Loopback-Adressen). Alle REST-Endpunkte bleiben unverändert HMAC-SHA256-signiert (Token-Pflicht) – die Änderungen sind abwärtskompatibel.
 
 = 2.0.0 =
 * Umbenennung zu „BlockSocial WooCommerce Sync" (Ordner, Hauptdatei, Text-Domain). Interne REST-Namespaces und Options-Keys bleiben für bestehende Installationen kompatibel – ein Update von 1.x ist ohne Neukonfiguration möglich.

@@ -156,6 +156,21 @@ class WCIS_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function receive_config( $request ) {
+		// Zusätzliche Absicherung: Topologie-Änderungen (Shop-Liste + Hauptshop)
+		// nur vom konfigurierten Hauptshop akzeptieren. Ist lokal noch kein
+		// Hauptshop gesetzt (Erst-Einrichtung), wird der Push zum Bootstrapping
+		// zugelassen. So kann ein einzelner Neben-Shop die Topologie nicht kapern.
+		$from         = (string) $request->get_header( 'x_wcis_from' );
+		$local_master = (string) WCIS_Settings::get( 'master_url' );
+		if ( '' !== $from && '' !== $local_master
+			&& WCIS_Settings::normalize_url( $from ) !== WCIS_Settings::normalize_url( $local_master ) ) {
+			WCIS_Logger::error(
+				sprintf( 'Konfigurations-Push von %s abgelehnt – nicht der Hauptshop.', $from ),
+				'inbound'
+			);
+			return new WP_REST_Response( array( 'ok' => false, 'reason' => 'not_master' ), 403 );
+		}
+
 		$params     = $request->get_json_params();
 		$shops      = isset( $params['shops'] ) && is_array( $params['shops'] ) ? $params['shops'] : null;
 		$master_url = isset( $params['master_url'] ) ? esc_url_raw( $params['master_url'] ) : '';

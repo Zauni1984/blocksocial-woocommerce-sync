@@ -108,6 +108,7 @@ $wcis_tabs = array(
 		<?php
 		$wcis_messages = array(
 			'saved'          => array( 'ok', __( 'Einstellungen gespeichert.', 'blocksocial-woocommerce-sync' ) ),
+			'weak_secret'    => array( 'err', __( 'Einstellungen gespeichert – aber das Netzwerk-Secret war zu kurz (mind. 16 Zeichen) und wurde NICHT geändert. Bitte „Neu erzeugen" nutzen.', 'blocksocial-woocommerce-sync' ) ),
 			'fullsync_done'  => array( 'ok', __( 'Voll-Synchronisation ausgeführt.', 'blocksocial-woocommerce-sync' ) ),
 			'fullsync_error' => array( 'err', __( 'Voll-Synchronisation fehlgeschlagen – sind Ziel-Shops und Secret gesetzt?', 'blocksocial-woocommerce-sync' ) ),
 			'config_pushed'  => array( 'ok', __( 'Konfiguration an die Shops verteilt.', 'blocksocial-woocommerce-sync' ) ),

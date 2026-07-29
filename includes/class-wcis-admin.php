@@ -177,10 +177,19 @@ class WCIS_Admin {
 			}
 		}
 
+		// Netzwerk-Secret: ein zu kurzes/schwaches Secret nicht speichern
+		// (schützt vor leicht zu erratenden Tokens). Das vorhandene bleibt dann erhalten.
+		$new_secret  = isset( $_POST['network_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['network_secret'] ) ) : '';
+		$weak_secret = false;
+		if ( '' !== $new_secret && strlen( $new_secret ) < 16 ) {
+			$new_secret  = WCIS_Settings::secret();
+			$weak_secret = true;
+		}
+
 		$values = array(
 			'enabled'        => ! empty( $_POST['enabled'] ),
 			'sync_status'    => ! empty( $_POST['sync_status'] ),
-			'network_secret' => isset( $_POST['network_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['network_secret'] ) ) : '',
+			'network_secret' => $new_secret,
 			'this_shop_name' => isset( $_POST['this_shop_name'] ) ? sanitize_text_field( wp_unslash( $_POST['this_shop_name'] ) ) : '',
 			'this_shop_url'  => isset( $_POST['this_shop_url'] ) ? untrailingslashit( esc_url_raw( wp_unslash( $_POST['this_shop_url'] ) ) ) : home_url(),
 			'master_url'     => isset( $_POST['master_url'] ) ? untrailingslashit( esc_url_raw( wp_unslash( $_POST['master_url'] ) ) ) : '',
@@ -209,7 +218,7 @@ class WCIS_Admin {
 		// Abgleich-Zeitplan an die (ggf. geänderte) Einstellung anpassen.
 		WCIS_Reconcile::reschedule();
 
-		$this->redirect_back( 'saved' );
+		$this->redirect_back( $weak_secret ? 'weak_secret' : 'saved' );
 	}
 
 	/**

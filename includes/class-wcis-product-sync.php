@@ -444,7 +444,7 @@ class WCIS_Product_Sync {
 			$product->set_sale_price( (string) $p['sale_price'] );
 		}
 		if ( isset( $p['tax_status'] ) ) {
-			$product->set_tax_status( $p['tax_status'] );
+			$product->set_tax_status( self::clean_enum( $p['tax_status'], array( 'taxable', 'shipping', 'none' ), 'taxable' ) );
 		}
 		if ( isset( $p['tax_class'] ) ) {
 			self::apply_tax_class( $product, $p['tax_class'] );
@@ -469,10 +469,10 @@ class WCIS_Product_Sync {
 				$product->set_manage_stock( false );
 			}
 			if ( isset( $p['stock_status'] ) ) {
-				$product->set_stock_status( $p['stock_status'] );
+				$product->set_stock_status( self::clean_enum( $p['stock_status'], array( 'instock', 'outofstock', 'onbackorder' ), 'instock' ) );
 			}
 			if ( isset( $p['backorders'] ) ) {
-				$product->set_backorders( $p['backorders'] );
+				$product->set_backorders( self::clean_enum( $p['backorders'], array( 'no', 'notify', 'yes' ), 'no' ) );
 			}
 		}
 
@@ -526,6 +526,20 @@ class WCIS_Product_Sync {
 	 * @param WC_Product $product Produkt/Variation.
 	 * @param string     $slug    Eingehender Steuerklassen-Slug.
 	 */
+	/**
+	 * Validiert einen eingehenden Wert gegen eine Whitelist (Defense-in-Depth
+	 * gegen fehlerhafte oder manipulierte Daten eines Peer-Shops).
+	 *
+	 * @param mixed  $value    Eingehender Wert.
+	 * @param array  $allowed  Erlaubte Werte.
+	 * @param string $fallback Standard bei unbekanntem Wert.
+	 * @return string
+	 */
+	protected static function clean_enum( $value, array $allowed, $fallback ) {
+		$value = is_scalar( $value ) ? (string) $value : '';
+		return in_array( $value, $allowed, true ) ? $value : $fallback;
+	}
+
 	protected static function apply_tax_class( $product, $slug ) {
 		$slug = (string) $slug;
 		$map  = WCIS_Settings::tax_class_map();
@@ -581,7 +595,7 @@ class WCIS_Product_Sync {
 				$variation->set_sale_price( (string) $vp['sale_price'] );
 			}
 			if ( isset( $vp['tax_status'] ) ) {
-				$variation->set_tax_status( $vp['tax_status'] );
+				$variation->set_tax_status( self::clean_enum( $vp['tax_status'], array( 'taxable', 'shipping', 'none' ), 'taxable' ) );
 			}
 			if ( isset( $vp['tax_class'] ) ) {
 				self::apply_tax_class( $variation, $vp['tax_class'] );
@@ -593,7 +607,7 @@ class WCIS_Product_Sync {
 				}
 			}
 			if ( isset( $vp['stock_status'] ) ) {
-				$variation->set_stock_status( $vp['stock_status'] );
+				$variation->set_stock_status( self::clean_enum( $vp['stock_status'], array( 'instock', 'outofstock', 'onbackorder' ), 'instock' ) );
 			}
 			if ( isset( $vp['weight'] ) ) {
 				$variation->set_weight( $vp['weight'] );
@@ -653,7 +667,10 @@ class WCIS_Product_Sync {
 		$ids = array();
 		foreach ( (array) $urls as $url ) {
 			$url = esc_url_raw( $url );
-			if ( '' === $url ) {
+			// SSRF-Schutz: nur externe http(s)-URLs zulassen; interne/loopback-
+			// Adressen und exotische Schemata blocken (wp_http_validate_url prüft
+			// Schema, Port und private/reservierte IP-Bereiche).
+			if ( '' === $url || ! wp_http_validate_url( $url ) ) {
 				continue;
 			}
 			$att_id = media_sideload_image( $url, $product_id, null, 'id' );
