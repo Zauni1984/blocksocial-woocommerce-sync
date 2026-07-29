@@ -78,22 +78,25 @@ class WCIS_Client {
 	/**
 	 * Sendet einen POST-Request an einen Peer.
 	 *
-	 * @param string $peer_url Basis-URL des Peers.
-	 * @param string $endpoint Endpunkt, z. B. '/stock'.
-	 * @param array  $payload  Nutzdaten.
-	 * @param bool   $blocking Auf Antwort warten?
+	 * @param string   $peer_url Basis-URL des Peers.
+	 * @param string   $endpoint Endpunkt, z. B. '/stock'.
+	 * @param array    $payload  Nutzdaten.
+	 * @param bool     $blocking Auf Antwort warten?
+	 * @param int|null $timeout  Optionales Timeout-Override (Sekunden, 5–60).
 	 * @return array|WP_Error { code, body } oder WP_Error.
 	 */
-	public static function post( $peer_url, $endpoint, array $payload, $blocking = true ) {
+	public static function post( $peer_url, $endpoint, array $payload, $blocking = true, $timeout = null ) {
 		$url  = untrailingslashit( $peer_url ) . '/wp-json/' . WCIS_REST_NS . $endpoint;
 		$body = wp_json_encode( $payload );
+
+		$eff_timeout = ( null !== $timeout ) ? max( 5, min( 60, (int) $timeout ) ) : self::timeout();
 
 		$response = wp_remote_post(
 			$url,
 			array(
 				'headers'   => self::sign_headers( $body ),
 				'body'      => $body,
-				'timeout'   => $blocking ? self::timeout() : 0.01,
+				'timeout'   => $blocking ? $eff_timeout : 0.01,
 				'blocking'  => $blocking,
 				'sslverify' => apply_filters( 'wcis_sslverify', true ),
 			)

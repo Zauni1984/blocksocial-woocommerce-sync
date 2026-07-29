@@ -46,6 +46,12 @@ class WCIS_Product_Sync {
 	const TICK_BUDGET = 8.0;
 
 	/**
+	 * Maximales Timeout je einzelner Produkt-Übertragung (Sekunden). Verhindert,
+	 * dass ein langsamer Ziel-Shop einen Tick über das PHP-Zeitlimit blockiert.
+	 */
+	const PRODUCT_HTTP_TIMEOUT = 25;
+
+	/**
 	 * Produkt-IDs, die in diesem Request bereits übertragen wurden (Dedupe).
 	 *
 	 * @var array
@@ -377,48 +383,60 @@ class WCIS_Product_Sync {
 		self::$suppress = true;
 		WCIS_Sync_Engine::set_suppress( true );
 
-		$is_new  = ! $existing_id;
-		$type    = ( isset( $payload['type'] ) && 'variable' === $payload['type'] ) ? 'variable' : 'simple';
+		$is_new = ! $existing_id;
+		$type   = ( isset( $payload['type'] ) && 'variable' === $payload['type'] ) ? 'variable' : 'simple';
+		$result = $is_new ? 'created' : 'updated';
 
-		if ( $existing_id ) {
-			$product = wc_get_product( $existing_id );
-		} elseif ( 'variable' === $type ) {
-			$product = new WC_Product_Variable();
-		} else {
-			$product = new WC_Product_Simple();
+		// Robust gegen einzelne „giftige" Produkte: ein Fehler bei einem Produkt
+		// darf den Sync nicht abbrechen. Es wird übersprungen und protokolliert,
+		// die Übertragung läuft mit dem nächsten Produkt weiter.
+		try {
+			if ( $existing_id ) {
+				$product = wc_get_product( $existing_id );
+			} elseif ( 'variable' === $type ) {
+				$product = new WC_Product_Variable();
+			} else {
+				$product = new WC_Product_Simple();
+			}
+
+			self::apply_common_fields( $product, $payload );
+
+			// Attribute (als produkteigene, benutzerdefinierte Attribute).
+			if ( ! empty( $payload['attributes'] ) ) {
+				$product->set_attributes( self::build_attribute_objects( $payload['attributes'] ) );
+			}
+
+			$product_id = $product->save();
+
+			// Kategorien / Schlagwörter per Name.
+			if ( isset( $payload['categories'] ) ) {
+				wp_set_object_terms( $product_id, self::term_ids( (array) $payload['categories'], 'product_cat' ), 'product_cat' );
+			}
+			if ( isset( $payload['tags'] ) ) {
+				wp_set_object_terms( $product_id, self::term_ids( (array) $payload['tags'], 'product_tag' ), 'product_tag' );
+			}
+
+			// Bilder nur beim Neuanlegen importieren (verhindert Dubletten).
+			if ( $is_new && ! empty( $payload['images'] ) && WCIS_Settings::get( 'product_sync_images', true ) ) {
+				self::import_images( $product_id, $payload['images'] );
+			}
+
+			// Variationen (variable Produkte).
+			if ( 'variable' === $type && ! empty( $payload['variations'] ) ) {
+				self::apply_variations( $product_id, $payload['variations'] );
+			}
+		} catch ( \Throwable $e ) {
+			WCIS_Logger::error(
+				sprintf( 'Produkt (SKU %s) konnte nicht angewendet werden – übersprungen: %s', $sku, $e->getMessage() ),
+				'inbound'
+			);
+			$result = 'skipped';
+		} finally {
+			self::$suppress = false;
+			WCIS_Sync_Engine::set_suppress( false );
 		}
 
-		self::apply_common_fields( $product, $payload );
-
-		// Attribute (als produkteigene, benutzerdefinierte Attribute).
-		if ( ! empty( $payload['attributes'] ) ) {
-			$product->set_attributes( self::build_attribute_objects( $payload['attributes'] ) );
-		}
-
-		$product_id = $product->save();
-
-		// Kategorien / Schlagwörter per Name.
-		if ( isset( $payload['categories'] ) ) {
-			wp_set_object_terms( $product_id, self::term_ids( (array) $payload['categories'], 'product_cat' ), 'product_cat' );
-		}
-		if ( isset( $payload['tags'] ) ) {
-			wp_set_object_terms( $product_id, self::term_ids( (array) $payload['tags'], 'product_tag' ), 'product_tag' );
-		}
-
-		// Bilder nur beim Neuanlegen importieren (verhindert Dubletten).
-		if ( $is_new && ! empty( $payload['images'] ) && WCIS_Settings::get( 'product_sync_images', true ) ) {
-			self::import_images( $product_id, $payload['images'] );
-		}
-
-		// Variationen (variable Produkte).
-		if ( 'variable' === $type && ! empty( $payload['variations'] ) ) {
-			self::apply_variations( $product_id, $payload['variations'] );
-		}
-
-		self::$suppress = false;
-		WCIS_Sync_Engine::set_suppress( false );
-
-		return $is_new ? 'created' : 'updated';
+		return $result;
 	}
 
 	/**
@@ -664,8 +682,20 @@ class WCIS_Product_Sync {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 
-		$ids = array();
+		// Download-Zeit hart begrenzen: WordPress erlaubt beim Sideload sonst bis
+		// zu 300 s pro Bild – ein langsames oder totes Bild-URL würde den ganzen
+		// Sync-Tick blockieren (Ursache für „hängt bei Produkt X fest"). 15 s Cap.
+		$cap_timeout = static function () {
+			return 15;
+		};
+		add_filter( 'http_request_timeout', $cap_timeout, 9999 );
+
+		$ids   = array();
+		$count = 0;
 		foreach ( (array) $urls as $url ) {
+			if ( $count >= 12 ) {
+				break; // Obergrenze gegen Ausreißer mit sehr vielen Bildern.
+			}
 			$url = esc_url_raw( $url );
 			// SSRF-Schutz: nur externe http(s)-URLs zulassen; interne/loopback-
 			// Adressen und exotische Schemata blocken (wp_http_validate_url prüft
@@ -673,11 +703,23 @@ class WCIS_Product_Sync {
 			if ( '' === $url || ! wp_http_validate_url( $url ) ) {
 				continue;
 			}
-			$att_id = media_sideload_image( $url, $product_id, null, 'id' );
+			try {
+				$att_id = media_sideload_image( $url, $product_id, null, 'id' );
+			} catch ( \Throwable $e ) {
+				$att_id = new WP_Error( 'wcis_image_failed', $e->getMessage() );
+			}
 			if ( ! is_wp_error( $att_id ) ) {
 				$ids[] = (int) $att_id;
+				$count++;
+			} else {
+				WCIS_Logger::error(
+					sprintf( 'Bild-Import übersprungen (%s): %s', $url, $att_id->get_error_message() ),
+					'inbound'
+				);
 			}
 		}
+
+		remove_filter( 'http_request_timeout', $cap_timeout, 9999 );
 
 		if ( empty( $ids ) ) {
 			return;
@@ -778,34 +820,48 @@ class WCIS_Product_Sync {
 			$pid     = isset( $ids[ $job['index'] ] ) ? $ids[ $job['index'] ] : 0;
 			$product = $pid ? wc_get_product( $pid ) : null;
 
-			if ( $product && ( $product->is_type( 'simple' ) || $product->is_type( 'variable' ) ) && WCIS_Filter::should_sync( $product ) ) {
-				$payload = self::build_payload( $product );
-				if ( $payload ) {
-					foreach ( $job['peers'] as $peer_url ) {
-						$res  = WCIS_Client::post( $peer_url, '/product', array( 'source' => WCIS_Settings::this_url(), 'product' => $payload ), true );
-						$body = ( ! is_wp_error( $res ) && isset( $res['body'] ) ) ? json_decode( $res['body'], true ) : null;
+			try {
+				if ( $product && ( $product->is_type( 'simple' ) || $product->is_type( 'variable' ) ) && WCIS_Filter::should_sync( $product ) ) {
+					$payload = self::build_payload( $product );
+					if ( $payload ) {
+						foreach ( $job['peers'] as $peer_url ) {
+							// Gebundenes Timeout: ein einzelner langsamer Peer darf den
+							// Tick nicht über das PHP-Zeitlimit hinaus blockieren.
+							$res  = WCIS_Client::post( $peer_url, '/product', array( 'source' => WCIS_Settings::this_url(), 'product' => $payload ), true, self::PRODUCT_HTTP_TIMEOUT );
+							$body = ( ! is_wp_error( $res ) && isset( $res['body'] ) ) ? json_decode( $res['body'], true ) : null;
 
-						if ( is_wp_error( $res ) || $res['code'] < 200 || $res['code'] >= 300 ) {
-							$job['failed']++;
-							WCIS_Queue::add( $peer_url, array( 'source' => WCIS_Settings::this_url(), 'product' => $payload ), is_wp_error( $res ) ? $res->get_error_message() : 'HTTP ' . $res['code'], '/product' );
-						} elseif ( is_array( $body ) && isset( $body['result'] ) ) {
-							$key = $body['result'];
-							if ( isset( $job[ $key ] ) ) {
-								$job[ $key ]++;
+							if ( is_wp_error( $res ) || $res['code'] < 200 || $res['code'] >= 300 ) {
+								$job['failed']++;
+								WCIS_Queue::add( $peer_url, array( 'source' => WCIS_Settings::this_url(), 'product' => $payload ), is_wp_error( $res ) ? $res->get_error_message() : 'HTTP ' . $res['code'], '/product' );
+							} elseif ( is_array( $body ) && isset( $body['result'] ) ) {
+								$key = $body['result'];
+								if ( isset( $job[ $key ] ) ) {
+									$job[ $key ]++;
+								}
 							}
 						}
 					}
 				}
+			} catch ( \Throwable $e ) {
+				$job['failed']++;
+				WCIS_Logger::error(
+					sprintf( 'Produkt-Massenübertragung: Produkt-ID %d übersprungen: %s', (int) $pid, $e->getMessage() ),
+					'outbound'
+				);
 			}
 
 			$job['index']++;
 			if ( $job['index'] >= $job['total'] ) {
 				$job['status'] = 'done';
 			}
-		} while ( 'running' === $job['status'] && ( microtime( true ) - $start ) < self::TICK_BUDGET );
 
-		$job['updated_at'] = time();
-		update_option( self::JOB_OPT, $job, false );
+			// Fortschritt nach JEDEM Produkt speichern: wird der Request (z. B.
+			// durch das PHP-Zeitlimit) abgebrochen, setzt der nächste Tick hinter
+			// dem bereits verarbeiteten Produkt fort – kein Neustart des Batches,
+			// kein Festhängen an einem einzelnen Produkt.
+			$job['updated_at'] = time();
+			update_option( self::JOB_OPT, $job, false );
+		} while ( 'running' === $job['status'] && ( microtime( true ) - $start ) < self::TICK_BUDGET );
 
 		if ( 'done' === $job['status'] ) {
 			delete_transient( self::IDS_TR );
@@ -950,7 +1006,7 @@ class WCIS_Product_Sync {
 			return new WP_Error( 'wcis_disabled', __( 'Produkt-Sync ist auf diesem Shop nicht aktiv – bitte zuerst einschalten.', 'blocksocial-woocommerce-sync' ) );
 		}
 
-		$per_page = 20;
+		$per_page = 10; // kleinere Seiten = kleinere Arbeitspakete je Tick (kein Festhängen).
 		$res      = WCIS_Client::get( $master, '/products-export?page=1&per_page=' . $per_page );
 		if ( is_wp_error( $res ) || $res['code'] < 200 || $res['code'] >= 300 ) {
 			return new WP_Error( 'wcis_master_unreachable', __( 'Hauptshop nicht erreichbar oder Secret falsch.', 'blocksocial-woocommerce-sync' ) );
@@ -1013,7 +1069,7 @@ class WCIS_Product_Sync {
 			$data  = json_decode( $res['body'], true );
 			$items = ( is_array( $data ) && isset( $data['items'] ) ) ? $data['items'] : array();
 			foreach ( $items as $payload ) {
-				$result = self::apply_product( $payload );
+				$result = self::apply_product( $payload ); // fängt Fehler je Produkt intern ab.
 				if ( isset( $job[ $result ] ) ) {
 					$job[ $result ]++;
 				}
@@ -1023,10 +1079,12 @@ class WCIS_Product_Sync {
 			if ( $job['page'] > $job['total_pages'] ) {
 				$job['status'] = 'done';
 			}
-		} while ( 'running' === $job['status'] && ( microtime( true ) - $start ) < self::TICK_BUDGET );
 
-		$job['updated_at'] = time();
-		update_option( self::PULL_JOB_OPT, $job, false );
+			// Fortschritt nach JEDER Seite speichern – bei Abbruch (PHP-Zeitlimit)
+			// setzt der nächste Tick bei der nächsten Seite fort, ohne hängen zu bleiben.
+			$job['updated_at'] = time();
+			update_option( self::PULL_JOB_OPT, $job, false );
+		} while ( 'running' === $job['status'] && ( microtime( true ) - $start ) < self::TICK_BUDGET );
 
 		if ( 'done' === $job['status'] ) {
 			WCIS_Logger::info(

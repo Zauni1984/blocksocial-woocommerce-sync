@@ -100,6 +100,8 @@
 			var $label = $( cfg.label );
 			var $text = $( cfg.text );
 			var polling = false;
+			var failCount = 0;
+			var MAX_FAILS = 8; // nach so vielen Fehlversuchen in Folge abbrechen (kein endloses Drehen).
 
 			function setBar( pct ) {
 				$fill.css( 'width', pct + '%' );
@@ -128,6 +130,7 @@
 							finish();
 							return;
 						}
+						failCount = 0; // Erfolg -> Fehlerzähler zurücksetzen.
 						render( resp.data );
 						if ( resp.data.status === 'running' ) {
 							setTimeout( tick, 300 );
@@ -136,12 +139,19 @@
 						}
 					} )
 					.fail( function () {
+						failCount++;
+						if ( failCount >= MAX_FAILS ) {
+							$text.text( '✗ ' + WCIS.i18n.genericError + ' (' + failCount + '×)' );
+							finish();
+							return;
+						}
 						setTimeout( tick, 1500 );
 					} );
 			}
 
 			function startPolling() {
 				polling = true;
+				failCount = 0;
 				$btn.prop( 'disabled', true );
 				$cancel.show();
 				$wrap.show();
