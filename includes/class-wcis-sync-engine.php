@@ -146,7 +146,12 @@ class WCIS_Sync_Engine {
 			'sku'          => $sku,
 			'manage_stock' => (bool) $manages,
 			'stock'        => $manages ? wc_stock_amount( $product->get_stock_quantity() ) : null,
-			'in_stock'     => $product->is_in_stock(),
+			// Echten Status 1:1 mitsenden (instock | outofstock | onbackorder) …
+			'stock_status' => $product->get_stock_status(),
+			// … sowie die Lieferrückstand-Einstellung (no | notify | yes), damit der
+			// Empfänger bei Menge 0 korrekt „onbackorder" statt „outofstock" ableitet.
+			'backorders'   => $product->get_backorders(),
+			'in_stock'     => $product->is_in_stock(), // Rückwärtskompatibel für ältere Empfänger.
 			'timestamp'    => time(),
 		);
 	}
@@ -297,14 +302,32 @@ class WCIS_Sync_Engine {
 		// try/finally: die Sperre MUSS auch bei einer Exception in save() wieder
 		// gelöst werden, sonst blieben alle folgenden ausgehenden Broadcasts
 		// dieses Requests stumm.
+		$valid_status     = array( 'instock', 'outofstock', 'onbackorder' );
+		$valid_backorder  = array( 'no', 'notify', 'yes' );
+
 		try {
 			if ( ! empty( $item['manage_stock'] ) && isset( $item['stock'] ) && null !== $item['stock'] ) {
 				$product->set_manage_stock( true );
+				// Lieferrückstand-Einstellung zuerst 1:1 übernehmen, damit WooCommerce
+				// bei Menge 0 den korrekten Status („onbackorder") ableiten kann.
+				if ( isset( $item['backorders'] ) && in_array( $item['backorders'], $valid_backorder, true ) ) {
+					$product->set_backorders( $item['backorders'] );
+				}
 				$product->set_stock_quantity( wc_stock_amount( $item['stock'] ) );
-				// stock_status wird von WooCommerce beim Speichern anhand der Menge gesetzt.
+				// Falls der Quell-Status mitgesendet wurde, explizit 1:1 setzen
+				// (überschreibt eine evtl. abweichende Ableitung durch WooCommerce).
+				if ( ! empty( $item['stock_status'] ) && in_array( $item['stock_status'], $valid_status, true ) ) {
+					$product->set_stock_status( $item['stock_status'] );
+				}
 			} elseif ( WCIS_Settings::get( 'sync_status', true ) ) {
 				$product->set_manage_stock( false );
-				$product->set_stock_status( ! empty( $item['in_stock'] ) ? 'instock' : 'outofstock' );
+				if ( ! empty( $item['stock_status'] ) && in_array( $item['stock_status'], $valid_status, true ) ) {
+					// Status 1:1 übernehmen (inkl. „onbackorder").
+					$product->set_stock_status( $item['stock_status'] );
+				} else {
+					// Rückwärtskompatibel: älterer Payload ohne stock_status.
+					$product->set_stock_status( ! empty( $item['in_stock'] ) ? 'instock' : 'outofstock' );
+				}
 			} else {
 				return 'skipped';
 			}
