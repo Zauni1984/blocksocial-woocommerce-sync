@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,9 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.1.2 =
+* Steuerklasse jetzt slug-unabhängig: Beim Produkt-Sync/Pull wird der effektive Steuersatz (z. B. 7 % / 19 %) mitgesendet. Findet der Empfänger den eingehenden Steuerklassen-Slug nicht (unterschiedliche Bezeichnungen zwischen Shops, z. B. „reduzierter-preis" vs. „reduced-rate"), ordnet er die passende lokale Steuerklasse automatisch über den Steuersatz zu – ohne manuelle Zuordnung. Reihenfolge: explizite Zuordnung → gleicher Slug → Steuersatz-Automatik → sonst unverändert lassen (nie fälschlich auf Standard).
 
 = 2.1.1 =
 * Robustheit Produkt-Sync/Pull: Übertragungen bleiben nicht mehr an einem einzelnen Produkt hängen. Der Bild-Import bricht langsame/tote Bild-URLs nach 15 s ab (statt bis zu 300 s zu blockieren) und begrenzt die Bildanzahl. Fehlerhafte Produkte werden übersprungen und protokolliert, statt den ganzen Lauf abzubrechen. Der Fortschritt wird nach jedem Produkt bzw. jeder Seite gespeichert – ein abgebrochener Lauf setzt exakt dort fort, statt neu zu starten. Einzelne Produkt-Übertragungen haben ein hartes Timeout (25 s); die Oberfläche bricht nach mehreren Fehlversuchen mit Meldung ab, statt endlos zu drehen.

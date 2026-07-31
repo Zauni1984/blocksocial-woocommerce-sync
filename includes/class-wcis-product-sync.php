@@ -205,6 +205,9 @@ class WCIS_Product_Sync {
 		if ( WCIS_Filter::field_enabled( 'tax' ) ) {
 			$data['tax_status'] = $product->get_tax_status();
 			$data['tax_class']  = $product->get_tax_class();
+			// Effektiven Steuersatz mitsenden, damit der Empfänger die passende
+			// lokale Steuerklasse auch bei abweichenden Slugs automatisch findet.
+			$data['tax_rate'] = self::tax_rate_for_class( $product->get_tax_class() );
 		}
 		if ( WCIS_Filter::field_enabled( 'stock' ) ) {
 			$data['manage_stock']   = $product->managing_stock();
@@ -302,6 +305,7 @@ class WCIS_Product_Sync {
 				'sale_price'     => $v->get_sale_price(),
 				'tax_status'     => $v->get_tax_status(),
 				'tax_class'      => $v->get_tax_class(),
+				'tax_rate'       => self::tax_rate_for_class( $v->get_tax_class() ),
 				'manage_stock'   => $v->managing_stock(),
 				'stock_quantity' => $v->get_stock_quantity(),
 				'stock_status'   => $v->get_stock_status(),
@@ -465,7 +469,7 @@ class WCIS_Product_Sync {
 			$product->set_tax_status( self::clean_enum( $p['tax_status'], array( 'taxable', 'shipping', 'none' ), 'taxable' ) );
 		}
 		if ( isset( $p['tax_class'] ) ) {
-			self::apply_tax_class( $product, $p['tax_class'] );
+			self::apply_tax_class( $product, $p['tax_class'], isset( $p['tax_rate'] ) ? $p['tax_rate'] : null );
 		}
 		if ( isset( $p['weight'] ) ) {
 			$product->set_weight( $p['weight'] );
@@ -534,17 +538,6 @@ class WCIS_Product_Sync {
 	 * @param array $variations Variationsliste.
 	 */
 	/**
-	 * Setzt die Steuerklasse mit optionalem Mapping und Slug-Validierung.
-	 *
-	 * Übersetzt den Quell-Slug per Zuordnung (z. B. "reduzierter-preis" =>
-	 * "reduced-rate"). Existiert der (ggf. gemappte) Slug auf diesem Shop nicht,
-	 * wird die Steuerklasse NICHT geändert – so fällt sie nicht fälschlich auf
-	 * Standard zurück.
-	 *
-	 * @param WC_Product $product Produkt/Variation.
-	 * @param string     $slug    Eingehender Steuerklassen-Slug.
-	 */
-	/**
 	 * Validiert einen eingehenden Wert gegen eine Whitelist (Defense-in-Depth
 	 * gegen fehlerhafte oder manipulierte Daten eines Peer-Shops).
 	 *
@@ -558,23 +551,101 @@ class WCIS_Product_Sync {
 		return in_array( $value, $allowed, true ) ? $value : $fallback;
 	}
 
-	protected static function apply_tax_class( $product, $slug ) {
-		$slug = (string) $slug;
-		$map  = WCIS_Settings::tax_class_map();
-		if ( isset( $map[ $slug ] ) ) {
-			$slug = $map[ $slug ];
+	/**
+	 * Setzt die Steuerklasse: explizite Zuordnung → lokaler Slug → automatische
+	 * Zuordnung über den Steuersatz. Existiert nichts davon, bleibt die
+	 * Steuerklasse unverändert (fällt nicht fälschlich auf Standard zurück).
+	 *
+	 * @param WC_Product $product Produkt/Variation.
+	 * @param string     $slug    Eingehender Steuerklassen-Slug.
+	 * @param float|null $rate    Eingehender effektiver Steuersatz (%).
+	 */
+	protected static function apply_tax_class( $product, $slug, $rate = null ) {
+		$slug  = (string) $slug;
+		$map   = WCIS_Settings::tax_class_map();
+		$valid = array_merge( array( '' ), WC_Tax::get_tax_class_slugs() );
+
+		// 1) Explizite Zuordnung (Reiter „Produkt-Sync") hat Vorrang.
+		if ( isset( $map[ $slug ] ) && in_array( $map[ $slug ], $valid, true ) ) {
+			$product->set_tax_class( $map[ $slug ] );
+			return;
 		}
 
-		// '' = Standard ist immer gültig; andere Slugs müssen auf diesem Shop existieren.
-		$valid = array_merge( array( '' ), WC_Tax::get_tax_class_slugs() );
+		// 2) Slug existiert hier direkt (oder ist Standard '').
 		if ( in_array( $slug, $valid, true ) ) {
 			$product->set_tax_class( $slug );
-		} else {
-			WCIS_Logger::error(
-				sprintf( 'Steuerklasse „%s" existiert hier nicht (keine Zuordnung) – unverändert gelassen.', $slug ),
-				'inbound'
-			);
+			return;
 		}
+
+		// 3) Automatisch über den Steuersatz zuordnen (slug-/sprachunabhängig):
+		//    z. B. 7 % ⇒ lokale ermäßigte Klasse, 19 % ⇒ Standard.
+		if ( null !== $rate ) {
+			$resolved = self::tax_class_by_rate( (float) $rate );
+			if ( null !== $resolved ) {
+				$product->set_tax_class( $resolved );
+				WCIS_Logger::info(
+					sprintf( 'Steuerklasse „%s" automatisch per Steuersatz (%.2f %%) zugeordnet.', $slug, (float) $rate ),
+					'inbound'
+				);
+				return;
+			}
+		}
+
+		// 4) Nichts gefunden – Steuerklasse NICHT ändern (nicht fälschlich auf Standard).
+		WCIS_Logger::error(
+			sprintf( 'Steuerklasse „%s" existiert hier nicht (keine Zuordnung, kein passender Satz) – unverändert gelassen.', $slug ),
+			'inbound'
+		);
+	}
+
+	/**
+	 * Ermittelt den effektiven Steuersatz (%) einer Steuerklasse im Basisland
+	 * dieses Shops. Wird ausgehend mitgesendet, damit der Empfänger die passende
+	 * lokale Klasse auch bei abweichenden Slugs finden kann.
+	 *
+	 * @param string $tax_class Steuerklassen-Slug ('' = Standard).
+	 * @return float|null Prozentsatz oder null, wenn nicht ermittelbar.
+	 */
+	protected static function tax_rate_for_class( $tax_class ) {
+		if ( ! class_exists( 'WC_Tax' ) ) {
+			return null;
+		}
+		$country = ( function_exists( 'WC' ) && WC()->countries ) ? WC()->countries->get_base_country() : '';
+		$rates   = WC_Tax::find_rates(
+			array(
+				'tax_class' => (string) $tax_class,
+				'country'   => $country,
+			)
+		);
+		if ( empty( $rates ) ) {
+			return null;
+		}
+		$sum = 0.0;
+		foreach ( (array) $rates as $r ) {
+			$sum += isset( $r['rate'] ) ? (float) $r['rate'] : 0.0;
+		}
+		return round( $sum, 4 );
+	}
+
+	/**
+	 * Sucht die lokale Steuerklasse (inkl. Standard), deren effektiver Satz im
+	 * Basisland dem gesuchten Prozentsatz entspricht.
+	 *
+	 * @param float $rate Gesuchter Steuersatz (%).
+	 * @return string|null Steuerklassen-Slug ('' = Standard) oder null.
+	 */
+	protected static function tax_class_by_rate( $rate ) {
+		if ( ! class_exists( 'WC_Tax' ) ) {
+			return null;
+		}
+		$classes = array_merge( array( '' ), WC_Tax::get_tax_class_slugs() );
+		foreach ( $classes as $slug ) {
+			$local = self::tax_rate_for_class( $slug );
+			if ( null !== $local && abs( $local - (float) $rate ) < 0.01 ) {
+				return $slug;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -616,7 +687,7 @@ class WCIS_Product_Sync {
 				$variation->set_tax_status( self::clean_enum( $vp['tax_status'], array( 'taxable', 'shipping', 'none' ), 'taxable' ) );
 			}
 			if ( isset( $vp['tax_class'] ) ) {
-				self::apply_tax_class( $variation, $vp['tax_class'] );
+				self::apply_tax_class( $variation, $vp['tax_class'], isset( $vp['tax_rate'] ) ? $vp['tax_rate'] : null );
 			}
 			if ( ! empty( $vp['manage_stock'] ) ) {
 				$variation->set_manage_stock( true );
