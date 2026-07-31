@@ -53,6 +53,27 @@ class WCIS_Queue {
 	 * @param int $limit Maximal zu verarbeitende Einträge pro Lauf.
 	 */
 	public static function process( $limit = 50 ) {
+		// Lauf-Sperre: verhindert, dass sich überlappende Cron-Läufe (Minuten-Cron
+		// mit ggf. langen HTTP-Timeouts) dieselben Einträge doppelt zustellen.
+		// Selbstfreigebend nach 2 Minuten, falls ein Lauf abbricht.
+		if ( get_transient( 'wcis_queue_lock' ) ) {
+			return;
+		}
+		set_transient( 'wcis_queue_lock', 1, 2 * MINUTE_IN_SECONDS );
+
+		try {
+			self::process_locked( $limit );
+		} finally {
+			delete_transient( 'wcis_queue_lock' );
+		}
+	}
+
+	/**
+	 * Eigentliche Verarbeitung (läuft innerhalb der Lauf-Sperre).
+	 *
+	 * @param int $limit Maximal zu verarbeitende Einträge.
+	 */
+	protected static function process_locked( $limit ) {
 		global $wpdb;
 		$table = WCIS_Install::table( WCIS_Install::QUEUE_TABLE );
 		$limit = max( 1, (int) $limit );

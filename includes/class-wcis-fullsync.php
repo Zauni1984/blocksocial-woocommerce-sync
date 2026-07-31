@@ -40,6 +40,12 @@ class WCIS_Fullsync {
 	 * @return array|WP_Error Job-Status oder Fehler.
 	 */
 	public static function start( $batch_size = 0 ) {
+		// Läuft bereits ein Job? Dann nicht überschreiben (Doppelklick / zweiter Tab).
+		$existing = self::state();
+		if ( is_array( $existing ) && 'running' === $existing['status'] ) {
+			return $existing;
+		}
+
 		$peers = WCIS_Settings::get_peers();
 		if ( empty( $peers ) ) {
 			return new WP_Error( 'wcis_no_targets', __( 'Keine Ziel-Shops konfiguriert.', 'blocksocial-woocommerce-sync' ) );
@@ -103,12 +109,37 @@ class WCIS_Fullsync {
 			return $job;
 		}
 
+		// Gegen überlappende Ticks (zwei Tabs / Reload während des Pollings)
+		// absichern – sonst würden Zähler doppelt hochgezählt und Batches
+		// mehrfach gesendet. Selbstfreigebend nach 30 s.
+		if ( get_transient( 'wcis_fullsync_lock' ) ) {
+			return $job;
+		}
+		set_transient( 'wcis_fullsync_lock', 1, 30 );
+
+		try {
+			return self::tick_locked( $job );
+		} finally {
+			delete_transient( 'wcis_fullsync_lock' );
+		}
+	}
+
+	/**
+	 * Eigentliche Tick-Verarbeitung (innerhalb der Tick-Sperre).
+	 *
+	 * @param array $job Job-Status.
+	 * @return array
+	 */
+	protected static function tick_locked( $job ) {
 		$items = get_transient( self::ITEMS_TR );
 		if ( ! is_array( $items ) ) {
 			// Artikel-Cache abgelaufen -> neu einsammeln (liefert aktuelle Bestände).
 			$items = WCIS_Sync_Engine::collect_all_items();
-			set_transient( self::ITEMS_TR, $items, HOUR_IN_SECONDS );
 		}
+		// TTL bei jedem Tick auffrischen, damit die Artikelliste bei langen Läufen
+		// nicht mitten im Job abläuft (sonst Neu-Einsammeln gegen einen eingefrorenen
+		// Batch-Plan → verlorene oder leere Batches).
+		set_transient( self::ITEMS_TR, $items, HOUR_IN_SECONDS );
 
 		$peer_count = count( $job['peers'] );
 		$start      = microtime( true );

@@ -181,7 +181,11 @@ class WCIS_Admin {
 		// (schützt vor leicht zu erratenden Tokens). Das vorhandene bleibt dann erhalten.
 		$new_secret  = isset( $_POST['network_secret'] ) ? sanitize_text_field( wp_unslash( $_POST['network_secret'] ) ) : '';
 		$weak_secret = false;
-		if ( '' !== $new_secret && strlen( $new_secret ) < 16 ) {
+		if ( '' === $new_secret ) {
+			// Leeres Feld: vorhandenes Secret behalten – ein versehentlich geleertes
+			// Feld darf nicht den gesamten Verbund lahmlegen.
+			$new_secret = WCIS_Settings::secret();
+		} elseif ( strlen( $new_secret ) < 16 ) {
 			$new_secret  = WCIS_Settings::secret();
 			$weak_secret = true;
 		}

@@ -22,6 +22,8 @@ delete_transient( 'wcis_pushconfig_result' );
 delete_transient( 'wcis_fullsync_items' );
 delete_transient( 'wcis_reconcile_result' );
 delete_transient( 'wcis_productsync_ids' );
+delete_transient( 'wcis_queue_lock' );
+delete_transient( 'wcis_fullsync_lock' );
 
 // Cron-Events entfernen.
 wp_clear_scheduled_hook( 'wcis_process_queue' );

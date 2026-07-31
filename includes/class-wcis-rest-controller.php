@@ -159,7 +159,15 @@ class WCIS_REST_Controller {
 		// Zusätzliche Absicherung: Topologie-Änderungen (Shop-Liste + Hauptshop)
 		// nur vom konfigurierten Hauptshop akzeptieren. Ist lokal noch kein
 		// Hauptshop gesetzt (Erst-Einrichtung), wird der Push zum Bootstrapping
-		// zugelassen. So kann ein einzelner Neben-Shop die Topologie nicht kapern.
+		// zugelassen.
+		//
+		// Hinweis zum Vertrauensmodell: Alle Shops teilen sich EIN Netzwerk-Secret;
+		// der Absender-Header ist damit nicht kryptografisch an einen bestimmten
+		// Shop gebunden. Diese Prüfung schützt daher vor versehentlicher
+		// Fehlkonfiguration (ein Neben-Shop verteilt ungewollt Topologie), NICHT vor
+		// einem böswilligen Inhaber des Secrets. Wer das Secret kennt, ist per Design
+		// vollwertiges Mitglied des Verbunds – ein kompromittierter Shop erfordert
+		// einen Secret-Wechsel im gesamten Verbund.
 		$from         = (string) $request->get_header( 'x_wcis_from' );
 		$local_master = (string) WCIS_Settings::get( 'master_url' );
 		if ( '' !== $from && '' !== $local_master

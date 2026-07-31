@@ -294,22 +294,26 @@ class WCIS_Sync_Engine {
 
 		self::$suppress = true; // Endlosschleife verhindern.
 
-		if ( ! empty( $item['manage_stock'] ) && isset( $item['stock'] ) && null !== $item['stock'] ) {
-			$product->set_manage_stock( true );
-			$product->set_stock_quantity( wc_stock_amount( $item['stock'] ) );
-			// stock_status wird von WooCommerce beim Speichern anhand der Menge gesetzt.
-		} elseif ( WCIS_Settings::get( 'sync_status', true ) ) {
-			$product->set_manage_stock( false );
-			$product->set_stock_status( ! empty( $item['in_stock'] ) ? 'instock' : 'outofstock' );
-		} else {
+		// try/finally: die Sperre MUSS auch bei einer Exception in save() wieder
+		// gelöst werden, sonst blieben alle folgenden ausgehenden Broadcasts
+		// dieses Requests stumm.
+		try {
+			if ( ! empty( $item['manage_stock'] ) && isset( $item['stock'] ) && null !== $item['stock'] ) {
+				$product->set_manage_stock( true );
+				$product->set_stock_quantity( wc_stock_amount( $item['stock'] ) );
+				// stock_status wird von WooCommerce beim Speichern anhand der Menge gesetzt.
+			} elseif ( WCIS_Settings::get( 'sync_status', true ) ) {
+				$product->set_manage_stock( false );
+				$product->set_stock_status( ! empty( $item['in_stock'] ) ? 'instock' : 'outofstock' );
+			} else {
+				return 'skipped';
+			}
+
+			$product->update_meta_data( '_wcis_synced_at', $incoming_ts );
+			$product->save();
+		} finally {
 			self::$suppress = false;
-			return 'skipped';
 		}
-
-		$product->update_meta_data( '_wcis_synced_at', $incoming_ts );
-		$product->save();
-
-		self::$suppress = false;
 
 		return 'applied';
 	}
@@ -397,11 +401,14 @@ class WCIS_Sync_Engine {
 		}
 
 		self::$suppress = true;
-		$product->set_manage_stock( true );
-		$product->set_stock_quantity( wc_stock_amount( $stock ) );
-		$product->update_meta_data( '_wcis_synced_at', time() );
-		$product->save();
-		self::$suppress = false;
+		try {
+			$product->set_manage_stock( true );
+			$product->set_stock_quantity( wc_stock_amount( $stock ) );
+			$product->update_meta_data( '_wcis_synced_at', time() );
+			$product->save();
+		} finally {
+			self::$suppress = false;
+		}
 
 		return true;
 	}

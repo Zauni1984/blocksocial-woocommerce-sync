@@ -196,6 +196,108 @@ class WCIS_Filter {
 	}
 
 	/**
+	 * Ist ein EINGEHENDES Produkt (Payload) ausgeschlossen?
+	 *
+	 * Anders als is_excluded() greift diese Prüfung auch bei Produkten, die es
+	 * hier noch NICHT gibt: Der Kategorie-Ausschluss wird anhand der mitgesendeten
+	 * Kategorienamen der Payload ausgewertet. Dadurch werden ausgeschlossene
+	 * Kategorien (z. B. „Merch") auch beim Neu-Anlegen zuverlässig übersprungen.
+	 *
+	 * @param array $payload Produkt-Payload (mit 'sku' und optional 'categories').
+	 * @return bool
+	 */
+	public static function is_excluded_incoming( $payload ) {
+		if ( ! is_array( $payload ) ) {
+			return false;
+		}
+
+		// 1) Bereits vorhandenes Produkt lokal ausgeschlossen (Einzel-ID/Kategorie)?
+		$sku = isset( $payload['sku'] ) ? (string) $payload['sku'] : '';
+		if ( '' !== $sku ) {
+			$existing = wc_get_product_id_by_sku( $sku );
+			if ( $existing && self::is_excluded( $existing ) ) {
+				return true;
+			}
+		}
+
+		// 2) Ausschluss nach Kategorie anhand der mitgesendeten Kategorienamen –
+		//    funktioniert auch für Produkte, die hier noch nicht existieren.
+		//    Bevorzugt 'cat_names' (immer mitgesendet), sonst 'categories'.
+		$excl_cats = array_map( 'intval', (array) self::cfg( 'filter_exclude_categories', array() ) );
+		if ( empty( $excl_cats ) ) {
+			return false;
+		}
+
+		$cats = array();
+		if ( ! empty( $payload['cat_names'] ) && is_array( $payload['cat_names'] ) ) {
+			$cats = $payload['cat_names'];
+		} elseif ( ! empty( $payload['categories'] ) && is_array( $payload['categories'] ) ) {
+			$cats = $payload['categories'];
+		}
+		if ( empty( $cats ) ) {
+			return false;
+		}
+
+		$excl_names = self::excluded_category_names( $excl_cats );
+		if ( empty( $excl_names ) ) {
+			return false;
+		}
+		foreach ( $cats as $cname ) {
+			$key = self::norm_name( $cname );
+			if ( '' !== $key && isset( $excl_names[ $key ] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Liefert ein Set (name => true) der ausgeschlossenen Kategorien inkl. ihrer
+	 * Unterkategorien – so schließt der Ausschluss einer Elternkategorie auch
+	 * Produkte in deren Unterkategorien ein.
+	 *
+	 * @param array $excl_cats Term-IDs der ausgeschlossenen Kategorien.
+	 * @return array
+	 */
+	protected static function excluded_category_names( $excl_cats ) {
+		$names = array();
+		foreach ( $excl_cats as $tid ) {
+			$term = get_term( $tid, 'product_cat' );
+			if ( ! $term || is_wp_error( $term ) ) {
+				continue;
+			}
+			$names[ self::norm_name( $term->name ) ] = true;
+
+			$children = get_terms(
+				array(
+					'taxonomy'   => 'product_cat',
+					'child_of'   => (int) $tid,
+					'hide_empty' => false,
+					'fields'     => 'names',
+				)
+			);
+			if ( ! is_wp_error( $children ) ) {
+				foreach ( (array) $children as $cn ) {
+					$names[ self::norm_name( $cn ) ] = true;
+				}
+			}
+		}
+		return $names;
+	}
+
+	/**
+	 * Normalisiert einen Kategorienamen für den Vergleich (trim + Kleinschreibung).
+	 *
+	 * @param string $name Name.
+	 * @return string
+	 */
+	protected static function norm_name( $name ) {
+		$name = trim( (string) $name );
+		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $name ) : strtolower( $name );
+	}
+
+	/**
 	 * Vorschau: zählt Produkte im Sync-Umfang und liefert eine Stichprobe.
 	 *
 	 * @param int $sample_size Anzahl Beispielprodukte.

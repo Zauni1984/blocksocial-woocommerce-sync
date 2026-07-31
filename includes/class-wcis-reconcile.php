@@ -125,10 +125,22 @@ class WCIS_Reconcile {
 			return $stats;
 		}
 
-		// Pro SKU (die dieser Shop führt) den Sollwert bestimmen und Abweichungen korrigieren.
-		foreach ( $local_map as $sku => $local_stock ) {
+		// SKU-Universum = Vereinigung aller SKUs von diesem Shop UND allen Peers.
+		// So werden auch SKUs abgeglichen, die es auf dem Hauptshop selbst nicht
+		// gibt, die aber auf mehreren Neben-Shops vorkommen.
+		$all_skus = array_keys( $local_map );
+		foreach ( $peer_maps as $pmap ) {
+			$all_skus = array_merge( $all_skus, array_keys( $pmap ) );
+		}
+		$all_skus = array_unique( $all_skus );
+
+		foreach ( $all_skus as $sku ) {
 			// Alle Shops sammeln, die diese SKU führen (dieser Shop + Peers).
-			$holders = array( '__self__' => $local_stock );
+			$holders   = array();
+			$has_local = array_key_exists( $sku, $local_map );
+			if ( $has_local ) {
+				$holders['__self__'] = $local_map[ $sku ];
+			}
 			foreach ( $peer_maps as $purl => $pmap ) {
 				if ( array_key_exists( $sku, $pmap ) ) {
 					$holders[ $purl ] = $pmap[ $sku ];
@@ -144,7 +156,11 @@ class WCIS_Reconcile {
 
 			// Sollwert je nach Strategie.
 			if ( 'local' === $strategy ) {
-				$target = $local_stock; // Hauptshop ist maßgeblich.
+				if ( ! $has_local ) {
+					// Hauptshop führt diese SKU nicht → kann nicht maßgeblich sein; überspringen.
+					continue;
+				}
+				$target = $local_map[ $sku ]; // Hauptshop ist maßgeblich.
 			} else {
 				$target = min( $holders ); // Niedrigster Bestand gewinnt (kein Überverkauf).
 			}

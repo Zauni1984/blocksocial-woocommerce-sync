@@ -185,7 +185,6 @@ class WCIS_Product_Sync {
 			'sku'  => $sku,
 			'type' => $type,
 			'name' => $product->get_name(),
-			'slug' => $product->get_slug(),
 		);
 
 		// Feld-Auswahl dieses Shops berücksichtigen.
@@ -223,8 +222,18 @@ class WCIS_Product_Sync {
 				'height' => $product->get_height(),
 			);
 		}
+		// Kategorienamen einmal ermitteln.
+		$cat_names = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
+		if ( is_wp_error( $cat_names ) ) {
+			$cat_names = array();
+		}
+		$cat_names = array_values( $cat_names );
+		// Immer mitsenden – der Empfänger braucht die Kategorien für den
+		// Kategorie-Ausschluss (auch bei NEUEN Produkten), selbst wenn das Feld
+		// „Kategorien" nicht übertragen/angewendet werden soll.
+		$data['cat_names'] = $cat_names;
 		if ( WCIS_Filter::field_enabled( 'categories' ) ) {
-			$data['categories'] = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
+			$data['categories'] = $cat_names;
 		}
 		if ( WCIS_Filter::field_enabled( 'tags' ) ) {
 			$data['tags'] = wp_get_post_terms( $product->get_id(), 'product_tag', array( 'fields' => 'names' ) );
@@ -374,8 +383,10 @@ class WCIS_Product_Sync {
 		$existing_id     = wc_get_product_id_by_sku( $sku );
 		$update_existing = (bool) WCIS_Settings::get( 'product_sync_update_existing', false );
 
-		// Explizit ausgeschlossene Produkte auch eingehend nicht verändern.
-		if ( $existing_id && WCIS_Filter::is_excluded( $existing_id ) ) {
+		// Explizit ausgeschlossene Produkte auch eingehend nicht anlegen/verändern.
+		// Greift auch bei NEUEN Produkten anhand der mitgesendeten Kategorien
+		// (z. B. ausgeschlossene Kategorie „Merch").
+		if ( WCIS_Filter::is_excluded_incoming( $payload ) ) {
 			return 'skipped';
 		}
 
@@ -480,15 +491,21 @@ class WCIS_Product_Sync {
 			$product->set_height( isset( $p['dimensions']['height'] ) ? $p['dimensions']['height'] : '' );
 		}
 
-		// Lagerbestand (nur bei einfachen Produkten sinnvoll; variable steuern über Variationen).
-		if ( 'variable' !== ( isset( $p['type'] ) ? $p['type'] : 'simple' ) ) {
-			if ( ! empty( $p['manage_stock'] ) ) {
-				$product->set_manage_stock( true );
-				if ( isset( $p['stock_quantity'] ) && null !== $p['stock_quantity'] ) {
-					$product->set_stock_quantity( wc_stock_amount( $p['stock_quantity'] ) );
+		// Lagerbestand NUR anfassen, wenn Bestandsdaten mitgesendet wurden. Sonst
+		// würde ein Update (Feld „Lagerbestand" beim Sender aus) die Bestands-
+		// verwaltung bestehender Produkte abschalten und den Bestands-Sync brechen.
+		$p_type = isset( $p['type'] ) ? $p['type'] : 'simple';
+		if ( 'variable' !== $p_type
+			&& ( array_key_exists( 'manage_stock', $p ) || isset( $p['stock_status'] ) || isset( $p['stock_quantity'] ) ) ) {
+			if ( array_key_exists( 'manage_stock', $p ) ) {
+				if ( ! empty( $p['manage_stock'] ) ) {
+					$product->set_manage_stock( true );
+					if ( isset( $p['stock_quantity'] ) && null !== $p['stock_quantity'] ) {
+						$product->set_stock_quantity( wc_stock_amount( $p['stock_quantity'] ) );
+					}
+				} else {
+					$product->set_manage_stock( false );
 				}
-			} else {
-				$product->set_manage_stock( false );
 			}
 			if ( isset( $p['stock_status'] ) ) {
 				$product->set_stock_status( self::clean_enum( $p['stock_status'], array( 'instock', 'outofstock', 'onbackorder' ), 'instock' ) );
@@ -499,9 +516,10 @@ class WCIS_Product_Sync {
 		}
 
 		// Veröffentlichungsstatus 1:1 übernehmen (publish | private | draft | pending).
+		// Unbekannter Status → sicherer Default „draft" (nicht versehentlich veröffentlichen).
 		if ( ! empty( $p['status'] ) ) {
 			$allowed = array( 'publish', 'private', 'draft', 'pending' );
-			$status  = in_array( $p['status'], $allowed, true ) ? $p['status'] : 'publish';
+			$status  = in_array( $p['status'], $allowed, true ) ? $p['status'] : 'draft';
 			$product->set_status( $status );
 		}
 
@@ -657,7 +675,19 @@ class WCIS_Product_Sync {
 	protected static function apply_variations( $parent_id, $variations ) {
 		foreach ( (array) $variations as $vp ) {
 			$vsku = isset( $vp['sku'] ) ? sanitize_text_field( $vp['sku'] ) : '';
-			$vid  = $vsku ? wc_get_product_id_by_sku( $vsku ) : 0;
+
+			// Zuordnung erfolgt ausschließlich per SKU. Variationen ohne SKU lassen
+			// sich nicht eindeutig zuordnen – ohne SKU würde bei jedem erneuten Lauf
+			// eine Dublette angelegt. Daher überspringen (konsistent zum SKU-Modell).
+			if ( '' === $vsku ) {
+				WCIS_Logger::error(
+					sprintf( 'Variation ohne SKU übersprungen (Eltern-ID %d) – Variationen benötigen eine SKU.', (int) $parent_id ),
+					'inbound'
+				);
+				continue;
+			}
+
+			$vid = wc_get_product_id_by_sku( $vsku );
 
 			$variation = $vid ? wc_get_product( $vid ) : new WC_Product_Variation();
 			if ( ! $variation instanceof WC_Product_Variation ) {
@@ -879,6 +909,10 @@ class WCIS_Product_Sync {
 			update_option( self::JOB_OPT, $job, false );
 			return $job;
 		}
+
+		// TTL auffrischen, damit die ID-Liste bei langen Läufen nicht abläuft
+		// (sonst würde der Job fälschlich als „fertig" gelten und den Rest verlieren).
+		set_transient( self::IDS_TR, $ids, HOUR_IN_SECONDS );
 
 		$start = microtime( true );
 

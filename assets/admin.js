@@ -5,6 +5,15 @@
 	$( function () {
 		var $app = $( '#wcis-app' );
 
+		// HTML-Escaping-Helfer (verhindert Injektion aus Server-/Peer-Daten).
+		function esc( s ) {
+			return $( '<div>' ).text( ( s === null || s === undefined ) ? '' : s ).html();
+		}
+		function num( v ) {
+			v = parseInt( v, 10 );
+			return isFinite( v ) ? v : 0;
+		}
+
 		// --- Tab-Navigation ---
 		$app.addClass( 'wcis-js' );
 		var STORE = 'wcis_active_tab';
@@ -252,12 +261,12 @@
 			$.post( WCIS.ajaxUrl, data )
 				.done( function ( resp ) {
 					if ( ! resp || ! resp.success ) {
-						$out.html( '<span style="color:#b32d2e;">✗ ' + ( resp && resp.data ? resp.data.message : WCIS.i18n.genericError ) + '</span>' );
+						$out.html( '<span style="color:#b32d2e;">✗ ' + esc( resp && resp.data ? resp.data.message : WCIS.i18n.genericError ) + '</span>' );
 						return;
 					}
 					var d = resp.data;
-					var html = '<p><strong>' + WCIS.i18n.previewHeading + ': ' + d.in_scope + ' ' + WCIS.i18n.previewOf + ' ' + d.scanned + '</strong> ' +
-						WCIS.i18n.previewScanned + ' (' + d.excluded + ' ' + WCIS.i18n.previewExcluded + ').</p>';
+					var html = '<p><strong>' + esc( WCIS.i18n.previewHeading ) + ': ' + num( d.in_scope ) + ' ' + esc( WCIS.i18n.previewOf ) + ' ' + num( d.scanned ) + '</strong> ' +
+						esc( WCIS.i18n.previewScanned ) + ' (' + num( d.excluded ) + ' ' + esc( WCIS.i18n.previewExcluded ) + ').</p>';
 					if ( d.sample && d.sample.length ) {
 						html += '<p>' + WCIS.i18n.previewSample + ':</p><ul class="wcis-preview-list">';
 						$.each( d.sample, function ( i, p ) {

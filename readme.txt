@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.1.2
+Stable tag: 2.2.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,14 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.2.0 =
+* Kategorie-Ausschluss greift jetzt auch bei NEUEN eingehenden Produkten: Der Empfänger prüft die mitgesendeten Kategorien (inkl. Unterkategorien), sodass ausgeschlossene Kategorien (z. B. „Merch") beim Anlegen zuverlässig übersprungen werden – nicht nur bei bereits vorhandenen Produkten. Kategorienamen werden dafür immer mitgesendet.
+* Bestandsverwaltung wird beim Produkt-Update nicht mehr fälschlich abgeschaltet, wenn der Sender das Feld „Lagerbestand" nicht überträgt (schützt den Bestands-Sync bei „Bestehende aktualisieren"/Re-Pull).
+* Variationen ohne SKU werden übersprungen statt bei jedem Lauf als Dublette angelegt (Zuordnung erfolgt per SKU).
+* Voll-Sync, Produkt-Massenübertragung und Retry-Queue haben jetzt Lauf-Sperren gegen überlappende Ausführung (kein Doppelzählen/Doppelversand durch zwei Tabs oder überlappende Cron-Läufe); Artikel-/ID-Listen laufen bei langen Jobs nicht mehr ab (kein stiller Datenverlust).
+* Abgleich (Reconciliation) prüft jetzt auch SKUs, die es auf dem Hauptshop nicht gibt, aber auf mehreren Neben-Shops.
+* Loop-Schutz wird bei Speicherfehlern zuverlässig zurückgesetzt (try/finally); unbekannter Veröffentlichungsstatus fällt sicher auf „Entwurf"; leeres Netzwerk-Secret löscht das vorhandene nicht mehr; kleinere Härtung der Vorschau-Ausgabe.
 
 = 2.1.2 =
 * Steuerklasse jetzt slug-unabhängig: Beim Produkt-Sync/Pull wird der effektive Steuersatz (z. B. 7 % / 19 %) mitgesendet. Findet der Empfänger den eingehenden Steuerklassen-Slug nicht (unterschiedliche Bezeichnungen zwischen Shops, z. B. „reduzierter-preis" vs. „reduced-rate"), ordnet er die passende lokale Steuerklasse automatisch über den Steuersatz zu – ohne manuelle Zuordnung. Reihenfolge: explizite Zuordnung → gleicher Slug → Steuersatz-Automatik → sonst unverändert lassen (nie fälschlich auf Standard).
