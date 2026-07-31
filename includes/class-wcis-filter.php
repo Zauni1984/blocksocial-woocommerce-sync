@@ -72,6 +72,7 @@ class WCIS_Filter {
 			'categories'        => __( 'Kategorien', 'blocksocial-woocommerce-sync' ),
 			'tags'              => __( 'Schlagwörter', 'blocksocial-woocommerce-sync' ),
 			'attributes'        => __( 'Attribute', 'blocksocial-woocommerce-sync' ),
+			'shipping_class'    => __( 'Versandklasse', 'blocksocial-woocommerce-sync' ),
 			'dimensions'        => __( 'Maße & Gewicht', 'blocksocial-woocommerce-sync' ),
 			'status'            => __( 'Veröffentlichungsstatus', 'blocksocial-woocommerce-sync' ),
 			'stock'             => __( 'Lagerbestand (bei Produktanlage)', 'blocksocial-woocommerce-sync' ),

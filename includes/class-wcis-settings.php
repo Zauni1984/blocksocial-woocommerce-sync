@@ -63,7 +63,7 @@ class WCIS_Settings {
 			'filter_exclude_ids' => array(),
 			'filter_exclude_categories' => array(),
 			// Welche Produkt-Felder werden beim Produkt-Sync übertragen? (null = alle)
-			'product_fields'     => array( 'name', 'price', 'tax', 'description', 'short_description', 'images', 'categories', 'tags', 'attributes', 'dimensions', 'status', 'stock' ),
+			'product_fields'     => array( 'name', 'price', 'tax', 'description', 'short_description', 'images', 'categories', 'tags', 'attributes', 'shipping_class', 'dimensions', 'status', 'stock' ),
 			// Steuerklassen-Zuordnung (Empfängerseite), z. B. "reduzierter-preis=reduced-rate" je Zeile.
 			'tax_class_map'      => '',
 		);

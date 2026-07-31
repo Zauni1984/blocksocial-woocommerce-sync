@@ -241,6 +241,9 @@ class WCIS_Product_Sync {
 		if ( WCIS_Filter::field_enabled( 'attributes' ) ) {
 			$data['attributes'] = self::export_attributes( $product );
 		}
+		if ( WCIS_Filter::field_enabled( 'shipping_class' ) ) {
+			$data['shipping_class'] = self::shipping_class_payload( $product );
+		}
 		if ( WCIS_Filter::field_enabled( 'images' ) && WCIS_Settings::get( 'product_sync_images', true ) ) {
 			$data['images'] = self::export_images( $product );
 		}
@@ -315,6 +318,7 @@ class WCIS_Product_Sync {
 				'tax_status'     => $v->get_tax_status(),
 				'tax_class'      => $v->get_tax_class(),
 				'tax_rate'       => self::tax_rate_for_class( $v->get_tax_class() ),
+				'shipping_class' => self::shipping_class_payload( $v ),
 				'manage_stock'   => $v->managing_stock(),
 				'stock_quantity' => $v->get_stock_quantity(),
 				'stock_status'   => $v->get_stock_status(),
@@ -482,6 +486,9 @@ class WCIS_Product_Sync {
 		if ( isset( $p['tax_class'] ) ) {
 			self::apply_tax_class( $product, $p['tax_class'], isset( $p['tax_rate'] ) ? $p['tax_rate'] : null );
 		}
+		if ( isset( $p['shipping_class'] ) ) {
+			self::apply_shipping_class( $product, $p['shipping_class'] );
+		}
 		if ( isset( $p['weight'] ) ) {
 			$product->set_weight( $p['weight'] );
 		}
@@ -617,6 +624,80 @@ class WCIS_Product_Sync {
 	}
 
 	/**
+	 * Baut die Versandklassen-Payload (Slug + Name) eines Produkts/einer Variation.
+	 * Leere Klasse (= „Keine Versandklasse") wird als leere Werte gesendet.
+	 *
+	 * @param WC_Product $product Produkt/Variation.
+	 * @return array { slug, name }
+	 */
+	protected static function shipping_class_payload( $product ) {
+		$tid = (int) $product->get_shipping_class_id();
+		if ( ! $tid ) {
+			return array( 'slug' => '', 'name' => '' );
+		}
+		$term = get_term( $tid, 'product_shipping_class' );
+		if ( ! $term || is_wp_error( $term ) ) {
+			return array( 'slug' => '', 'name' => '' );
+		}
+		return array( 'slug' => $term->slug, 'name' => $term->name );
+	}
+
+	/**
+	 * Setzt die Versandklasse eines Produkts/einer Variation anhand der Payload.
+	 * Zuordnung per Slug, ersatzweise per Name; fehlt die Klasse lokal, wird sie
+	 * angelegt (die Versandkosten pro Klasse bleiben shop-spezifisch). Leere
+	 * Payload = „Keine Versandklasse".
+	 *
+	 * @param WC_Product   $product Produkt/Variation.
+	 * @param array|string $sc      Versandklassen-Payload (Array {slug,name} oder Slug).
+	 */
+	protected static function apply_shipping_class( $product, $sc ) {
+		$slug = '';
+		$name = '';
+		if ( is_array( $sc ) ) {
+			$slug = isset( $sc['slug'] ) ? sanitize_title( (string) $sc['slug'] ) : '';
+			$name = isset( $sc['name'] ) ? trim( wp_strip_all_tags( (string) $sc['name'] ) ) : '';
+		} else {
+			$slug = sanitize_title( (string) $sc );
+		}
+
+		// Leere Versandklasse -> „Keine Versandklasse".
+		if ( '' === $slug && '' === $name ) {
+			$product->set_shipping_class_id( 0 );
+			return;
+		}
+
+		$tax  = 'product_shipping_class';
+		$term = false;
+		if ( '' !== $slug ) {
+			$term = get_term_by( 'slug', $slug, $tax );
+		}
+		if ( ( ! $term || is_wp_error( $term ) ) && '' !== $name ) {
+			$term = get_term_by( 'name', $name, $tax );
+		}
+
+		// Fehlt die Versandklasse hier, anlegen (damit die 1:1-Zuordnung greift).
+		if ( ! $term || is_wp_error( $term ) ) {
+			$label   = '' !== $name ? $name : $slug;
+			$args    = ( '' !== $slug ) ? array( 'slug' => $slug ) : array();
+			$created = wp_insert_term( $label, $tax, $args );
+			if ( ! is_wp_error( $created ) && isset( $created['term_id'] ) ) {
+				$term = get_term( (int) $created['term_id'], $tax );
+			} else {
+				WCIS_Logger::error(
+					sprintf( 'Versandklasse „%s" konnte nicht zugeordnet/angelegt werden – unverändert gelassen.', $label ),
+					'inbound'
+				);
+				return;
+			}
+		}
+
+		if ( $term && ! is_wp_error( $term ) ) {
+			$product->set_shipping_class_id( (int) $term->term_id );
+		}
+	}
+
+	/**
 	 * Ermittelt den effektiven Steuersatz (%) einer Steuerklasse im Basisland
 	 * dieses Shops. Wird ausgehend mitgesendet, damit der Empfänger die passende
 	 * lokale Klasse auch bei abweichenden Slugs finden kann.
@@ -718,6 +799,9 @@ class WCIS_Product_Sync {
 			}
 			if ( isset( $vp['tax_class'] ) ) {
 				self::apply_tax_class( $variation, $vp['tax_class'], isset( $vp['tax_rate'] ) ? $vp['tax_rate'] : null );
+			}
+			if ( isset( $vp['shipping_class'] ) ) {
+				self::apply_shipping_class( $variation, $vp['shipping_class'] );
 			}
 			if ( ! empty( $vp['manage_stock'] ) ) {
 				$variation->set_manage_stock( true );

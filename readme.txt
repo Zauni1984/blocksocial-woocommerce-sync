@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.2.1
+Stable tag: 2.3.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,9 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.3.0 =
+* Versandklassen-Sync: Die Versandklasse eines Produkts (und je Variation) lässt sich jetzt mitübertragen. Über die Feld-Auswahl im Reiter „Produkt-Sync" pro Shop an-/abschaltbar („Versandklasse"). Zuordnung per Slug, ersatzweise per Name; fehlt die Klasse beim Empfänger, wird sie angelegt (die Versandkosten je Klasse bleiben shop-spezifisch). Eine entfernte/leere Versandklasse wird 1:1 als „keine Versandklasse" übernommen.
 
 = 2.2.1 =
 * Lagerstatus wird beim Bestands-Sync jetzt 1:1 übertragen – inklusive „Lieferrückstand" (onbackorder). Bisher wurde nur „auf Lager / nicht auf Lager" gesendet, wodurch Produkte im Lieferrückstand beim Empfänger fälschlich als „nicht vorrätig" ankamen. Der echte Status und die Lieferrückstand-Einstellung (Nein/Anmerkung/Ja) werden mitgesendet und exakt übernommen. Abwärtskompatibel mit älteren Installationen.
