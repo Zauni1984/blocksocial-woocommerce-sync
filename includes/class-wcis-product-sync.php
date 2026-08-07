@@ -138,11 +138,13 @@ class WCIS_Product_Sync {
 		if ( ! $product instanceof WC_Product ) {
 			return;
 		}
-		// Nur einfache und variable Produkte mit SKU.
+		// Nur einfache und variable Produkte.
 		if ( ! $product->is_type( 'simple' ) && ! $product->is_type( 'variable' ) ) {
 			return;
 		}
-		if ( '' === $product->get_sku() ) {
+		// Einfache Produkte benötigen eine SKU (Zuordnung). Variable Produkte dürfen
+		// eine leere Eltern-SKU haben – sie werden über ihre Variations-SKUs zugeordnet.
+		if ( '' === $product->get_sku() && ! $product->is_type( 'variable' ) ) {
 			return;
 		}
 		// Sync-Filter dieses Shops berücksichtigen.
@@ -174,17 +176,21 @@ class WCIS_Product_Sync {
 	 * @return array|null
 	 */
 	public static function build_payload( $product ) {
-		$sku = $product->get_sku();
-		if ( '' === $sku ) {
+		$sku  = $product->get_sku();
+		$type = $product->is_type( 'variable' ) ? 'variable' : 'simple';
+
+		// Einfache Produkte ohne SKU lassen sich nicht zuordnen. Variable Produkte
+		// dürfen eine leere Eltern-SKU haben (Zuordnung über die Variations-SKUs).
+		if ( '' === $sku && 'variable' !== $type ) {
 			return null;
 		}
-		$type = $product->is_type( 'variable' ) ? 'variable' : 'simple';
 
 		// Grunddaten (immer nötig für Zuordnung/Anlage).
 		$data = array(
 			'sku'  => $sku,
 			'type' => $type,
 			'name' => $product->get_name(),
+			'slug' => $product->get_slug(), // Fallback-Kennung für variable Produkte ohne Eltern-SKU.
 		);
 
 		// Feld-Auswahl dieses Shops berücksichtigen.
@@ -365,6 +371,31 @@ class WCIS_Product_Sync {
 		return $src ? $src : '';
 	}
 
+	/**
+	 * Findet ein vorhandenes variables Eltern-Produkt anhand der SKUs seiner
+	 * Variationen – nötig für variable Produkte ohne eigene Eltern-SKU.
+	 *
+	 * @param array $variations Variationsliste aus der Payload.
+	 * @return int Eltern-Produkt-ID oder 0.
+	 */
+	protected static function find_variable_parent_by_variations( $variations ) {
+		foreach ( (array) $variations as $vp ) {
+			$vsku = isset( $vp['sku'] ) ? sanitize_text_field( $vp['sku'] ) : '';
+			if ( '' === $vsku ) {
+				continue;
+			}
+			$vid = wc_get_product_id_by_sku( $vsku );
+			if ( ! $vid ) {
+				continue;
+			}
+			$v = wc_get_product( $vid );
+			if ( $v instanceof WC_Product && $v->get_parent_id() ) {
+				return (int) $v->get_parent_id();
+			}
+		}
+		return 0;
+	}
+
 	// -------------------------------------------------------------------------
 	// Empfangsseite: Produkt anlegen/aktualisieren
 	// -------------------------------------------------------------------------
@@ -379,12 +410,23 @@ class WCIS_Product_Sync {
 		if ( ! WCIS_Settings::get( 'product_sync_enabled', false ) ) {
 			return 'skipped';
 		}
-		$sku = isset( $payload['sku'] ) ? sanitize_text_field( $payload['sku'] ) : '';
-		if ( '' === $sku ) {
+		$sku  = isset( $payload['sku'] ) ? sanitize_text_field( $payload['sku'] ) : '';
+		$type = ( isset( $payload['type'] ) && 'variable' === $payload['type'] ) ? 'variable' : 'simple';
+
+		// Einfache Produkte ohne SKU sind nicht zuordenbar. Variable Produkte dürfen
+		// eine leere Eltern-SKU haben und werden über ihre Variations-SKUs zugeordnet.
+		if ( '' === $sku && 'variable' !== $type ) {
 			return 'skipped';
 		}
 
-		$existing_id     = wc_get_product_id_by_sku( $sku );
+		$existing_id = '' !== $sku ? wc_get_product_id_by_sku( $sku ) : 0;
+
+		// Variables Produkt ohne (passende) Eltern-SKU: vorhandenes Eltern-Produkt
+		// über eine bereits existierende Variations-SKU finden.
+		if ( ! $existing_id && 'variable' === $type && ! empty( $payload['variations'] ) ) {
+			$existing_id = self::find_variable_parent_by_variations( $payload['variations'] );
+		}
+
 		$update_existing = (bool) WCIS_Settings::get( 'product_sync_update_existing', false );
 
 		// Explizit ausgeschlossene Produkte auch eingehend nicht anlegen/verändern.
@@ -403,7 +445,6 @@ class WCIS_Product_Sync {
 		WCIS_Sync_Engine::set_suppress( true );
 
 		$is_new = ! $existing_id;
-		$type   = ( isset( $payload['type'] ) && 'variable' === $payload['type'] ) ? 'variable' : 'simple';
 		$result = $is_new ? 'created' : 'updated';
 
 		// Robust gegen einzelne „giftige" Produkte: ein Fehler bei einem Produkt
@@ -934,19 +975,15 @@ class WCIS_Product_Sync {
 			return new WP_Error( 'wcis_no_secret', __( 'Kein Netzwerk-Secret gesetzt.', 'blocksocial-woocommerce-sync' ) );
 		}
 
+		// Kein SKU-Meta-Filter: variable Produkte haben oft keine Eltern-SKU und
+		// würden sonst ausgeschlossen. build_payload() überspringt einfache
+		// Produkte ohne SKU ohnehin.
 		$ids = get_posts(
 			array(
 				'post_type'      => 'product',
 				'post_status'    => array( 'publish', 'private', 'draft', 'pending' ),
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery
-					array(
-						'key'     => '_sku',
-						'value'   => '',
-						'compare' => '!=',
-					),
-				),
 			)
 		);
 
@@ -1136,6 +1173,9 @@ class WCIS_Product_Sync {
 	 * @return array { items, total, total_pages }.
 	 */
 	public static function export_page( $page, $per_page ) {
+		// Kein SKU-Meta-Filter: variable Produkte ohne Eltern-SKU müssen ebenfalls
+		// exportiert werden (Zuordnung über Variations-SKUs). Nicht zuordenbare
+		// einfache Produkte ohne SKU liefert build_payload() als null zurück.
 		$query = new WP_Query(
 			array(
 				'post_type'      => 'product',
@@ -1146,13 +1186,6 @@ class WCIS_Product_Sync {
 				'orderby'        => 'ID',
 				'order'          => 'ASC',
 				'no_found_rows'  => false,
-				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery
-					array(
-						'key'     => '_sku',
-						'value'   => '',
-						'compare' => '!=',
-					),
-				),
 			)
 		);
 
