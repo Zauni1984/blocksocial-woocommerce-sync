@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.4.0
+Stable tag: 2.5.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,10 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.5.0 =
+* Germanized-Grundpreis-Sync: Die für Deutschland pflichtigen Grundpreis-Angaben (Einheit, Grundmenge, Inhalt, automatische Berechnung sowie die berechneten Grundpreise) werden jetzt mitübertragen – auch je Variation (z. B. Grundpreis pro Packungsgröße). Über die Feld-Auswahl an-/abschaltbar („Germanized: Grundpreis"). Enthält zusätzlich gängige Germanized-Angaben (Kurzbeschreibung Checkout, Mindestalter, Differenzbesteuerung, Service/Gebraucht-Kennzeichnung).
+* Lieferzeit-Sync als eigenes, separat wählbares Feld („Lieferzeit"): die Germanized-Lieferzeit (Taxonomie-Begriff per Name, fehlende werden angelegt) wird pro Produkt und Variation übertragen. Beide Felder greifen nur, wenn der Ziel-Shop Germanized nutzt.
 
 = 2.4.0 =
 * Marken-Sync: Produktmarken werden jetzt mitübertragen. Pro Shop über die Feld-Auswahl im Reiter „Produkt-Sync" an-/abschaltbar („Marken"). Die Marken-Taxonomie wird automatisch erkannt (WooCommerce-Marken `product_brand`, Perfect Woocommerce Brands `pwb-brand`, YITH u. a.); bei mehreren registrierten Taxonomien wird die tatsächlich genutzte bevorzugt. Fehlende Marken werden beim Empfänger per Name angelegt; hat der Ziel-Shop keine Marken-Taxonomie, wird das Feld übersprungen.

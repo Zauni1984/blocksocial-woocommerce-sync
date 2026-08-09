@@ -253,6 +253,12 @@ class WCIS_Product_Sync {
 		if ( WCIS_Filter::field_enabled( 'shipping_class' ) ) {
 			$data['shipping_class'] = self::shipping_class_payload( $product );
 		}
+		if ( WCIS_Filter::field_enabled( 'delivery_time' ) ) {
+			$data['delivery_time'] = self::export_delivery_time( $product );
+		}
+		if ( WCIS_Filter::field_enabled( 'germanized' ) ) {
+			$data['germanized'] = self::export_germanized( $product );
+		}
 		if ( WCIS_Filter::field_enabled( 'images' ) && WCIS_Settings::get( 'product_sync_images', true ) ) {
 			$data['images'] = self::export_images( $product );
 		}
@@ -318,6 +324,126 @@ class WCIS_Product_Sync {
 	}
 
 	/**
+	 * Whitelist der Germanized-Meta-Schlüssel, die synchronisiert werden.
+	 * Nur skalare/slug-basierte Werte (keine Term-IDs, die shop-übergreifend
+	 * abweichen). Grundpreis-Angaben sind in DE Pflicht.
+	 *
+	 * @return array
+	 */
+	protected static function germanized_meta_keys() {
+		return apply_filters(
+			'wcis_germanized_meta_keys',
+			array(
+				// Grundpreis (Pflicht in Deutschland):
+				'_unit',                 // Einheit (z. B. kg, l, Stück) – Slug.
+				'_unit_base',            // Grundpreis-Basismenge (z. B. 100, 1000).
+				'_unit_product',         // Produktinhalt in der Einheit.
+				'_unit_price_auto',      // Grundpreis automatisch berechnen (yes/no).
+				'_unit_price_regular',   // Grundpreis regulär.
+				'_unit_price_sale',      // Grundpreis Angebot.
+				'_unit_price',           // Angezeigter Grundpreis.
+				// Weitere rechtlich relevante Germanized-Angaben (skalar/Slug):
+				'_mini_desc',            // Kurzbeschreibung (Checkout).
+				'_service',
+				'_used_good',
+				'_defective_copy',
+				'_differential_taxation', // Differenzbesteuerung.
+				'_min_age',              // Mindestalter (z. B. 18).
+				'_manufacturer_slug',    // Hersteller (Slug).
+			)
+		);
+	}
+
+	/**
+	 * Exportiert die Germanized-Angaben (Grundpreis-Meta + Lieferzeit) eines
+	 * Produkts/einer Variation.
+	 *
+	 * @param WC_Product $product Produkt/Variation.
+	 * @return array { meta: {key:value} }
+	 */
+	protected static function export_germanized( $product ) {
+		$pid = $product->get_id();
+		$out = array( 'meta' => array() );
+		foreach ( self::germanized_meta_keys() as $key ) {
+			$val = get_post_meta( $pid, $key, true );
+			if ( '' !== $val && null !== $val && array() !== $val ) {
+				$out['meta'][ $key ] = $val;
+			}
+		}
+		return $out;
+	}
+
+	/**
+	 * Exportiert die Lieferzeit (Germanized) eines Produkts/einer Variation:
+	 * Taxonomie-Begriff(e) per Name plus die Standard-Lieferzeit-Meta.
+	 *
+	 * @param WC_Product $product Produkt/Variation.
+	 * @return array { terms: [names], default: slug }
+	 */
+	protected static function export_delivery_time( $product ) {
+		$pid = $product->get_id();
+		$out = array();
+		if ( taxonomy_exists( 'product_delivery_time' ) ) {
+			$names = wp_get_post_terms( $pid, 'product_delivery_time', array( 'fields' => 'names' ) );
+			if ( ! is_wp_error( $names ) && ! empty( $names ) ) {
+				$out['terms'] = array_values( $names );
+			}
+		}
+		$ddt = get_post_meta( $pid, '_default_delivery_time', true );
+		if ( '' !== $ddt && null !== $ddt ) {
+			$out['default'] = $ddt;
+		}
+		return $out;
+	}
+
+	/**
+	 * Wendet die Lieferzeit auf ein Produkt/eine Variation an (Taxonomie-Begriff
+	 * per Name, plus Meta). Fehlende Begriffe werden angelegt.
+	 *
+	 * @param int        $product_id Produkt-/Variations-ID.
+	 * @param array|null $dt         Lieferzeit-Payload.
+	 */
+	protected static function apply_delivery_time( $product_id, $dt ) {
+		if ( ! is_array( $dt ) || ! $product_id ) {
+			return;
+		}
+		if ( ! empty( $dt['terms'] ) && is_array( $dt['terms'] ) && taxonomy_exists( 'product_delivery_time' ) ) {
+			$ids = self::term_ids( $dt['terms'], 'product_delivery_time' );
+			wp_set_object_terms( $product_id, $ids, 'product_delivery_time' );
+			// Germanized hält die Lieferzeit-Term-ID zusätzlich als Meta.
+			if ( ! empty( $ids ) ) {
+				update_post_meta( $product_id, '_lieferzeit', (int) $ids[0] );
+			}
+		}
+		if ( isset( $dt['default'] ) ) {
+			update_post_meta( $product_id, '_default_delivery_time', sanitize_text_field( (string) $dt['default'] ) );
+		}
+	}
+
+	/**
+	 * Wendet Germanized-Angaben (Grundpreis-Meta + Lieferzeit) auf ein Produkt/
+	 * eine Variation an. Nur Whitelist-Meta; Lieferzeit-Begriffe werden per Name
+	 * zugeordnet/angelegt.
+	 *
+	 * @param int          $product_id Produkt-/Variations-ID.
+	 * @param array|null   $gz         Germanized-Payload.
+	 */
+	protected static function apply_germanized( $product_id, $gz ) {
+		if ( ! is_array( $gz ) || ! $product_id ) {
+			return;
+		}
+		if ( ! empty( $gz['meta'] ) && is_array( $gz['meta'] ) ) {
+			$allow = array_flip( self::germanized_meta_keys() );
+			foreach ( $gz['meta'] as $key => $val ) {
+				if ( ! isset( $allow[ $key ] ) ) {
+					continue; // nur erlaubte Schlüssel.
+				}
+				update_post_meta( $product_id, $key, is_scalar( $val ) ? sanitize_text_field( (string) $val ) : $val );
+			}
+		}
+	}
+
+	/**
 	 * Exportiert die Variationen eines variablen Produkts.
 	 *
 	 * @param WC_Product $product Produkt.
@@ -354,6 +480,8 @@ class WCIS_Product_Sync {
 				'tax_class'      => $v->get_tax_class(),
 				'tax_rate'       => self::tax_rate_for_class( $v->get_tax_class() ),
 				'shipping_class' => self::shipping_class_payload( $v ),
+				'delivery_time'  => self::export_delivery_time( $v ),
+				'germanized'     => self::export_germanized( $v ),
 				'manage_stock'   => $v->managing_stock(),
 				'stock_quantity' => $v->get_stock_quantity(),
 				'stock_status'   => $v->get_stock_status(),
@@ -517,6 +645,15 @@ class WCIS_Product_Sync {
 			// Bilder nur beim Neuanlegen importieren (verhindert Dubletten).
 			if ( $is_new && ! empty( $payload['images'] ) && WCIS_Settings::get( 'product_sync_images', true ) ) {
 				self::import_images( $product_id, $payload['images'] );
+			}
+
+			// Lieferzeit auf das Produkt.
+			if ( isset( $payload['delivery_time'] ) ) {
+				self::apply_delivery_time( $product_id, $payload['delivery_time'] );
+			}
+			// Germanized-Angaben (Grundpreis-Meta) auf das Produkt.
+			if ( isset( $payload['germanized'] ) ) {
+				self::apply_germanized( $product_id, $payload['germanized'] );
 			}
 
 			// Variationen (variable Produkte).
@@ -899,6 +1036,15 @@ class WCIS_Product_Sync {
 			}
 
 			$variation->save();
+
+			// Germanized (Grundpreis) & Lieferzeit je Variation (Meta an der Variations-ID).
+			$variation_id = $variation->get_id();
+			if ( $variation_id && isset( $vp['delivery_time'] ) ) {
+				self::apply_delivery_time( $variation_id, $vp['delivery_time'] );
+			}
+			if ( $variation_id && isset( $vp['germanized'] ) ) {
+				self::apply_germanized( $variation_id, $vp['germanized'] );
+			}
 		}
 
 		// Datenbank-Konsistenz des variablen Produkts sicherstellen.

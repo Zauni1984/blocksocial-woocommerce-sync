@@ -74,6 +74,8 @@ class WCIS_Filter {
 			'brands'            => __( 'Marken', 'blocksocial-woocommerce-sync' ),
 			'attributes'        => __( 'Attribute', 'blocksocial-woocommerce-sync' ),
 			'shipping_class'    => __( 'Versandklasse', 'blocksocial-woocommerce-sync' ),
+			'delivery_time'     => __( 'Lieferzeit', 'blocksocial-woocommerce-sync' ),
+			'germanized'        => __( 'Germanized: Grundpreis', 'blocksocial-woocommerce-sync' ),
 			'dimensions'        => __( 'Maße & Gewicht', 'blocksocial-woocommerce-sync' ),
 			'status'            => __( 'Veröffentlichungsstatus', 'blocksocial-woocommerce-sync' ),
 			'stock'             => __( 'Lagerbestand (bei Produktanlage)', 'blocksocial-woocommerce-sync' ),
