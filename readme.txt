@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.3.1
+Stable tag: 2.4.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,9 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.4.0 =
+* Marken-Sync: Produktmarken werden jetzt mitübertragen. Pro Shop über die Feld-Auswahl im Reiter „Produkt-Sync" an-/abschaltbar („Marken"). Die Marken-Taxonomie wird automatisch erkannt (WooCommerce-Marken `product_brand`, Perfect Woocommerce Brands `pwb-brand`, YITH u. a.); bei mehreren registrierten Taxonomien wird die tatsächlich genutzte bevorzugt. Fehlende Marken werden beim Empfänger per Name angelegt; hat der Ziel-Shop keine Marken-Taxonomie, wird das Feld übersprungen.
 
 = 2.3.1 =
 * Variable Produkte ohne Eltern-SKU werden jetzt trotzdem synchronisiert: Die Zuordnung erfolgt ersatzweise über die SKUs der Variationen (statt das Produkt komplett zu überspringen). Betrifft Export/Pull und Massen-Übertragung. Einfache Produkte benötigen weiterhin eine SKU. Sicherheitsnetz für Fälle, in denen nur die Variationen SKUs tragen.

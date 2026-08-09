@@ -71,6 +71,7 @@ class WCIS_Filter {
 			'images'            => __( 'Bilder', 'blocksocial-woocommerce-sync' ),
 			'categories'        => __( 'Kategorien', 'blocksocial-woocommerce-sync' ),
 			'tags'              => __( 'Schlagwörter', 'blocksocial-woocommerce-sync' ),
+			'brands'            => __( 'Marken', 'blocksocial-woocommerce-sync' ),
 			'attributes'        => __( 'Attribute', 'blocksocial-woocommerce-sync' ),
 			'shipping_class'    => __( 'Versandklasse', 'blocksocial-woocommerce-sync' ),
 			'dimensions'        => __( 'Maße & Gewicht', 'blocksocial-woocommerce-sync' ),
@@ -97,21 +98,45 @@ class WCIS_Filter {
 	}
 
 	/**
-	 * Ermittelt die aktive Marken-Taxonomie (falls vorhanden).
+	 * Zwischenspeicher der erkannten Marken-Taxonomie (pro Request).
+	 *
+	 * @var string|null
+	 */
+	protected static $brand_tax_cache = null;
+
+	/**
+	 * Ermittelt die aktive Marken-Taxonomie. Sind mehrere registriert (z. B. die
+	 * native WooCommerce-Marke `product_brand` UND „Perfect Woocommerce Brands"
+	 * `pwb-brand`), wird die tatsächlich genutzte (mit den meisten Begriffen)
+	 * bevorzugt – so wird nicht versehentlich eine leere Taxonomie gewählt.
 	 *
 	 * @return string Taxonomie-Slug oder '' wenn keine gefunden.
 	 */
 	public static function brand_taxonomy() {
+		if ( null !== self::$brand_tax_cache ) {
+			return self::$brand_tax_cache;
+		}
 		$candidates = apply_filters(
 			'wcis_brand_taxonomies',
 			array( 'product_brand', 'pwb-brand', 'yith_product_brand', 'berocket_brand', 'pa_brand', 'product_brands' )
 		);
+		$best       = '';
+		$best_count = -1;
 		foreach ( (array) $candidates as $tax ) {
-			if ( taxonomy_exists( $tax ) ) {
-				return $tax;
+			if ( ! taxonomy_exists( $tax ) ) {
+				continue;
+			}
+			if ( '' === $best ) {
+				$best = $tax; // Fallback: erste vorhandene Taxonomie.
+			}
+			$count = (int) wp_count_terms( array( 'taxonomy' => $tax, 'hide_empty' => false ) );
+			if ( $count > $best_count ) {
+				$best_count = $count;
+				$best       = $tax;
 			}
 		}
-		return '';
+		self::$brand_tax_cache = $best;
+		return $best;
 	}
 
 	/**

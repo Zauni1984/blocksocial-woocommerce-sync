@@ -244,6 +244,9 @@ class WCIS_Product_Sync {
 		if ( WCIS_Filter::field_enabled( 'tags' ) ) {
 			$data['tags'] = wp_get_post_terms( $product->get_id(), 'product_tag', array( 'fields' => 'names' ) );
 		}
+		if ( WCIS_Filter::field_enabled( 'brands' ) ) {
+			$data['brands'] = self::export_brands( $product );
+		}
 		if ( WCIS_Filter::field_enabled( 'attributes' ) ) {
 			$data['attributes'] = self::export_attributes( $product );
 		}
@@ -286,6 +289,32 @@ class WCIS_Product_Sync {
 			);
 		}
 		return $out;
+	}
+
+	/**
+	 * Exportiert die Marken-Namen eines Produkts (automatisch erkannte
+	 * Marken-Taxonomie, z. B. product_brand / pwb-brand / yith_product_brand).
+	 *
+	 * @param WC_Product $product Produkt.
+	 * @return array Liste von Marken-Namen.
+	 */
+	protected static function export_brands( $product ) {
+		// Marken aus der Taxonomie lesen, in der das Produkt tatsächlich Begriffe
+		// hat (deckt auch Shops mit mehreren Marken-Taxonomien ab).
+		$candidates = apply_filters(
+			'wcis_brand_taxonomies',
+			array( 'product_brand', 'pwb-brand', 'yith_product_brand', 'berocket_brand', 'pa_brand', 'product_brands' )
+		);
+		foreach ( (array) $candidates as $tax ) {
+			if ( ! taxonomy_exists( $tax ) ) {
+				continue;
+			}
+			$names = wp_get_post_terms( $product->get_id(), $tax, array( 'fields' => 'names' ) );
+			if ( ! is_wp_error( $names ) && ! empty( $names ) ) {
+				return array_values( $names );
+			}
+		}
+		return array();
 	}
 
 	/**
@@ -474,6 +503,15 @@ class WCIS_Product_Sync {
 			}
 			if ( isset( $payload['tags'] ) ) {
 				wp_set_object_terms( $product_id, self::term_ids( (array) $payload['tags'], 'product_tag' ), 'product_tag' );
+			}
+			// Marken (automatisch erkannte Marken-Taxonomie, z. B. pwb-brand). Fehlende
+			// Marken werden per Name angelegt; hat der Shop keine Marken-Taxonomie,
+			// wird das Feld übersprungen.
+			if ( isset( $payload['brands'] ) ) {
+				$btax = WCIS_Filter::brand_taxonomy();
+				if ( $btax ) {
+					wp_set_object_terms( $product_id, self::term_ids( (array) $payload['brands'], $btax ), $btax );
+				}
 			}
 
 			// Bilder nur beim Neuanlegen importieren (verhindert Dubletten).
