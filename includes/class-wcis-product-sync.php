@@ -247,6 +247,9 @@ class WCIS_Product_Sync {
 		if ( WCIS_Filter::field_enabled( 'brands' ) ) {
 			$data['brands'] = self::export_brands( $product );
 		}
+		if ( WCIS_Filter::field_enabled( 'manufacturer' ) ) {
+			$data['manufacturer'] = self::export_manufacturer( $product );
+		}
 		if ( WCIS_Filter::field_enabled( 'attributes' ) ) {
 			$data['attributes'] = self::export_attributes( $product );
 		}
@@ -349,9 +352,110 @@ class WCIS_Product_Sync {
 				'_defective_copy',
 				'_differential_taxation', // Differenzbesteuerung.
 				'_min_age',              // Mindestalter (z. B. 18).
-				'_manufacturer_slug',    // Hersteller (Slug).
 			)
 		);
+	}
+
+	/**
+	 * Ermittelt die Hersteller-Taxonomie (Germanized/Germanized Pro).
+	 *
+	 * @return string Taxonomie-Slug oder '' wenn keine vorhanden.
+	 */
+	protected static function manufacturer_taxonomy() {
+		$cands = apply_filters(
+			'wcis_manufacturer_taxonomies',
+			array( 'product_manufacturer', 'pwb-manufacturer', 'yith_manufacturer', 'manufacturer' )
+		);
+		foreach ( (array) $cands as $tax ) {
+			if ( taxonomy_exists( $tax ) ) {
+				return $tax;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Exportiert die Hersteller-Zuordnung (Taxonomie-Begriff + Germanized-Slug).
+	 *
+	 * @param WC_Product $product Produkt.
+	 * @return array { terms:[names], slugs:[slugs], manufacturer_slug: slug }
+	 */
+	protected static function export_manufacturer( $product ) {
+		$pid = $product->get_id();
+		$out = array();
+		$tax = self::manufacturer_taxonomy();
+		if ( $tax ) {
+			$terms = wp_get_post_terms( $pid, $tax, array( 'fields' => 'all' ) );
+			if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
+				$names = array();
+				$slugs = array();
+				foreach ( $terms as $t ) {
+					$names[] = $t->name;
+					$slugs[] = $t->slug;
+				}
+				$out['terms'] = $names;
+				$out['slugs'] = $slugs;
+			}
+		}
+		$slug = get_post_meta( $pid, '_manufacturer_slug', true );
+		if ( '' !== $slug && null !== $slug ) {
+			$out['manufacturer_slug'] = $slug;
+		}
+		return $out;
+	}
+
+	/**
+	 * Wendet die Hersteller-Zuordnung an: Begriff per Slug (ersatzweise Name)
+	 * anlegen/zuordnen und Germanizeds Verknüpfungs-Meta setzen.
+	 *
+	 * @param int        $product_id Produkt-ID.
+	 * @param array|null $m          Hersteller-Payload.
+	 */
+	protected static function apply_manufacturer( $product_id, $m ) {
+		if ( ! is_array( $m ) || ! $product_id ) {
+			return;
+		}
+		$tax = self::manufacturer_taxonomy();
+		if ( $tax && ! empty( $m['terms'] ) && is_array( $m['terms'] ) ) {
+			$slugs_in = ( isset( $m['slugs'] ) && is_array( $m['slugs'] ) ) ? $m['slugs'] : array();
+			$ids      = array();
+			foreach ( $m['terms'] as $i => $name ) {
+				$name = trim( wp_strip_all_tags( (string) $name ) );
+				if ( '' === $name ) {
+					continue;
+				}
+				$want_slug = isset( $slugs_in[ $i ] ) ? sanitize_title( (string) $slugs_in[ $i ] ) : '';
+				$term      = false;
+				if ( '' !== $want_slug ) {
+					$term = get_term_by( 'slug', $want_slug, $tax );
+				}
+				if ( ! $term || is_wp_error( $term ) ) {
+					$term = get_term_by( 'name', $name, $tax );
+				}
+				if ( ! $term || is_wp_error( $term ) ) {
+					$args    = ( '' !== $want_slug ) ? array( 'slug' => $want_slug ) : array();
+					$created = wp_insert_term( $name, $tax, $args );
+					if ( ! is_wp_error( $created ) && isset( $created['term_id'] ) ) {
+						$term = get_term( (int) $created['term_id'], $tax );
+					}
+				}
+				if ( $term && ! is_wp_error( $term ) ) {
+					$ids[] = (int) $term->term_id;
+				}
+			}
+			if ( ! empty( $ids ) ) {
+				wp_set_object_terms( $product_id, $ids, $tax );
+				$first = get_term( $ids[0], $tax );
+				if ( $first && ! is_wp_error( $first ) ) {
+					update_post_meta( $product_id, '_manufacturer_slug', $first->slug );
+				}
+				return;
+			}
+		}
+		// Fallback: nur die Germanized-Slug-Verknüpfung übernehmen.
+		if ( isset( $m['manufacturer_slug'] ) ) {
+			update_post_meta( $product_id, '_manufacturer_slug', sanitize_title( (string) $m['manufacturer_slug'] ) );
+		}
 	}
 
 	/**
@@ -647,6 +751,10 @@ class WCIS_Product_Sync {
 				self::import_images( $product_id, $payload['images'] );
 			}
 
+			// Hersteller auf das Produkt.
+			if ( isset( $payload['manufacturer'] ) ) {
+				self::apply_manufacturer( $product_id, $payload['manufacturer'] );
+			}
 			// Lieferzeit auf das Produkt.
 			if ( isset( $payload['delivery_time'] ) ) {
 				self::apply_delivery_time( $product_id, $payload['delivery_time'] );

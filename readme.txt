@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.5.0
+Stable tag: 2.6.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,9 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.6.0 =
+* Hersteller-Sync (Germanized/Germanized Pro): Die Hersteller-Zuordnung eines Produkts wird jetzt mitübertragen. Eigenes, separat wählbares Feld („Hersteller"). Zuordnung per Slug (ersatzweise Name); fehlt der Hersteller beim Empfänger, wird er angelegt und Germanizeds Verknüpfung (`_manufacturer_slug`) gesetzt. Greift nur, wenn der Ziel-Shop eine Hersteller-Taxonomie hat.
 
 = 2.5.0 =
 * Germanized-Grundpreis-Sync: Die für Deutschland pflichtigen Grundpreis-Angaben (Einheit, Grundmenge, Inhalt, automatische Berechnung sowie die berechneten Grundpreise) werden jetzt mitübertragen – auch je Variation (z. B. Grundpreis pro Packungsgröße). Über die Feld-Auswahl an-/abschaltbar („Germanized: Grundpreis"). Enthält zusätzlich gängige Germanized-Angaben (Kurzbeschreibung Checkout, Mindestalter, Differenzbesteuerung, Service/Gebraucht-Kennzeichnung).
