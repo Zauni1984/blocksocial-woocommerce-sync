@@ -250,6 +250,9 @@ class WCIS_Product_Sync {
 		if ( WCIS_Filter::field_enabled( 'manufacturer' ) ) {
 			$data['manufacturer'] = self::export_manufacturer( $product );
 		}
+		if ( WCIS_Filter::field_enabled( 'gtin' ) ) {
+			$data['gtin'] = self::export_gtin( $product );
+		}
 		if ( WCIS_Filter::field_enabled( 'attributes' ) ) {
 			$data['attributes'] = self::export_attributes( $product );
 		}
@@ -375,10 +378,27 @@ class WCIS_Product_Sync {
 	}
 
 	/**
-	 * Exportiert die Hersteller-Zuordnung (Taxonomie-Begriff + Germanized-Slug).
+	 * Term-Meta-Schlüssel des Herstellers, die synchronisiert werden
+	 * (Germanized/Germanized Pro: Adresse und EU-Bevollmächtigter).
+	 *
+	 * @return array
+	 */
+	protected static function manufacturer_term_meta_keys() {
+		return apply_filters(
+			'wcis_manufacturer_term_meta_keys',
+			array(
+				'formatted_address',    // Hersteller-Adresse.
+				'formatted_eu_address', // EU-Bevollmächtigter / Verantwortliche Person.
+			)
+		);
+	}
+
+	/**
+	 * Exportiert die Hersteller-Zuordnung inkl. Adresse & EU-Bevollmächtigtem
+	 * (Term-Beschreibung und -Meta).
 	 *
 	 * @param WC_Product $product Produkt.
-	 * @return array { terms:[names], slugs:[slugs], manufacturer_slug: slug }
+	 * @return array
 	 */
 	protected static function export_manufacturer( $product ) {
 		$pid = $product->get_id();
@@ -389,12 +409,27 @@ class WCIS_Product_Sync {
 			if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
 				$names = array();
 				$slugs = array();
+				$data  = array();
 				foreach ( $terms as $t ) {
 					$names[] = $t->name;
 					$slugs[] = $t->slug;
+					$meta    = array();
+					foreach ( self::manufacturer_term_meta_keys() as $mk ) {
+						$mv = get_term_meta( $t->term_id, $mk, true );
+						if ( '' !== $mv && null !== $mv ) {
+							$meta[ $mk ] = $mv;
+						}
+					}
+					$data[] = array(
+						'name'        => $t->name,
+						'slug'        => $t->slug,
+						'description' => $t->description,
+						'meta'        => $meta,
+					);
 				}
-				$out['terms'] = $names;
-				$out['slugs'] = $slugs;
+				$out['terms']      = $names; // Abwärtskompatibel (2.6.0).
+				$out['slugs']      = $slugs;
+				$out['terms_data'] = $data;  // Reich: inkl. Adresse & EU-Bevollmächtigtem.
 			}
 		}
 		$slug = get_post_meta( $pid, '_manufacturer_slug', true );
@@ -416,6 +451,59 @@ class WCIS_Product_Sync {
 			return;
 		}
 		$tax = self::manufacturer_taxonomy();
+
+		// Bevorzugt: reiche Struktur inkl. Adresse & EU-Bevollmächtigtem.
+		if ( $tax && ! empty( $m['terms_data'] ) && is_array( $m['terms_data'] ) ) {
+			$allow = array_flip( self::manufacturer_term_meta_keys() );
+			$ids   = array();
+			foreach ( $m['terms_data'] as $td ) {
+				$name      = isset( $td['name'] ) ? trim( wp_strip_all_tags( (string) $td['name'] ) ) : '';
+				$want_slug = isset( $td['slug'] ) ? sanitize_title( (string) $td['slug'] ) : '';
+				if ( '' === $name && '' === $want_slug ) {
+					continue;
+				}
+				$term = false;
+				if ( '' !== $want_slug ) {
+					$term = get_term_by( 'slug', $want_slug, $tax );
+				}
+				if ( ( ! $term || is_wp_error( $term ) ) && '' !== $name ) {
+					$term = get_term_by( 'name', $name, $tax );
+				}
+				if ( ! $term || is_wp_error( $term ) ) {
+					$args = ( '' !== $want_slug ) ? array( 'slug' => $want_slug ) : array();
+					if ( isset( $td['description'] ) && '' !== (string) $td['description'] ) {
+						$args['description'] = wp_kses_post( (string) $td['description'] );
+					}
+					$created = wp_insert_term( '' !== $name ? $name : $want_slug, $tax, $args );
+					if ( ! is_wp_error( $created ) && isset( $created['term_id'] ) ) {
+						$term = get_term( (int) $created['term_id'], $tax );
+					}
+				} elseif ( isset( $td['description'] ) && '' !== (string) $td['description'] ) {
+					wp_update_term( (int) $term->term_id, $tax, array( 'description' => wp_kses_post( (string) $td['description'] ) ) );
+				}
+				if ( $term && ! is_wp_error( $term ) ) {
+					// Adresse & EU-Bevollmächtigter als Term-Meta übernehmen.
+					if ( ! empty( $td['meta'] ) && is_array( $td['meta'] ) ) {
+						foreach ( $td['meta'] as $mk => $mv ) {
+							if ( isset( $allow[ $mk ] ) ) {
+								update_term_meta( (int) $term->term_id, $mk, sanitize_text_field( (string) $mv ) );
+							}
+						}
+					}
+					$ids[] = (int) $term->term_id;
+				}
+			}
+			if ( ! empty( $ids ) ) {
+				wp_set_object_terms( $product_id, $ids, $tax );
+				$first = get_term( $ids[0], $tax );
+				if ( $first && ! is_wp_error( $first ) ) {
+					update_post_meta( $product_id, '_manufacturer_slug', $first->slug );
+				}
+				return;
+			}
+		}
+
+		// Rückwärtskompatibel: einfache terms/slugs-Struktur (ohne Adressdaten).
 		if ( $tax && ! empty( $m['terms'] ) && is_array( $m['terms'] ) ) {
 			$slugs_in = ( isset( $m['slugs'] ) && is_array( $m['slugs'] ) ) ? $m['slugs'] : array();
 			$ids      = array();
@@ -455,6 +543,78 @@ class WCIS_Product_Sync {
 		// Fallback: nur die Germanized-Slug-Verknüpfung übernehmen.
 		if ( isset( $m['manufacturer_slug'] ) ) {
 			update_post_meta( $product_id, '_manufacturer_slug', sanitize_title( (string) $m['manufacturer_slug'] ) );
+		}
+	}
+
+	/**
+	 * Exportiert die EAN/GTIN-Kennungen eines Produkts/einer Variation
+	 * (WooCommerce global_unique_id sowie Germanized _ts_gtin/_ts_mpn).
+	 * Werte werden als String geführt, damit lange Nummern nicht gekürzt werden.
+	 *
+	 * @param WC_Product $product Produkt/Variation.
+	 * @return array
+	 */
+	protected static function export_gtin( $product ) {
+		$pid = $product->get_id();
+		$out = array();
+
+		$guid = '';
+		if ( method_exists( $product, 'get_global_unique_id' ) ) {
+			$guid = (string) $product->get_global_unique_id();
+		}
+		if ( '' === $guid ) {
+			$guid = (string) get_post_meta( $pid, '_global_unique_id', true );
+		}
+		if ( '' !== $guid ) {
+			$out['global_unique_id'] = $guid;
+		}
+
+		$ts_gtin = get_post_meta( $pid, '_ts_gtin', true );
+		if ( '' !== $ts_gtin && null !== $ts_gtin ) {
+			$out['ts_gtin'] = (string) $ts_gtin;
+		}
+		$ts_mpn = get_post_meta( $pid, '_ts_mpn', true );
+		if ( '' !== $ts_mpn && null !== $ts_mpn ) {
+			$out['ts_mpn'] = (string) $ts_mpn;
+		}
+		return $out;
+	}
+
+	/**
+	 * Setzt global_unique_id (GTIN/EAN) auf dem Produkt-/Variations-Objekt
+	 * (vor dem Speichern, damit auch die WC-Lookup-Tabelle aktualisiert wird).
+	 *
+	 * @param WC_Product   $product Produkt/Variation.
+	 * @param array|string $g       GTIN-Payload.
+	 */
+	protected static function apply_gtin_object( $product, $g ) {
+		if ( ! is_array( $g ) || ! isset( $g['global_unique_id'] ) ) {
+			return;
+		}
+		if ( method_exists( $product, 'set_global_unique_id' ) ) {
+			$product->set_global_unique_id( (string) $g['global_unique_id'] );
+		}
+	}
+
+	/**
+	 * Setzt die EAN/GTIN-Meta nach dem Speichern (Fallback für global_unique_id
+	 * ohne Setter sowie Germanized _ts_gtin/_ts_mpn). Werte als String.
+	 *
+	 * @param int          $product_id Produkt-/Variations-ID.
+	 * @param array|string $g          GTIN-Payload.
+	 */
+	protected static function apply_gtin_meta( $product_id, $g ) {
+		if ( ! is_array( $g ) || ! $product_id ) {
+			return;
+		}
+		if ( isset( $g['global_unique_id'] ) ) {
+			update_post_meta( $product_id, '_global_unique_id', sanitize_text_field( (string) $g['global_unique_id'] ) );
+		}
+		if ( isset( $g['ts_gtin'] ) ) {
+			update_post_meta( $product_id, '_ts_gtin', sanitize_text_field( (string) $g['ts_gtin'] ) );
+		}
+		if ( isset( $g['ts_mpn'] ) ) {
+			update_post_meta( $product_id, '_ts_mpn', sanitize_text_field( (string) $g['ts_mpn'] ) );
 		}
 	}
 
@@ -586,6 +746,7 @@ class WCIS_Product_Sync {
 				'shipping_class' => self::shipping_class_payload( $v ),
 				'delivery_time'  => self::export_delivery_time( $v ),
 				'germanized'     => self::export_germanized( $v ),
+				'gtin'           => self::export_gtin( $v ),
 				'manage_stock'   => $v->managing_stock(),
 				'stock_quantity' => $v->get_stock_quantity(),
 				'stock_status'   => $v->get_stock_status(),
@@ -751,9 +912,13 @@ class WCIS_Product_Sync {
 				self::import_images( $product_id, $payload['images'] );
 			}
 
-			// Hersteller auf das Produkt.
+			// Hersteller (inkl. Adresse & EU-Bevollmächtigtem) auf das Produkt.
 			if ( isset( $payload['manufacturer'] ) ) {
 				self::apply_manufacturer( $product_id, $payload['manufacturer'] );
+			}
+			// EAN/GTIN-Meta (Fallback global_unique_id + Germanized) nach dem Speichern.
+			if ( isset( $payload['gtin'] ) ) {
+				self::apply_gtin_meta( $product_id, $payload['gtin'] );
 			}
 			// Lieferzeit auf das Produkt.
 			if ( isset( $payload['delivery_time'] ) ) {
@@ -812,6 +977,9 @@ class WCIS_Product_Sync {
 		}
 		if ( isset( $p['shipping_class'] ) ) {
 			self::apply_shipping_class( $product, $p['shipping_class'] );
+		}
+		if ( isset( $p['gtin'] ) ) {
+			self::apply_gtin_object( $product, $p['gtin'] );
 		}
 		if ( isset( $p['weight'] ) ) {
 			$product->set_weight( $p['weight'] );
@@ -1142,16 +1310,22 @@ class WCIS_Product_Sync {
 			if ( ! empty( $vp['status'] ) ) {
 				$variation->set_status( 'private' === $vp['status'] ? 'private' : 'publish' );
 			}
+			if ( isset( $vp['gtin'] ) ) {
+				self::apply_gtin_object( $variation, $vp['gtin'] );
+			}
 
 			$variation->save();
 
-			// Germanized (Grundpreis) & Lieferzeit je Variation (Meta an der Variations-ID).
+			// Germanized (Grundpreis), Lieferzeit & EAN/GTIN je Variation (Meta an der Variations-ID).
 			$variation_id = $variation->get_id();
 			if ( $variation_id && isset( $vp['delivery_time'] ) ) {
 				self::apply_delivery_time( $variation_id, $vp['delivery_time'] );
 			}
 			if ( $variation_id && isset( $vp['germanized'] ) ) {
 				self::apply_germanized( $variation_id, $vp['germanized'] );
+			}
+			if ( $variation_id && isset( $vp['gtin'] ) ) {
+				self::apply_gtin_meta( $variation_id, $vp['gtin'] );
 			}
 		}
 

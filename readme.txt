@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.6.0
+Stable tag: 2.7.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,10 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.7.0 =
+* Hersteller-Adresse & EU-Bevollmächtigter: Der Hersteller-Sync überträgt jetzt auch die am Hersteller hinterlegten GPSR-Angaben – Hersteller-Adresse (`formatted_address`) und EU-Bevollmächtigter/Verantwortliche Person (`formatted_eu_address`) sowie die Term-Beschreibung. Fehlt der Hersteller beim Empfänger, wird er inkl. dieser Daten angelegt.
+* EAN/GTIN-Sync als eigenes, separat wählbares Feld („EAN / GTIN"): überträgt die WooCommerce-Kennung `global_unique_id` sowie Germanizeds `_ts_gtin`/`_ts_mpn` – pro Produkt und Variation, durchgängig als Zeichenkette (keine gekürzten/abgeschnittenen Nummern mehr). Bisher wurde der EAN gar nicht als eigenes Feld übertragen.
 
 = 2.6.0 =
 * Hersteller-Sync (Germanized/Germanized Pro): Die Hersteller-Zuordnung eines Produkts wird jetzt mitübertragen. Eigenes, separat wählbares Feld („Hersteller"). Zuordnung per Slug (ersatzweise Name); fehlt der Hersteller beim Empfänger, wird er angelegt und Germanizeds Verknüpfung (`_manufacturer_slug`) gesetzt. Greift nur, wenn der Ziel-Shop eine Hersteller-Taxonomie hat.

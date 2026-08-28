@@ -73,6 +73,7 @@ class WCIS_Filter {
 			'tags'              => __( 'Schlagwörter', 'blocksocial-woocommerce-sync' ),
 			'brands'            => __( 'Marken', 'blocksocial-woocommerce-sync' ),
 			'manufacturer'      => __( 'Hersteller', 'blocksocial-woocommerce-sync' ),
+			'gtin'              => __( 'EAN / GTIN', 'blocksocial-woocommerce-sync' ),
 			'attributes'        => __( 'Attribute', 'blocksocial-woocommerce-sync' ),
 			'shipping_class'    => __( 'Versandklasse', 'blocksocial-woocommerce-sync' ),
 			'delivery_time'     => __( 'Lieferzeit', 'blocksocial-woocommerce-sync' ),
