@@ -336,6 +336,18 @@ $wcis_tabs = array(
 									<div><strong><?php esc_html_e( 'Bestehende Produkte aktualisieren', 'blocksocial-woocommerce-sync' ); ?></strong><p><?php esc_html_e( 'Vorhandene (gleiche SKU) mit Quelldaten überschreiben – inkl. Status. Standard aus.', 'blocksocial-woocommerce-sync' ); ?></p></div>
 								</div>
 							</div>
+							<div class="wcis-field wcis-field--switch">
+								<div class="wcis-field-main">
+									<label class="wcis-switch"><input type="checkbox" name="update_prices" value="1" <?php checked( ! empty( $s['update_prices'] ) ); ?> /><span class="wcis-slider"></span></label>
+									<div><strong><?php esc_html_e( 'Preise bestehender Produkte aktualisieren', 'blocksocial-woocommerce-sync' ); ?></strong><p><?php esc_html_e( 'Zieht bei vorhandenen Produkten NUR die Preise nach (Beschreibung, Bilder usw. bleiben unangetastet). Auch ohne „Bestehende Produkte aktualisieren". Preisänderungen im Quellshop werden automatisch verteilt.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+								</div>
+							</div>
+							<div class="wcis-field wcis-field--switch">
+								<div class="wcis-field-main">
+									<label class="wcis-switch"><input type="checkbox" name="price_gross_mode" value="1" <?php checked( ! empty( $s['price_gross_mode'] ) ); ?> /><span class="wcis-slider"></span></label>
+									<div><strong><?php esc_html_e( 'Kleinunternehmer: Preise als Brutto übernehmen', 'blocksocial-woocommerce-sync' ); ?></strong><p><?php esc_html_e( 'Für §19-Shops ohne USt.: eingehende Preise werden als Bruttopreis (inkl. Steuer des Quellshops) übernommen, statt als Nettopreis. So bleibt die Marge erhalten. WooCommerce-Steuer in diesem Shop entsprechend deaktivieren.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+								</div>
+							</div>
 							<div class="wcis-field">
 								<label><?php esc_html_e( 'Zu übertragende Felder', 'blocksocial-woocommerce-sync' ); ?></label>
 								<div class="wcis-chips">

@@ -70,6 +70,93 @@ class WCIS_Product_Sync {
 	public static function init() {
 		add_action( 'woocommerce_new_product', array( __CLASS__, 'on_new_product' ), 20, 2 );
 		add_action( 'transition_post_status', array( __CLASS__, 'on_status_transition' ), 20, 3 );
+		// Preisänderungen bestehender Produkte automatisch verteilen. Feuert bei
+		// jeder Produkt-/Variations-Speicherung, überträgt aber nur, wenn sich der
+		// Preis wirklich geändert hat (kein Spam bei reinen Bestandsänderungen).
+		add_action( 'woocommerce_update_product', array( __CLASS__, 'on_product_price_change' ), 20, 2 );
+		add_action( 'woocommerce_update_product_variation', array( __CLASS__, 'on_variation_price_change' ), 20, 2 );
+	}
+
+	/**
+	 * Preis-Signatur eines Produkts (regulär+Angebot, bei variablen inkl. aller
+	 * Variationen) zur Erkennung echter Preisänderungen.
+	 *
+	 * @param WC_Product $product Produkt.
+	 * @return string
+	 */
+	protected static function price_signature( $product ) {
+		if ( $product->is_type( 'variable' ) ) {
+			$parts = array();
+			foreach ( $product->get_children() as $cid ) {
+				$v = wc_get_product( $cid );
+				if ( $v instanceof WC_Product ) {
+					$parts[] = $cid . ':' . $v->get_regular_price() . ':' . $v->get_sale_price();
+				}
+			}
+			return md5( implode( '|', $parts ) );
+		}
+		return $product->get_regular_price() . '|' . $product->get_sale_price();
+	}
+
+	/**
+	 * Verteilt ein Produkt neu, wenn sich sein Preis geändert hat.
+	 *
+	 * @param WC_Product $product Produkt.
+	 */
+	protected static function maybe_broadcast_price( $product ) {
+		if ( self::$suppress || ! ( $product instanceof WC_Product ) ) {
+			return;
+		}
+		if ( ! $product->is_type( 'simple' ) && ! $product->is_type( 'variable' ) ) {
+			return;
+		}
+		$pid  = $product->get_id();
+		$sig  = self::price_signature( $product );
+		$last = (string) get_post_meta( $pid, '_wcis_price_sig', true );
+		// Signatur ohne Produkt-Speicherung aktualisieren (keine Hook-Schleife).
+		update_post_meta( $pid, '_wcis_price_sig', $sig );
+		// Ersterfassung (leer) als Basiswert behandeln – erst spätere echte
+		// Änderungen verteilen (verhindert eine Verteil-Welle beim ersten Speichern).
+		if ( '' === $last || $last === $sig ) {
+			return;
+		}
+		self::broadcast_product( $product );
+	}
+
+	/**
+	 * Hook: Produkt gespeichert – bei Preisänderung verteilen.
+	 *
+	 * @param int        $product_id Produkt-ID.
+	 * @param WC_Product $product    Produkt (optional).
+	 */
+	public static function on_product_price_change( $product_id, $product = null ) {
+		$product = $product instanceof WC_Product ? $product : wc_get_product( $product_id );
+		if ( $product ) {
+			self::maybe_broadcast_price( $product );
+		}
+	}
+
+	/**
+	 * Hook: Variation gespeichert – bei Preisänderung das Elternprodukt verteilen.
+	 *
+	 * @param int $variation_id Variations-ID.
+	 */
+	public static function on_variation_price_change( $variation_id ) {
+		if ( self::$suppress ) {
+			return;
+		}
+		$variation = wc_get_product( $variation_id );
+		if ( ! $variation instanceof WC_Product ) {
+			return;
+		}
+		$parent_id = $variation->get_parent_id();
+		if ( ! $parent_id ) {
+			return;
+		}
+		$parent = wc_get_product( $parent_id );
+		if ( $parent ) {
+			self::maybe_broadcast_price( $parent );
+		}
 	}
 
 	/**
@@ -170,6 +257,107 @@ class WCIS_Product_Sync {
 	}
 
 	/**
+	 * Liefert den Bruttopreis (inkl. Steuer) für einen Preiswert des Produkts.
+	 * Nutzt WooCommerces eigene Steuerberechnung (berücksichtigt Steuerklasse und
+	 * ob Preise inkl./exkl. Steuer erfasst sind). Leerer Preis -> leer.
+	 *
+	 * @param WC_Product $product Produkt/Variation.
+	 * @param string     $price   Preiswert (regulär oder Angebot).
+	 * @return string
+	 */
+	protected static function gross_price( $product, $price ) {
+		if ( '' === $price || null === $price ) {
+			return '';
+		}
+		if ( ! function_exists( 'wc_get_price_including_tax' ) ) {
+			return (string) $price;
+		}
+		$gross = wc_get_price_including_tax( $product, array( 'price' => $price, 'qty' => 1 ) );
+		if ( '' === $gross || null === $gross ) {
+			return '';
+		}
+		$decimals = function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2;
+		return (string) wc_format_decimal( $gross, $decimals );
+	}
+
+	/**
+	 * Setzt regulären und Angebotspreis auf einem Produkt/einer Variation. Im
+	 * Kleinunternehmer-/Bruttopreis-Modus werden die mitgesendeten Bruttopreise
+	 * verwendet, sonst die normalen (Netto-)Preise.
+	 *
+	 * @param WC_Product $product   Produkt/Variation.
+	 * @param array      $p         Payload (Produkt oder Variation).
+	 * @param bool       $use_gross Bruttopreise verwenden?
+	 */
+	protected static function set_prices( $product, $p, $use_gross ) {
+		if ( isset( $p['regular_price'] ) ) {
+			$rp = ( $use_gross && isset( $p['regular_price_gross'] ) && '' !== $p['regular_price_gross'] )
+				? $p['regular_price_gross']
+				: $p['regular_price'];
+			$product->set_regular_price( (string) $rp );
+		}
+		if ( isset( $p['sale_price'] ) ) {
+			$sp = ( $use_gross && isset( $p['sale_price_gross'] ) )
+				? $p['sale_price_gross']
+				: $p['sale_price'];
+			$product->set_sale_price( (string) $sp );
+		}
+	}
+
+	/**
+	 * Aktualisiert NUR die Preise eines bestehenden Produkts (und seiner
+	 * Variationen per SKU), ohne andere Felder anzufassen. Für die Option
+	 * „Preise bestehender Produkte aktualisieren".
+	 *
+	 * @param int   $existing_id Produkt-ID.
+	 * @param array $payload     Produkt-Payload.
+	 */
+	protected static function apply_price_only( $existing_id, $payload ) {
+		$product = wc_get_product( $existing_id );
+		if ( ! $product ) {
+			return;
+		}
+		$use_gross = (bool) WCIS_Settings::get( 'price_gross_mode', false );
+
+		self::$suppress = true;
+		WCIS_Sync_Engine::set_suppress( true );
+		try {
+			if ( $product->is_type( 'variable' ) && ! empty( $payload['variations'] ) ) {
+				foreach ( (array) $payload['variations'] as $vp ) {
+					$vsku = isset( $vp['sku'] ) ? sanitize_text_field( $vp['sku'] ) : '';
+					if ( '' === $vsku ) {
+						continue;
+					}
+					$vid = wc_get_product_id_by_sku( $vsku );
+					if ( ! $vid ) {
+						continue;
+					}
+					$v = wc_get_product( $vid );
+					if ( ! $v instanceof WC_Product ) {
+						continue;
+					}
+					self::set_prices( $v, $vp, $use_gross );
+					$v->save();
+				}
+				if ( class_exists( 'WC_Product_Variable' ) ) {
+					WC_Product_Variable::sync( $existing_id );
+				}
+			} else {
+				self::set_prices( $product, $payload, $use_gross );
+				$product->save();
+			}
+		} catch ( \Throwable $e ) {
+			WCIS_Logger::error(
+				sprintf( 'Preis-Aktualisierung für Produkt-ID %d fehlgeschlagen: %s', (int) $existing_id, $e->getMessage() ),
+				'inbound'
+			);
+		} finally {
+			self::$suppress = false;
+			WCIS_Sync_Engine::set_suppress( false );
+		}
+	}
+
+	/**
 	 * Baut die 1:1-Payload eines Produkts.
 	 *
 	 * @param WC_Product $product Produkt.
@@ -206,6 +394,10 @@ class WCIS_Product_Sync {
 		if ( WCIS_Filter::field_enabled( 'price' ) ) {
 			$data['regular_price'] = $product->get_regular_price();
 			$data['sale_price']    = $product->get_sale_price();
+			// Bruttopreise (inkl. Steuer) mitsenden – für Kleinunternehmer-Empfänger,
+			// die eingehende Preise als Brutto übernehmen sollen.
+			$data['regular_price_gross'] = self::gross_price( $product, $product->get_regular_price() );
+			$data['sale_price_gross']    = self::gross_price( $product, $product->get_sale_price() );
 		}
 		if ( WCIS_Filter::field_enabled( 'tax' ) ) {
 			$data['tax_status'] = $product->get_tax_status();
@@ -738,8 +930,10 @@ class WCIS_Product_Sync {
 			$out[] = array(
 				'sku'            => $v->get_sku(),
 				'attributes'     => $vattr,
-				'regular_price'  => $v->get_regular_price(),
-				'sale_price'     => $v->get_sale_price(),
+				'regular_price'       => $v->get_regular_price(),
+				'sale_price'          => $v->get_sale_price(),
+				'regular_price_gross' => self::gross_price( $v, $v->get_regular_price() ),
+				'sale_price_gross'    => self::gross_price( $v, $v->get_sale_price() ),
 				'tax_status'     => $v->get_tax_status(),
 				'tax_class'      => $v->get_tax_class(),
 				'tax_rate'       => self::tax_rate_for_class( $v->get_tax_class() ),
@@ -859,6 +1053,13 @@ class WCIS_Product_Sync {
 		}
 
 		if ( $existing_id && ! $update_existing ) {
+			// Option „Preise aktualisieren": bestehende Produkte werden sonst nicht
+			// angefasst – hier optional NUR die Preise nachziehen (ohne Beschreibung,
+			// Bilder usw. zu überschreiben).
+			if ( WCIS_Settings::get( 'update_prices', false ) && isset( $payload['regular_price'] ) ) {
+				self::apply_price_only( (int) $existing_id, $payload );
+				return 'updated';
+			}
 			return 'skipped'; // Vorhandenes Produkt nicht anfassen (nur Bestand wird separat gesynct).
 		}
 
@@ -963,12 +1164,7 @@ class WCIS_Product_Sync {
 		if ( isset( $p['short_description'] ) ) {
 			$product->set_short_description( wp_kses_post( $p['short_description'] ) );
 		}
-		if ( isset( $p['regular_price'] ) ) {
-			$product->set_regular_price( (string) $p['regular_price'] );
-		}
-		if ( isset( $p['sale_price'] ) ) {
-			$product->set_sale_price( (string) $p['sale_price'] );
-		}
+		self::set_prices( $product, $p, (bool) WCIS_Settings::get( 'price_gross_mode', false ) );
 		if ( isset( $p['tax_status'] ) ) {
 			$product->set_tax_status( self::clean_enum( $p['tax_status'], array( 'taxable', 'shipping', 'none' ), 'taxable' ) );
 		}
@@ -1280,12 +1476,7 @@ class WCIS_Product_Sync {
 			if ( $vsku ) {
 				$variation->set_sku( $vsku );
 			}
-			if ( isset( $vp['regular_price'] ) ) {
-				$variation->set_regular_price( (string) $vp['regular_price'] );
-			}
-			if ( isset( $vp['sale_price'] ) ) {
-				$variation->set_sale_price( (string) $vp['sale_price'] );
-			}
+			self::set_prices( $variation, $vp, (bool) WCIS_Settings::get( 'price_gross_mode', false ) );
 			if ( isset( $vp['tax_status'] ) ) {
 				$variation->set_tax_status( self::clean_enum( $vp['tax_status'], array( 'taxable', 'shipping', 'none' ), 'taxable' ) );
 			}

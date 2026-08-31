@@ -37,3 +37,4 @@ $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wcis_log" );   // phpcs:ignor
 
 // Produkt-Meta bereinigen.
 $wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_wcis_synced_at'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_wcis_price_sig'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared

@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.7.0
+Stable tag: 2.8.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -47,7 +47,12 @@ Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Inter
 
 == Changelog ==
 
+= 2.8.0 =
+* Kleinunternehmer-/Bruttopreis-Modus (Empfänger): Neue Option „Kleinunternehmer: Preise als Brutto übernehmen". Der Quellshop sendet zusätzlich die Bruttopreise (inkl. Steuer, via WooCommerce-Steuerberechnung); ein §19-Shop wie ein Kleinunternehmer übernimmt dann die Bruttopreise statt der Nettopreise – so bleibt die Marge erhalten. Gilt für Produkte und Variationen. (WooCommerce-Steuer im Kleinunternehmershop deaktivieren.)
+* Preise bestehender Produkte aktualisieren: Neue Option, die bei vorhandenen Produkten NUR die Preise nachzieht (Beschreibung, Bilder usw. bleiben unangetastet) – auch ohne die volle Option „Bestehende Produkte aktualisieren". Zusätzlich werden Preisänderungen im Quellshop jetzt automatisch verteilt (Erkennung echter Preisänderungen, kein Spam bei reinen Bestandsänderungen).
+
 = 2.7.0 =
+
 * Hersteller-Adresse & EU-Bevollmächtigter: Der Hersteller-Sync überträgt jetzt auch die am Hersteller hinterlegten GPSR-Angaben – Hersteller-Adresse (`formatted_address`) und EU-Bevollmächtigter/Verantwortliche Person (`formatted_eu_address`) sowie die Term-Beschreibung. Fehlt der Hersteller beim Empfänger, wird er inkl. dieser Daten angelegt.
 * EAN/GTIN-Sync als eigenes, separat wählbares Feld („EAN / GTIN"): überträgt die WooCommerce-Kennung `global_unique_id` sowie Germanizeds `_ts_gtin`/`_ts_mpn` – pro Produkt und Variation, durchgängig als Zeichenkette (keine gekürzten/abgeschnittenen Nummern mehr). Bisher wurde der EAN gar nicht als eigenes Feld übertragen.
 

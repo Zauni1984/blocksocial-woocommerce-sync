@@ -206,6 +206,8 @@ class WCIS_Admin {
 			'product_sync_source'          => $this->clean_choice( isset( $_POST['product_sync_source'] ) ? $_POST['product_sync_source'] : '', array( 'master', 'any' ), 'master' ),
 			'product_sync_images'          => ! empty( $_POST['product_sync_images'] ),
 			'product_sync_update_existing' => ! empty( $_POST['product_sync_update_existing'] ),
+			'update_prices'                => ! empty( $_POST['update_prices'] ),
+			'price_gross_mode'             => ! empty( $_POST['price_gross_mode'] ),
 			'filter_mode'        => $this->clean_choice( isset( $_POST['filter_mode'] ) ? $_POST['filter_mode'] : '', array( 'all', 'selected' ), 'all' ),
 			'filter_categories'  => isset( $_POST['filter_categories'] ) ? array_map( 'intval', (array) $_POST['filter_categories'] ) : array(),
 			'filter_brands'      => isset( $_POST['filter_brands'] ) ? array_map( 'intval', (array) $_POST['filter_brands'] ) : array(),

@@ -55,6 +55,8 @@ class WCIS_Settings {
 			'product_sync_source'          => 'master', // master | any
 			'product_sync_images'          => true,     // Bilder mitübertragen.
 			'product_sync_update_existing' => false,    // vorhandene Produkte überschreiben.
+			'update_prices'                => false,    // Empfänger: Preise bestehender Produkte aktualisieren (auch ohne volle Überschreibung).
+			'price_gross_mode'             => false,    // Empfänger (Kleinunternehmer §19): eingehende Preise als Brutto übernehmen.
 			// Sync-Filter: welche Produkte werden (ausgehend) synchronisiert?
 			'filter_mode'        => 'all', // all | selected
 			'filter_categories'  => array(),
