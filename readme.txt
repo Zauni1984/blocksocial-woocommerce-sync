@@ -6,7 +6,7 @@ Tested up to: 6.6
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.9
-Stable tag: 2.8.0
+Stable tag: 2.9.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,11 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.9.0 =
+* Attribute (Produkteigenschaften) korrekt übertragen: Globale WooCommerce-Attribute (pa_-Taxonomien wie „Marke", „Farbe", „Größe") wurden beim Empfänger bisher als produkteigene (custom) Attribute angelegt – dadurch fehlten sie in der globalen Attribut-Taxonomie (keine Filter/Layered-Nav/Archive) und Variations-Zuordnungen konnten brechen. Jetzt bleiben globale Attribute global: die Attribut-Definition und Begriffe werden beim Empfänger bei Bedarf automatisch angelegt und dem Produkt zugewiesen. Produkteigene Attribute bleiben produkteigen. Reihenfolge (Position) wird mitübertragen.
+* Variations-Attribute: werden nun mit Taxonomie-Information übertragen und beim Empfänger korrekt zugeordnet (globale Attribute über den Term-Slug, produkteigene über den internen Schlüssel). Altes Datenformat bleibt kompatibel.
+* Schlagwörter (Tags): Export gegen Fehlerfälle abgesichert (leere statt fehlerhafter Werte). Tags werden – wie bisher – optional pro Feld an-/abschaltbar übertragen und beim Empfänger per Name zugeordnet (fehlende Tags werden angelegt).
 
 = 2.8.0 =
 * Kleinunternehmer-/Bruttopreis-Modus (Empfänger): Neue Option „Kleinunternehmer: Preise als Brutto übernehmen". Der Quellshop sendet zusätzlich die Bruttopreise (inkl. Steuer, via WooCommerce-Steuerberechnung); ein §19-Shop wie ein Kleinunternehmer übernimmt dann die Bruttopreise statt der Nettopreise – so bleibt die Marge erhalten. Gilt für Produkte und Variationen. (WooCommerce-Steuer im Kleinunternehmershop deaktivieren.)

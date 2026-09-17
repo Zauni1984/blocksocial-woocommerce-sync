@@ -434,7 +434,8 @@ class WCIS_Product_Sync {
 			$data['categories'] = $cat_names;
 		}
 		if ( WCIS_Filter::field_enabled( 'tags' ) ) {
-			$data['tags'] = wp_get_post_terms( $product->get_id(), 'product_tag', array( 'fields' => 'names' ) );
+			$tag_names = wp_get_post_terms( $product->get_id(), 'product_tag', array( 'fields' => 'names' ) );
+			$data['tags'] = is_wp_error( $tag_names ) ? array() : array_values( $tag_names );
 		}
 		if ( WCIS_Filter::field_enabled( 'brands' ) ) {
 			$data['brands'] = self::export_brands( $product );
@@ -479,17 +480,27 @@ class WCIS_Product_Sync {
 				continue;
 			}
 			if ( $attr->is_taxonomy() ) {
-				$name    = wc_attribute_label( $attr->get_name() );
-				$options = wc_get_product_terms( $product->get_id(), $attr->get_name(), array( 'fields' => 'names' ) );
+				// Globales Attribut (Produkteigenschaft, z. B. pa_farbe). Taxonomie-
+				// Slug mitsenden, damit es beim Empfänger wieder als globales Attribut
+				// (nicht als produkteigenes) angelegt werden kann.
+				$taxonomy = $attr->get_name();
+				$label    = wc_attribute_label( $taxonomy );
+				$options  = wc_get_product_terms( $product->get_id(), $taxonomy, array( 'fields' => 'names' ) );
 			} else {
-				$name    = $attr->get_name();
-				$options = $attr->get_options();
+				$taxonomy = '';
+				$label    = $attr->get_name();
+				$options  = $attr->get_options();
+			}
+			if ( is_wp_error( $options ) ) {
+				$options = array();
 			}
 			$out[] = array(
-				'name'      => $name,
+				'name'      => $label,
+				'taxonomy'  => $taxonomy,
 				'options'   => array_values( (array) $options ),
 				'visible'   => (bool) $attr->get_visible(),
 				'variation' => (bool) $attr->get_variation(),
+				'position'  => (int) $attr->get_position(),
 			);
 		}
 		return $out;
@@ -913,18 +924,27 @@ class WCIS_Product_Sync {
 				continue;
 			}
 
-			// Variations-Attribute als Name=>Options-Label (konsistent zum Parent).
+			// Variations-Attribute mit Taxonomie-Information (globale Attribute
+			// werden beim Empfänger wieder als globale Attribute zugeordnet).
 			$vattr = array();
 			foreach ( $v->get_attributes() as $key => $value ) {
 				if ( taxonomy_exists( $key ) ) {
-					$label = wc_attribute_label( $key );
-					$term  = get_term_by( 'slug', $value, $key );
-					$opt   = $term ? $term->name : $value;
+					$term    = get_term_by( 'slug', $value, $key );
+					$vattr[] = array(
+						'taxonomy' => $key,
+						'name'     => wc_attribute_label( $key ),
+						'value'    => $term ? $term->name : (string) $value,
+						'slug'     => $term ? $term->slug : (string) $value,
+					);
 				} else {
-					$label = $key;
-					$opt   = $value;
+					// Produkteigenes Attribut: internen Variations-Schlüssel 1:1
+					// mitsenden (deterministisch identisch zum Parent beim Empfänger).
+					$vattr[] = array(
+						'taxonomy' => '',
+						'key'      => $key,
+						'value'    => (string) $value,
+					);
 				}
-				$vattr[ $label ] = $opt;
 			}
 
 			$out[] = array(
@@ -1084,12 +1104,21 @@ class WCIS_Product_Sync {
 
 			self::apply_common_fields( $product, $payload );
 
-			// Attribute (als produkteigene, benutzerdefinierte Attribute).
+			// Attribute: globale Attribute (Produkteigenschaften) bleiben global,
+			// produkteigene bleiben produkteigen. Rückgabe: Taxonomie => Term-IDs,
+			// die nach dem Speichern dem Produkt zugewiesen werden müssen.
+			$attr_term_map = array();
 			if ( ! empty( $payload['attributes'] ) ) {
-				$product->set_attributes( self::build_attribute_objects( $payload['attributes'] ) );
+				$attr_term_map = self::apply_product_attributes( $product, $payload['attributes'] );
 			}
 
 			$product_id = $product->save();
+
+			// Term-Zuordnung globaler Attribut-Taxonomien (macht WooCommerce für
+			// pa_*-Taxonomien nicht automatisch beim Speichern).
+			foreach ( $attr_term_map as $attr_tax => $attr_term_ids ) {
+				wp_set_object_terms( $product_id, $attr_term_ids, $attr_tax );
+			}
 
 			// Kategorien / Schlagwörter per Name.
 			if ( isset( $payload['categories'] ) ) {
@@ -1222,26 +1251,132 @@ class WCIS_Product_Sync {
 	}
 
 	/**
-	 * Baut WC_Product_Attribute-Objekte aus der Payload (benutzerdefiniert).
+	 * Wendet Produktattribute an. Globale Attribute (Produkteigenschaften mit
+	 * pa_-Taxonomie) werden wieder als globale Attribute angelegt – inkl. Anlegen
+	 * der Attribut-Taxonomie und der Begriffe, falls beim Empfänger noch nicht
+	 * vorhanden. Produkteigene (custom) Attribute bleiben produkteigen.
 	 *
-	 * @param array $attrs Attribut-Liste.
-	 * @return array
+	 * @param WC_Product $product Produkt.
+	 * @param array      $attrs   Attribut-Liste aus der Payload.
+	 * @return array Zuordnung Taxonomie-Slug => Term-IDs (für globale Attribute),
+	 *               die nach dem Speichern dem Produkt zugewiesen werden müssen.
 	 */
-	protected static function build_attribute_objects( $attrs ) {
-		$objects = array();
+	protected static function apply_product_attributes( $product, $attrs ) {
+		$objects  = array();
+		$term_map = array();
+
 		foreach ( (array) $attrs as $a ) {
-			if ( empty( $a['name'] ) || empty( $a['options'] ) ) {
+			$name    = isset( $a['name'] ) ? sanitize_text_field( (string) $a['name'] ) : '';
+			$options = isset( $a['options'] ) ? (array) $a['options'] : array();
+			if ( '' === $name || empty( $options ) ) {
 				continue;
 			}
+			$taxonomy = isset( $a['taxonomy'] ) ? sanitize_text_field( (string) $a['taxonomy'] ) : '';
+
+			// 1) Globales Attribut (Produkteigenschaft) – Taxonomie sicherstellen.
+			if ( '' !== $taxonomy ) {
+				$attr_id = self::ensure_global_attribute( $taxonomy, $name );
+				if ( $attr_id && taxonomy_exists( $taxonomy ) ) {
+					$term_ids = self::term_ids( $options, $taxonomy );
+					if ( ! empty( $term_ids ) ) {
+						$obj = new WC_Product_Attribute();
+						$obj->set_id( $attr_id );
+						$obj->set_name( $taxonomy );
+						$obj->set_options( $term_ids );
+						$obj->set_visible( ! empty( $a['visible'] ) );
+						$obj->set_variation( ! empty( $a['variation'] ) );
+						if ( isset( $a['position'] ) ) {
+							$obj->set_position( (int) $a['position'] );
+						}
+						$objects[]           = $obj;
+						$term_map[ $taxonomy ] = $term_ids;
+						continue;
+					}
+				}
+				// Fällt bei Problemen auf ein produkteigenes Attribut zurück.
+			}
+
+			// 2) Produkteigenes (benutzerdefiniertes) Attribut.
 			$obj = new WC_Product_Attribute();
-			$obj->set_id( 0 ); // 0 = benutzerdefiniertes (produkteigenes) Attribut.
-			$obj->set_name( sanitize_text_field( $a['name'] ) );
-			$obj->set_options( array_map( 'sanitize_text_field', (array) $a['options'] ) );
+			$obj->set_id( 0 );
+			$obj->set_name( $name );
+			$obj->set_options( array_map( 'sanitize_text_field', $options ) );
 			$obj->set_visible( ! empty( $a['visible'] ) );
 			$obj->set_variation( ! empty( $a['variation'] ) );
+			if ( isset( $a['position'] ) ) {
+				$obj->set_position( (int) $a['position'] );
+			}
 			$objects[] = $obj;
 		}
-		return $objects;
+
+		$product->set_attributes( $objects );
+		return $term_map;
+	}
+
+	/**
+	 * Stellt ein globales WooCommerce-Attribut (pa_-Taxonomie) sicher: legt die
+	 * Attribut-Definition an, falls sie fehlt, und registriert die Taxonomie im
+	 * aktuellen Request, damit Begriffe sofort zugewiesen werden können.
+	 *
+	 * @param string $taxonomy Taxonomie-Slug, z. B. pa_farbe.
+	 * @param string $label    Anzeigename des Attributs.
+	 * @return int Attribut-ID (Zeile in wc_attribute_taxonomies) oder 0 bei Fehler.
+	 */
+	protected static function ensure_global_attribute( $taxonomy, $label ) {
+		$taxonomy = (string) $taxonomy;
+		if ( '' === $taxonomy || ! function_exists( 'wc_create_attribute' ) ) {
+			return 0;
+		}
+
+		// Slug-Basis ohne pa_-Präfix (der in wc_attribute_taxonomies gespeicherte Name).
+		$attr_name = function_exists( 'wc_attribute_taxonomy_slug' )
+			? wc_attribute_taxonomy_slug( $taxonomy )
+			: preg_replace( '/^pa_/', '', $taxonomy );
+		if ( '' === $attr_name ) {
+			return 0;
+		}
+
+		$attr_id = wc_attribute_taxonomy_id_by_name( $attr_name );
+		if ( ! $attr_id ) {
+			$res = wc_create_attribute(
+				array(
+					'name'         => '' !== $label ? $label : $attr_name,
+					'slug'         => $attr_name,
+					'type'         => 'select',
+					'order_by'     => 'menu_order',
+					'has_archives' => false,
+				)
+			);
+			if ( is_wp_error( $res ) ) {
+				WCIS_Logger::error(
+					sprintf( 'Globales Attribut „%s" konnte nicht angelegt werden: %s', $attr_name, $res->get_error_message() ),
+					'inbound'
+				);
+				return 0;
+			}
+			$attr_id = (int) $res;
+			delete_transient( 'wc_attribute_taxonomies' );
+		}
+
+		// Taxonomie im aktuellen Request registrieren, falls noch nicht bekannt.
+		if ( ! taxonomy_exists( $taxonomy ) ) {
+			register_taxonomy(
+				$taxonomy,
+				apply_filters( 'woocommerce_taxonomy_objects_' . $taxonomy, array( 'product' ) ),
+				apply_filters(
+					'woocommerce_taxonomy_args_' . $taxonomy,
+					array(
+						'hierarchical' => true,
+						'show_ui'      => false,
+						'query_var'    => true,
+						'rewrite'      => false,
+						'public'       => false,
+					)
+				)
+			);
+		}
+
+		return (int) $attr_id;
 	}
 
 	/**
@@ -1464,11 +1599,31 @@ class WCIS_Product_Sync {
 			}
 			$variation->set_parent_id( $parent_id );
 
-			// Attribut-Auswahl: Name -> sanitize_title(Name) => Options-Label.
+			// Attribut-Auswahl der Variation. Neues Format: Liste von Einträgen mit
+			// Taxonomie-Information (globale Attribute => Term-Slug, produkteigene =>
+			// interner Schlüssel). Altes Format (label => option) bleibt kompatibel.
 			$va = array();
 			if ( ! empty( $vp['attributes'] ) && is_array( $vp['attributes'] ) ) {
-				foreach ( $vp['attributes'] as $aname => $opt ) {
-					$va[ sanitize_title( $aname ) ] = $opt;
+				foreach ( $vp['attributes'] as $akey => $aval ) {
+					if ( is_array( $aval ) ) {
+						$atax = isset( $aval['taxonomy'] ) ? (string) $aval['taxonomy'] : '';
+						if ( '' !== $atax && taxonomy_exists( $atax ) ) {
+							// Globales Attribut: Wert muss der Term-Slug sein.
+							$slug = isset( $aval['slug'] ) ? sanitize_title( (string) $aval['slug'] ) : '';
+							if ( '' === $slug && isset( $aval['value'] ) ) {
+								$term = get_term_by( 'name', (string) $aval['value'], $atax );
+								$slug = $term ? $term->slug : sanitize_title( (string) $aval['value'] );
+							}
+							$va[ $atax ] = $slug;
+						} elseif ( isset( $aval['key'] ) ) {
+							$va[ sanitize_title( (string) $aval['key'] ) ] = isset( $aval['value'] ) ? (string) $aval['value'] : '';
+						} elseif ( isset( $aval['name'] ) ) {
+							$va[ sanitize_title( (string) $aval['name'] ) ] = isset( $aval['value'] ) ? (string) $aval['value'] : '';
+						}
+					} else {
+						// Altes Format: label => option.
+						$va[ sanitize_title( (string) $akey ) ] = (string) $aval;
+					}
 				}
 			}
 			$variation->set_attributes( $va );
