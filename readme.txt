@@ -2,11 +2,11 @@
 Contributors: blocksocial
 Tags: woocommerce, inventory, stock, sync, multishop, dropshipping, b2b
 Requires at least: 5.8
-Tested up to: 6.6
+Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 5.0
-WC tested up to: 9.9
-Stable tag: 2.9.0
+WC tested up to: 11.1
+Stable tag: 2.9.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -46,6 +46,9 @@ Dropshipping- und B2B-Netzwerke.
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 2.9.1 =
+* Kompatibilität mit WordPress 7.1 und WooCommerce 11.1 geprüft und Header aktualisiert (getestet bis WP 7.1 / WC 11.1). Keine funktionalen Änderungen – der bestehende Code nutzt ausschließlich stabile WooCommerce-CRUD-/REST-APIs, HPOS ist deklariert und der Code ist PHP-8.1–8.3-kompatibel (keine dynamischen Properties, keine veralteten/entfernten Funktionen). Hinweis: WooCommerce plant, ab Version 11.5 (~Anfang 2027) mindestens PHP 8.1 zu verlangen – das Plugin ist darauf bereits vorbereitet.
 
 = 2.9.0 =
 * Attribute (Produkteigenschaften) korrekt übertragen: Globale WooCommerce-Attribute (pa_-Taxonomien wie „Marke", „Farbe", „Größe") wurden beim Empfänger bisher als produkteigene (custom) Attribute angelegt – dadurch fehlten sie in der globalen Attribut-Taxonomie (keine Filter/Layered-Nav/Archive) und Variations-Zuordnungen konnten brechen. Jetzt bleiben globale Attribute global: die Attribut-Definition und Begriffe werden beim Empfänger bei Bedarf automatisch angelegt und dem Produkt zugewiesen. Produkteigene Attribute bleiben produkteigen. Reihenfolge (Position) wird mitübertragen.

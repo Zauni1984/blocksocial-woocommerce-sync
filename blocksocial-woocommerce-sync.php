@@ -3,7 +3,7 @@
  * Plugin Name:       BlockSocial WooCommerce Sync
  * Plugin URI:        https://github.com/Zauni1984/blocksocial-woocommerce-sync
  * Description:        Enterprise-Grade WooCommerce-Plugin für Produkt- und Bestands-Synchronisation zwischen mehreren Shops in nahezu Echtzeit. Zuordnung per SKU, wählbarer Hauptshop (Master), Produkt-Sync inkl. Steuerklassen und Slave-Pull. Baue dein eigenes Dropshipping-/B2B-Business auf.
- * Version:           2.9.0
+ * Version:           2.9.1
  * Author:            BlockSocial UG (haftungsbeschränkt)
  * Author URI:        https://blocksocial.eu
  * License:           MIT
@@ -12,7 +12,7 @@
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * WC requires at least: 5.0
- * WC tested up to:   9.9
+ * WC tested up to:   11.1
  *
  * @package BlockSocial_WooCommerce_Sync
  */
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // -----------------------------------------------------------------------------
 // Konstanten
 // -----------------------------------------------------------------------------
-define( 'WCIS_VERSION', '2.9.0' );
+define( 'WCIS_VERSION', '2.9.1' );
 define( 'WCIS_FILE', __FILE__ );
 define( 'WCIS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WCIS_URL', plugin_dir_url( __FILE__ ) );
