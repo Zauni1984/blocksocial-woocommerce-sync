@@ -266,6 +266,7 @@ $wcis_show_code = isset( $_GET['wcis_show_code'] ) ? sanitize_key( wp_unslash( $
 					'shopify_active'        => array( 'active', __( 'Aktiv', 'blocksocial-woocommerce-sync' ), __( 'Shop wird beliefert.', 'blocksocial-woocommerce-sync' ) ),
 					'shopify_sync_stock'    => array( 'sync_stock', __( 'Bestände synchronisieren', 'blocksocial-woocommerce-sync' ), __( 'Bestände in Echtzeit übertragen; Verkäufe in Shopify reduzieren den Bestand aller Shops.', 'blocksocial-woocommerce-sync' ) ),
 					'shopify_sync_products' => array( 'sync_products', __( 'Produkte übertragen', 'blocksocial-woocommerce-sync' ), __( 'Produkte anlegen und aktuell halten (Titel, Beschreibung, Preise, Varianten, EAN, Gewicht; Bilder beim Anlegen).', 'blocksocial-woocommerce-sync' ) ),
+					'shopify_sync_sale'     => array( 'sync_sale', __( 'Angebotspreise übertragen', 'blocksocial-woocommerce-sync' ), __( 'Angebote als reduzierter Preis mit Vergleichspreis. Ausgeschaltet wird nur der reguläre Preis übertragen – Vergleichspreise in Shopify bleiben unangetastet.', 'blocksocial-woocommerce-sync' ) ),
 				);
 				foreach ( $sw as $name => $def ) :
 					?>
@@ -456,6 +457,7 @@ $wcis_show_code = isset( $_GET['wcis_show_code'] ) ? sanitize_key( wp_unslash( $
 				'feed_only_instock' => array( 'only_instock', __( 'Nur lieferbare Artikel', 'blocksocial-woocommerce-sync' ), __( 'Artikel mit Status „nicht vorrätig" weglassen.', 'blocksocial-woocommerce-sync' ) ),
 				'feed_parents'      => array( 'parents', __( 'Eltern-Zeilen variabler Produkte', 'blocksocial-woocommerce-sync' ), __( 'Zusätzlich eine Zeile je variablem Produkt (type „variable"); Varianten verweisen per parent_sku darauf.', 'blocksocial-woocommerce-sync' ) ),
 				'feed_descriptions' => array( 'descriptions', __( 'Beschreibungen mitliefern', 'blocksocial-woocommerce-sync' ), __( 'Kurz- und Langbeschreibung (HTML). Ausschalten für kleinere Dateien.', 'blocksocial-woocommerce-sync' ) ),
+				'feed_sale_prices'  => array( 'sale_prices', __( 'Angebotspreise mitliefern', 'blocksocial-woocommerce-sync' ), __( 'Spalte sale_price füllen. Ausgeschaltet bleibt sie leer – nur der reguläre Preis wird geliefert.', 'blocksocial-woocommerce-sync' ) ),
 				'feed_bom'          => array( 'bom', __( 'UTF-8-BOM', 'blocksocial-woocommerce-sync' ), __( 'Damit Excel Umlaute korrekt anzeigt. Für reine Import-Schnittstellen ggf. ausschalten.', 'blocksocial-woocommerce-sync' ) ),
 			);
 			foreach ( $sw as $name => $def ) :

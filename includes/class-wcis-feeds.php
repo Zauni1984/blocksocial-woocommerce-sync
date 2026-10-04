@@ -97,6 +97,7 @@ class WCIS_Feeds {
 			'only_instock'   => false,
 			'parents'        => true,    // Eltern-Zeilen variabler Produkte.
 			'descriptions'   => true,    // Beschreibungstexte mitliefern.
+			'sale_prices'    => true,    // Angebotspreise mitliefern.
 			'built_at'       => 0,
 			'last_access'    => 0,
 			'access_count'   => 0,
@@ -180,6 +181,7 @@ class WCIS_Feeds {
 		$f['only_instock'] = ! empty( $data['only_instock'] );
 		$f['parents']      = ! empty( $data['parents'] );
 		$f['descriptions'] = ! empty( $data['descriptions'] );
+		$f['sale_prices']  = ! empty( $data['sale_prices'] );
 		if ( isset( $data['price_rules'] ) ) {
 			$f['price_rules'] = WCIS_Pricing::sanitize_rules( $data['price_rules'] );
 		}
@@ -716,7 +718,7 @@ class WCIS_Feeds {
 		$src       = $parent ? $parent : $p;
 
 		$regular = $is_parent ? '' : self::price( $f, $p, $p->get_regular_price( 'edit' ), $pct, $rules );
-		$sale    = $is_parent ? '' : self::price( $f, $p, $p->get_sale_price( 'edit' ), $pct, $rules );
+		$sale    = ( $is_parent || empty( $f['sale_prices'] ) ) ? '' : self::price( $f, $p, $p->get_sale_price( 'edit' ), $pct, $rules );
 		if ( '' !== $sale && '' !== $regular && (float) $sale >= (float) $regular ) {
 			$sale = '';
 		}

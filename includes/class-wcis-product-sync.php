@@ -379,6 +379,27 @@ class WCIS_Product_Sync {
 	}
 
 	/**
+	 * Preisfelder der Payload gemäß Feld-Auswahl: regulärer Preis und
+	 * Angebotspreis sind getrennt wählbar (jeweils inkl. Bruttopreis für
+	 * Kleinunternehmer-Empfänger).
+	 *
+	 * @param WC_Product $product Produkt/Variation.
+	 * @return array
+	 */
+	protected static function price_payload( $product ) {
+		$out = array();
+		if ( WCIS_Filter::field_enabled( 'price' ) ) {
+			$out['regular_price']       = $product->get_regular_price();
+			$out['regular_price_gross'] = self::gross_price( $product, $product->get_regular_price() );
+		}
+		if ( WCIS_Filter::field_enabled( 'sale_price' ) ) {
+			$out['sale_price']       = $product->get_sale_price();
+			$out['sale_price_gross'] = self::gross_price( $product, $product->get_sale_price() );
+		}
+		return $out;
+	}
+
+	/**
 	 * Setzt regulären und Angebotspreis auf einem Produkt/einer Variation. Im
 	 * Kleinunternehmer-/Bruttopreis-Modus werden die mitgesendeten Bruttopreise
 	 * verwendet, sonst die normalen (Netto-)Preise.
@@ -396,7 +417,9 @@ class WCIS_Product_Sync {
 			// Eingehender Preis = Basis für Preisregeln (Auf-/Abschläge).
 			WCIS_Pricing::set_base( $product, 'regular', (string) $rp );
 		}
-		if ( isset( $p['sale_price'] ) ) {
+		// Angebotspreis nur, wenn der Empfänger Angebote übernehmen möchte – sonst
+		// bleibt sein eigener Angebotspreis unangetastet.
+		if ( isset( $p['sale_price'] ) && WCIS_Settings::get( 'accept_sale_prices', true ) ) {
 			$sp = ( $use_gross && isset( $p['sale_price_gross'] ) )
 				? $p['sale_price_gross']
 				: $p['sale_price'];
@@ -494,14 +517,7 @@ class WCIS_Product_Sync {
 		if ( WCIS_Filter::field_enabled( 'short_description' ) ) {
 			$data['short_description'] = $product->get_short_description();
 		}
-		if ( WCIS_Filter::field_enabled( 'price' ) ) {
-			$data['regular_price'] = $product->get_regular_price();
-			$data['sale_price']    = $product->get_sale_price();
-			// Bruttopreise (inkl. Steuer) mitsenden – für Kleinunternehmer-Empfänger,
-			// die eingehende Preise als Brutto übernehmen sollen.
-			$data['regular_price_gross'] = self::gross_price( $product, $product->get_regular_price() );
-			$data['sale_price_gross']    = self::gross_price( $product, $product->get_sale_price() );
-		}
+		$data = array_merge( $data, self::price_payload( $product ) );
 		if ( WCIS_Filter::field_enabled( 'tax' ) ) {
 			$data['tax_status'] = $product->get_tax_status();
 			$data['tax_class']  = $product->get_tax_class();
@@ -1050,26 +1066,25 @@ class WCIS_Product_Sync {
 				}
 			}
 
-			$out[] = array(
-				'sku'            => $v->get_sku(),
-				'attributes'     => $vattr,
-				'regular_price'       => $v->get_regular_price(),
-				'sale_price'          => $v->get_sale_price(),
-				'regular_price_gross' => self::gross_price( $v, $v->get_regular_price() ),
-				'sale_price_gross'    => self::gross_price( $v, $v->get_sale_price() ),
-				'tax_status'     => $v->get_tax_status(),
-				'tax_class'      => $v->get_tax_class(),
-				'tax_rate'       => self::tax_rate_for_class( $v->get_tax_class() ),
-				'shipping_class' => self::shipping_class_payload( $v ),
-				'delivery_time'  => self::export_delivery_time( $v ),
-				'germanized'     => self::export_germanized( $v ),
-				'gtin'           => self::export_gtin( $v ),
-				'manage_stock'   => $v->managing_stock(),
-				'stock_quantity' => $v->get_stock_quantity(),
-				'stock_status'   => $v->get_stock_status(),
-				'status'         => $v->get_status(),
-				'weight'         => $v->get_weight(),
-				'image'          => WCIS_Settings::get( 'product_sync_images', true ) ? self::first_image_url( $v->get_image_id() ) : '',
+			$out[] = array_merge(
+				self::price_payload( $v ),
+				array(
+					'sku'            => $v->get_sku(),
+					'attributes'     => $vattr,
+					'tax_status'     => $v->get_tax_status(),
+					'tax_class'      => $v->get_tax_class(),
+					'tax_rate'       => self::tax_rate_for_class( $v->get_tax_class() ),
+					'shipping_class' => self::shipping_class_payload( $v ),
+					'delivery_time'  => self::export_delivery_time( $v ),
+					'germanized'     => self::export_germanized( $v ),
+					'gtin'           => self::export_gtin( $v ),
+					'manage_stock'   => $v->managing_stock(),
+					'stock_quantity' => $v->get_stock_quantity(),
+					'stock_status'   => $v->get_stock_status(),
+					'status'         => $v->get_status(),
+					'weight'         => $v->get_weight(),
+					'image'          => WCIS_Settings::get( 'product_sync_images', true ) ? self::first_image_url( $v->get_image_id() ) : '',
+				)
 			);
 		}
 		return $out;
@@ -1179,7 +1194,7 @@ class WCIS_Product_Sync {
 			// Option „Preise aktualisieren": bestehende Produkte werden sonst nicht
 			// angefasst – hier optional NUR die Preise nachziehen (ohne Beschreibung,
 			// Bilder usw. zu überschreiben).
-			if ( WCIS_Settings::get( 'update_prices', false ) && isset( $payload['regular_price'] ) ) {
+			if ( WCIS_Settings::get( 'update_prices', false ) && ( isset( $payload['regular_price'] ) || isset( $payload['sale_price'] ) || ! empty( $payload['variations'] ) ) ) {
 				self::apply_price_only( (int) $existing_id, $payload );
 				return 'updated';
 			}

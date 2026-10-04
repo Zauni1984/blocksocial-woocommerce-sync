@@ -57,6 +57,7 @@ class WCIS_Settings {
 			'product_sync_update_existing' => false,    // vorhandene Produkte überschreiben.
 			'update_prices'                => false,    // Empfänger: Preise bestehender Produkte aktualisieren (auch ohne volle Überschreibung).
 			'price_gross_mode'             => false,    // Empfänger (Kleinunternehmer §19): eingehende Preise als Brutto übernehmen.
+			'accept_sale_prices'           => true,     // Empfänger: Angebotspreise übernehmen (aus = eigene Angebotspreise bleiben unangetastet).
 			// Sync-Filter: welche Produkte werden (ausgehend) synchronisiert?
 			'filter_mode'        => 'all', // all | selected
 			'filter_categories'  => array(),
@@ -65,7 +66,7 @@ class WCIS_Settings {
 			'filter_exclude_ids' => array(),
 			'filter_exclude_categories' => array(),
 			// Welche Produkt-Felder werden beim Produkt-Sync übertragen? (null = alle)
-			'product_fields'     => array( 'name', 'price', 'tax', 'description', 'short_description', 'images', 'categories', 'tags', 'brands', 'manufacturer', 'gtin', 'attributes', 'shipping_class', 'delivery_time', 'germanized', 'dimensions', 'status', 'stock' ),
+			'product_fields'     => array( 'name', 'price', 'sale_price', 'tax', 'description', 'short_description', 'images', 'categories', 'tags', 'brands', 'manufacturer', 'gtin', 'attributes', 'shipping_class', 'delivery_time', 'germanized', 'dimensions', 'status', 'stock' ),
 			// Steuerklassen-Zuordnung (Empfängerseite), z. B. "reduzierter-preis=reduced-rate" je Zeile.
 			'tax_class_map'      => '',
 			// Preisregeln (Empfänger-Shops): Auf-/Abschlag in % für alle Produkte
@@ -362,5 +363,24 @@ class WCIS_Settings {
 			}
 		}
 		return $map;
+	}
+
+	/**
+	 * Daten-Migration bei Versionswechsel.
+	 *
+	 * @param string $from Bisher installierte Version.
+	 */
+	public static function migrate( $from ) {
+		// 3.1.0: „Preis" (regulär) und „Angebotspreis" sind getrennte Felder. Wer
+		// bisher „Preis" übertragen hat, überträgt weiterhin auch Angebotspreise.
+		if ( '0' !== (string) $from && version_compare( $from, '3.1.0', '<' ) ) {
+			$saved = get_option( WCIS_OPT, array() );
+			if ( is_array( $saved ) && isset( $saved['product_fields'] ) && is_array( $saved['product_fields'] )
+				&& in_array( 'price', $saved['product_fields'], true ) && ! in_array( 'sale_price', $saved['product_fields'], true ) ) {
+				$saved['product_fields'][] = 'sale_price';
+				update_option( WCIS_OPT, $saved );
+				self::$cache = null;
+			}
+		}
 	}
 }

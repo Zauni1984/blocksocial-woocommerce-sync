@@ -193,6 +193,12 @@ $wcis_yes = static function ( $v ) {
 									<div><strong><?php esc_html_e( 'Kleinunternehmer: Preise als Brutto übernehmen', 'blocksocial-woocommerce-sync' ); ?></strong><p><?php esc_html_e( 'Für §19-Shops ohne USt.: eingehende Preise werden als Bruttopreis übernommen statt als Nettopreis. WooCommerce-Steuer in diesem Shop entsprechend deaktivieren.', 'blocksocial-woocommerce-sync' ); ?></p></div>
 								</div>
 							</div>
+							<div class="wcis-field wcis-field--switch">
+								<div class="wcis-field-main">
+									<label class="wcis-switch"><input type="checkbox" name="accept_sale_prices" value="1" <?php checked( ! empty( $s['accept_sale_prices'] ) ); ?> /><span class="wcis-slider"></span></label>
+									<div><strong><?php esc_html_e( 'Angebotspreise des Hauptshops übernehmen', 'blocksocial-woocommerce-sync' ); ?></strong><p><?php esc_html_e( 'Ausgeschaltet werden nur reguläre Preise übernommen – deine eigenen Angebotspreise bleiben unangetastet.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+								</div>
+							</div>
 							<div class="wcis-field">
 								<label for="wcis-taxmap"><?php esc_html_e( 'Steuerklassen-Zuordnung', 'blocksocial-woocommerce-sync' ); ?></label>
 								<textarea id="wcis-taxmap" name="tax_class_map" rows="3" class="code" style="width:100%;" placeholder="reduzierter-preis=reduced-rate"><?php echo esc_textarea( $s['tax_class_map'] ); ?></textarea>

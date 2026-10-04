@@ -64,7 +64,8 @@ class WCIS_Filter {
 	public static function product_field_labels() {
 		return array(
 			'name'              => __( 'Name/Titel', 'blocksocial-woocommerce-sync' ),
-			'price'             => __( 'Preis (regulär & Angebot)', 'blocksocial-woocommerce-sync' ),
+			'price'             => __( 'Preis (regulär)', 'blocksocial-woocommerce-sync' ),
+			'sale_price'        => __( 'Angebotspreis', 'blocksocial-woocommerce-sync' ),
 			'tax'               => __( 'Steuerstatus & Steuerklasse', 'blocksocial-woocommerce-sync' ),
 			'description'       => __( 'Beschreibung', 'blocksocial-woocommerce-sync' ),
 			'short_description' => __( 'Kurzbeschreibung', 'blocksocial-woocommerce-sync' ),

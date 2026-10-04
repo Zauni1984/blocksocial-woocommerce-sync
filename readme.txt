@@ -6,7 +6,7 @@ Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -52,6 +52,9 @@ Admin- und Partner-Plugin dürfen nicht gleichzeitig im selben Shop aktiv sein.
 
 == Upgrade Notice ==
 
+= 3.1.0 =
+Regulärer Preis und Angebotspreis getrennt steuerbar (Sender, Empfänger, Shopify, CSV). Bisherige Einstellungen bleiben wirksam. Admin- und Partner-Plugin gemeinsam auf 3.1.0 aktualisieren.
+
 = 3.0.0 =
 Neu: Partner-Plugin, Preisregeln und Shopify-Anbindung. Das Update ist kompatibel – bestehende eigene Shops (Netzwerk-Secret) laufen unverändert weiter. Für volle Funktion alle eigenen Shops auf 3.0.0 aktualisieren.
 
@@ -59,6 +62,15 @@ Neu: Partner-Plugin, Preisregeln und Shopify-Anbindung. Das Update ist kompatibe
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 3.1.0 =
+* Regulärer Preis und Angebotspreis sind jetzt getrennt steuerbar:
+  * Sender (Feld-Auswahl): „Preis (regulär)" und „Angebotspreis" sind eigene Felder.
+  * Empfänger (jeder Neben- und Partnershop selbst): neue Option „Angebotspreise übernehmen". Ausgeschaltet werden nur reguläre Preise übernommen, eigene Angebotspreise bleiben unangetastet.
+  * Shopify je Shop: „Angebotspreise übertragen" (aus = nur regulärer Preis, Vergleichspreis in Shopify bleibt unangetastet).
+  * CSV-Feed je Feed: „Angebotspreise mitliefern".
+* Korrektur: Variationen haben ihre Preise bisher immer mitgesendet, auch wenn das Preis-Feld abgewählt war. Jetzt gilt die Feld-Auswahl auch für Variationen.
+* Update-Hinweis: Wer bisher „Preis" überträgt, überträgt automatisch weiterhin auch Angebotspreise (Migration) – es ändert sich nichts, bis die Felder bewusst umgestellt werden.
 
 = 3.0.0 =
 * NEU: Partner-Plugin „BlockSocial WooCommerce Sync – Partner" (zweites Plugin aus demselben Code, gebaut über bin/build.sh). Partner verbinden sich per Verbindungscode nur mit dem Hauptshop. Alle Vorgaben des Betreibers (Produktdaten aktuell halten, Preisübernahme, Bilder, Lagerstatus, erlaubter Preisrahmen, Sortiment) werden vom Hauptshop gesetzt und sind im Partnershop schreibgeschützt.

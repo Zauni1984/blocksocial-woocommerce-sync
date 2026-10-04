@@ -43,7 +43,7 @@ Admin- und Partner-Plugin dürfen nicht gleichzeitig im selben Shop aktiv sein.
 | Nur in einem Shop vorhandene Produkte | Werden beim Empfänger **ignoriert** (SKU nicht gefunden → übersprungen) |
 | Nachreichen bei kurzem Ausfall | **Retry-Queue** (Minuten-Cron) + **periodischer Abgleich** (stündlich/6h/täglich), der Drift erkennt und Korrekturen nachreicht |
 | Neue Produkte 1:1 übertragen *(optional)* | **Produkt-Sync**: einfache & variable Produkte inkl. **Status** (veröffentlicht/privat/Entwurf), per SKU; automatisch + Massen-Button mit Fortschritt |
-| Auswählen, was synchronisiert wird | **Sync-Filter** pro Shop: nach Kategorie, Marke, Einzelprodukt; Ausschlussliste; **Feld-Auswahl** (z. B. Preis) für den Produkt-Sync |
+| Auswählen, was synchronisiert wird | **Sync-Filter** pro Shop: nach Kategorie, Marke, Einzelprodukt; Ausschlussliste; **Feld-Auswahl** (z. B. regulärer Preis und Angebotspreis getrennt) für den Produkt-Sync |
 | Steuer 1:1 übertragen | **Steuerstatus & Steuerklasse** als eigenes Feld (auch für Variationen); **Steuerklassen-Zuordnung** für abweichende Slugs zwischen Shops |
 | Erst-Sync auch vom Neben-Shop | **Pull**: ein Neben-Shop holt sich die Produkte des Hauptshops selbst – ohne dass der Hauptshop an alle verteilt |
 | Partnershops, die nichts kaputtmachen können | **Partner-Plugin** mit persönlichem Schlüssel, Rechteprüfung je Endpunkt und vom Hauptshop erzwungenen Vorgaben |
@@ -155,10 +155,13 @@ Beispielliste.
 
 ### Feld-Auswahl (welche Attribute übertragen werden)
 
-Für den Produkt-Sync lässt sich wählen, welche Felder übertragen werden: **Preis**
-(regulär & Angebot), Beschreibung, Kurzbeschreibung, Bilder, Kategorien, Schlagwörter,
+Für den Produkt-Sync lässt sich wählen, welche Felder übertragen werden: **Preis
+(regulär)** und **Angebotspreis** (getrennt wählbar), Beschreibung, Kurzbeschreibung, Bilder, Kategorien, Schlagwörter,
 **Marken**, **Hersteller** (inkl. Adresse & EU-Bevollmächtigtem), **EAN/GTIN**, Attribute, **Versandklasse**, **Lieferzeit**, **Germanized-Grundpreis**, Maße/Gewicht, Status, Lagerbestand. Beispiel: Haken bei „Preis" entfernen,
-damit jeder Shop **eigene Preise** behalten kann. Der Produktname wird zur Zuordnung
+damit jeder Shop **eigene Preise** behalten kann – oder nur „Angebotspreis" abwählen, damit jeder Shop seine
+Angebote selbst macht. Zusätzlich entscheidet jeder Empfänger-Shop (auch Partner) mit
+**„Angebotspreise übernehmen"** selbst, ob eingehende Angebote übernommen werden; Shopify-Shops und
+CSV-Feeds haben dafür jeweils einen eigenen Schalter. Der Produktname wird zur Zuordnung
 immer mitgesendet.
 
 ## Partnershops (Partner-Plugin)

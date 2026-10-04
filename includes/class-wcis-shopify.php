@@ -98,6 +98,7 @@ class WCIS_Shopify {
 			'active'         => true,
 			'sync_stock'     => true,
 			'sync_products'  => false,
+			'sync_sale'      => true,  // Angebotspreise (als Vergleichspreis) übertragen.
 			'product_status' => 'DRAFT', // neue Produkte zunächst als Entwurf
 			'scope'          => 'all',
 			'categories'     => array(),
@@ -207,7 +208,7 @@ class WCIS_Shopify {
 			$s['token_expires'] = 0;
 		}
 
-		foreach ( array( 'active', 'sync_stock', 'sync_products' ) as $k ) {
+		foreach ( array( 'active', 'sync_stock', 'sync_products', 'sync_sale' ) as $k ) {
 			$s[ $k ] = ! empty( $data[ $k ] );
 		}
 		$s['product_status'] = ( isset( $data['product_status'] ) && 'ACTIVE' === $data['product_status'] ) ? 'ACTIVE' : 'DRAFT';
@@ -1491,7 +1492,7 @@ class WCIS_Shopify {
 			}
 
 			$regular = self::price_for( $s, $v, $v->get_regular_price( 'edit' ), $pct );
-			$sale    = self::price_for( $s, $v, $v->get_sale_price( 'edit' ), $pct );
+			$sale    = ! empty( $s['sync_sale'] ) ? self::price_for( $s, $v, $v->get_sale_price( 'edit' ), $pct ) : '';
 			$on_sale = '' !== $sale && '' !== $regular && (float) $sale < (float) $regular;
 
 			$gtin = method_exists( $v, 'get_global_unique_id' ) ? (string) $v->get_global_unique_id() : '';
@@ -1519,6 +1520,9 @@ class WCIS_Shopify {
 				'taxable'         => 'none' !== $v->get_tax_status(),
 				'inventoryItem'   => $item,
 			);
+			if ( empty( $s['sync_sale'] ) ) {
+				unset( $input['compareAtPrice'] ); // Angebote nicht übertragen → Vergleichspreis in Shopify unangetastet lassen.
+			}
 			if ( '' !== $gtin ) {
 				$input['barcodes'] = array( array( 'value' => $gtin ) );
 			}

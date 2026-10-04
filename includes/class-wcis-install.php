@@ -87,6 +87,7 @@ class WCIS_Install {
 			return;
 		}
 		self::create_tables(); // dbDelta ergänzt fehlende Spalten/Indizes idempotent.
+		WCIS_Settings::migrate( $installed );
 		WCIS_Reconcile::reschedule();
 		update_option( 'wcis_db_version', WCIS_VERSION );
 	}

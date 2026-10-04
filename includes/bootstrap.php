@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // -----------------------------------------------------------------------------
 // Konstanten
 // -----------------------------------------------------------------------------
-define( 'WCIS_VERSION', '3.0.0' );
+define( 'WCIS_VERSION', '3.1.0' );
 define( 'WCIS_PATH', plugin_dir_path( WCIS_FILE ) );
 define( 'WCIS_URL', plugin_dir_url( WCIS_FILE ) );
 define( 'WCIS_BASENAME', plugin_basename( WCIS_FILE ) );

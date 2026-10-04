@@ -259,6 +259,7 @@ class WCIS_Admin {
 			'product_sync_update_existing' => ! empty( $_POST['product_sync_update_existing'] ),
 			'update_prices'                => ! empty( $_POST['update_prices'] ),
 			'price_gross_mode'             => ! empty( $_POST['price_gross_mode'] ),
+			'accept_sale_prices'           => ! empty( $_POST['accept_sale_prices'] ),
 			'filter_mode'        => $this->clean_choice( isset( $_POST['filter_mode'] ) ? $_POST['filter_mode'] : '', array( 'all', 'selected' ), 'all' ),
 			'filter_categories'  => isset( $_POST['filter_categories'] ) ? array_map( 'intval', (array) $_POST['filter_categories'] ) : array(),
 			'filter_brands'      => isset( $_POST['filter_brands'] ) ? array_map( 'intval', (array) $_POST['filter_brands'] ) : array(),
@@ -864,6 +865,7 @@ class WCIS_Admin {
 			'active'         => ! empty( $_POST['shopify_active'] ),
 			'sync_stock'     => ! empty( $_POST['shopify_sync_stock'] ),
 			'sync_products'  => ! empty( $_POST['shopify_sync_products'] ),
+			'sync_sale'      => ! empty( $_POST['shopify_sync_sale'] ),
 			'product_status' => ( isset( $_POST['shopify_product_status'] ) && 'active' === sanitize_key( wp_unslash( $_POST['shopify_product_status'] ) ) ) ? 'ACTIVE' : 'DRAFT',
 			'scope'          => isset( $_POST['shopify_scope'] ) ? sanitize_key( wp_unslash( $_POST['shopify_scope'] ) ) : 'all',
 			'categories'     => isset( $_POST['shopify_categories'] ) ? array_map( 'intval', (array) wp_unslash( $_POST['shopify_categories'] ) ) : array(),
@@ -1017,7 +1019,8 @@ class WCIS_Admin {
 		WCIS_Settings::update(
 			array(
 				'this_shop_name'   => isset( $_POST['this_shop_name'] ) ? sanitize_text_field( wp_unslash( $_POST['this_shop_name'] ) ) : get_bloginfo( 'name' ),
-				'price_gross_mode' => ! empty( $_POST['price_gross_mode'] ),
+				'price_gross_mode'   => ! empty( $_POST['price_gross_mode'] ),
+				'accept_sale_prices' => ! empty( $_POST['accept_sale_prices'] ),
 				'tax_class_map'    => isset( $_POST['tax_class_map'] ) ? sanitize_textarea_field( wp_unslash( $_POST['tax_class_map'] ) ) : '',
 				'log_level'        => ( isset( $_POST['log_level'] ) && 'error' === $_POST['log_level'] ) ? 'error' : 'info',
 			)
@@ -1056,6 +1059,7 @@ class WCIS_Admin {
 				'only_instock' => ! empty( $_POST['feed_only_instock'] ),
 				'parents'      => ! empty( $_POST['feed_parents'] ),
 				'descriptions' => ! empty( $_POST['feed_descriptions'] ),
+				'sale_prices'  => ! empty( $_POST['feed_sale_prices'] ),
 				'price_rules'  => array(
 					'global'     => isset( $_POST['rule_global'] ) ? sanitize_text_field( wp_unslash( $_POST['rule_global'] ) ) : 0,
 					'categories' => $cats,
