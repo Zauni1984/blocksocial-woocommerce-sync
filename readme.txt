@@ -6,7 +6,7 @@ Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 3.1.0
+Stable tag: 3.1.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -52,6 +52,9 @@ Admin- und Partner-Plugin dürfen nicht gleichzeitig im selben Shop aktiv sein.
 
 == Upgrade Notice ==
 
+= 3.1.1 =
+Wichtige Fehlerbehebung: Der Sync-Filter eines Shops gilt jetzt auch für EINGEHENDE Produkte (Modus „Nur ausgewählte", Unterkategorien). Bitte Hauptshop UND alle Neben-Shops aktualisieren. Neu: „Aufräumen" entfernt bereits falsch übertragene Produkte.
+
 = 3.1.0 =
 Regulärer Preis und Angebotspreis getrennt steuerbar (Sender, Empfänger, Shopify, CSV). Bisherige Einstellungen bleiben wirksam. Admin- und Partner-Plugin gemeinsam auf 3.1.0 aktualisieren.
 
@@ -62,6 +65,14 @@ Neu: Partner-Plugin, Preisregeln und Shopify-Anbindung. Das Update ist kompatibe
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 3.1.1 =
+* **Fehlerbehebung (schwer):** Der Sync-Filter eines Neben-Shops wurde beim EMPFANG von Produkten nur für „Kategorien ausschließen" ausgewertet. Die Einstellung „Nur ausgewählte (Kategorie/Marke/Einzelprodukt)" wurde ignoriert – dadurch konnten Produkte außerhalb des gewählten Sortiments angelegt werden. Der Filter gilt jetzt in beide Richtungen (Produkte und Bestände).
+* **Fehlerbehebung:** Gewählte bzw. ausgeschlossene Kategorien gelten jetzt inklusive aller Unterkategorien (vorher wurden Produkte, die nur einer Unterkategorie zugeordnet sind, nicht erfasst).
+* Produkte werden mit vollständigem Kategorie-Pfad (Haupt- › Unterkategorie) und Marken übertragen. Der Empfänger erkennt dadurch auch Oberkategorien und legt fehlende Kategorien unter der richtigen Oberkategorie an statt als neue Hauptkategorie.
+* Neu: „Ausnahmen vom Kategorie-Ausschluss (Marken)" – z. B. „Growshop" ausschließen, außer Marke „Spider Farmer".
+* Neu: „Aufräumen" (Reiter Aktionen, Neben-Shops): findet vom Hauptshop übertragene Produkte außerhalb des Sync-Umfangs und verschiebt sie in den Papierkorb oder löscht sie endgültig inkl. importierter Bilder – mit Analyse-Vorschau und Fortschrittsbalken. Eigene Produkte (SKU nicht im Hauptshop) bleiben immer unangetastet.
+* Vom Sync angelegte Produkte werden markiert (für das Aufräumen).
 
 = 3.1.0 =
 * Regulärer Preis und Angebotspreis sind jetzt getrennt steuerbar:

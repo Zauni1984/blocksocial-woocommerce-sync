@@ -19,7 +19,7 @@ foreach ( array( 'blocksocial-woocommerce-sync/blocksocial-woocommerce-sync.php'
 }
 
 // Optionen entfernen.
-foreach ( array( 'wcis_settings', 'wcis_fullsync_job', 'wcis_productsync_job', 'wcis_productpull_job', 'wcis_db_version', 'wcis_partners', 'wcis_shopify_stores', 'wcis_pricing_job', 'wcis_shopify_job', 'wcis_reprice_offset', 'wcis_feeds' ) as $wcis_opt ) {
+foreach ( array( 'wcis_settings', 'wcis_fullsync_job', 'wcis_productsync_job', 'wcis_productpull_job', 'wcis_db_version', 'wcis_partners', 'wcis_shopify_stores', 'wcis_pricing_job', 'wcis_shopify_job', 'wcis_reprice_offset', 'wcis_feeds', 'wcis_cleanup_job', 'wcis_cleanup_master', 'wcis_cleanup_ids' ) as $wcis_opt ) {
 	delete_option( $wcis_opt );
 }
 
@@ -45,7 +45,7 @@ $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wcis_feed_rows" ); // phpcs:i
 
 // Produkt-Meta bereinigen (Sync-Zeitstempel, Preissignatur, Preisregeln, Shopify-Zuordnungen).
 // Die aktuellen Produktpreise selbst bleiben unverändert.
-$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_wcis_synced_at','_wcis_price_sig','_wcis_base_regular_price','_wcis_base_sale_price','_wcis_final_regular_price','_wcis_final_sale_price','_wcis_price_percent') OR meta_key LIKE '\_wcis\_shp\_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_wcis_synced_at','_wcis_price_sig','_wcis_base_regular_price','_wcis_base_sale_price','_wcis_final_regular_price','_wcis_final_sale_price','_wcis_price_percent','_wcis_origin') OR meta_key LIKE '\_wcis\_shp\_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 // Idempotenz-Marker gemeldeter Partner-Verkäufe / Shopify-Webhooks.
 $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '\_transient\_wcis\_evt\_%' OR option_name LIKE '\_transient\_timeout\_wcis\_evt\_%' OR option_name LIKE '\_transient\_wcis\_shpwh\_%' OR option_name LIKE '\_transient\_timeout\_wcis\_shpwh\_%' OR option_name LIKE 'wcis\_evt\_%' OR option_name LIKE 'wcis\_shplock\_%' OR option_name LIKE 'wcis\_feedlock\_%'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery

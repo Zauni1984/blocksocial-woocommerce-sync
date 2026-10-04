@@ -3,7 +3,7 @@
  * Plugin Name:       BlockSocial WooCommerce Sync – Partner
  * Plugin URI:        https://github.com/Zauni1984/blocksocial-woocommerce-sync
  * Description:        Partner-Plugin für Partnershops im BlockSocial-Verbund. Verbindet diesen Shop per persönlichem Verbindungscode mit dem Hauptshop: Produkte und Bestände kommen automatisch vom Hauptshop, Verkäufe werden zurückgemeldet. Alle Vorgaben des Administrators sind geschützt – eigene Preisaufschläge (in %, je Kategorie oder für alle Produkte) sind im erlaubten Rahmen möglich.
- * Version:           3.1.0
+ * Version:           3.1.1
  * Author:            BlockSocial UG (haftungsbeschränkt)
  * Author URI:        https://blocksocial.eu
  * License:           MIT

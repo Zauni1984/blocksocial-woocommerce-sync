@@ -63,6 +63,10 @@ class WCIS_Admin {
 		add_action( 'wp_ajax_wcis_productpull_tick', array( $this, 'ajax_productpull_tick' ) );
 		add_action( 'wp_ajax_wcis_productpull_cancel', array( $this, 'ajax_productpull_cancel' ) );
 		add_action( 'wp_ajax_wcis_filter_preview', array( $this, 'ajax_filter_preview' ) );
+		add_action( 'wp_ajax_wcis_cleanup_analyze', array( $this, 'ajax_cleanup_analyze' ) );
+		add_action( 'wp_ajax_wcis_cleanup_remove', array( $this, 'ajax_cleanup_remove' ) );
+		add_action( 'wp_ajax_wcis_cleanup_tick', array( $this, 'ajax_cleanup_tick' ) );
+		add_action( 'wp_ajax_wcis_cleanup_cancel', array( $this, 'ajax_cleanup_cancel' ) );
 
 		// Preisregeln (beide Editionen, Empfänger-Shops).
 		add_action( 'wp_ajax_wcis_pricing_save', array( $this, 'ajax_pricing_save' ) );
@@ -174,6 +178,17 @@ class WCIS_Admin {
 					'confirmShopify'   => __( 'Übertragung an den gewählten Shopify-Shop starten?', 'blocksocial-woocommerce-sync' ),
 					'copied'           => __( 'Kopiert!', 'blocksocial-woocommerce-sync' ),
 					'removeRule'       => __( 'Regel entfernen', 'blocksocial-woocommerce-sync' ),
+					'cleanupFetch'     => __( 'Lade Produktliste vom Hauptshop …', 'blocksocial-woocommerce-sync' ),
+					'cleanupScan'      => __( 'Prüfe Produkte gegen den Sync-Filter …', 'blocksocial-woocommerce-sync' ),
+					'cleanupChecked'   => __( 'Produkte geprüft', 'blocksocial-woocommerce-sync' ),
+					'cleanupOwn'       => __( 'eigene Produkte (nicht im Hauptshop) – bleiben unangetastet', 'blocksocial-woocommerce-sync' ),
+					'cleanupFound'     => __( 'Produkte liegen außerhalb des Sync-Umfangs und können entfernt werden', 'blocksocial-woocommerce-sync' ),
+					'cleanupNone'      => __( 'Keine Produkte außerhalb des Sync-Umfangs gefunden.', 'blocksocial-woocommerce-sync' ),
+					'cleanupRemoving'  => __( 'Entferne', 'blocksocial-woocommerce-sync' ),
+					'cleanupRemoved'   => __( 'entfernt', 'blocksocial-woocommerce-sync' ),
+					'cleanupMore'      => __( 'weitere', 'blocksocial-woocommerce-sync' ),
+					'confirmCleanupTrash'  => __( 'Die gefundenen Produkte in den Papierkorb verschieben? Sie lassen sich dort 30 Tage lang wiederherstellen.', 'blocksocial-woocommerce-sync' ),
+					'confirmCleanupDelete' => __( 'Die gefundenen Produkte ENDGÜLTIG löschen – inklusive der vom Sync importierten Bilder? Das kann nicht rückgängig gemacht werden.', 'blocksocial-woocommerce-sync' ),
 				),
 			)
 		);
@@ -266,6 +281,7 @@ class WCIS_Admin {
 			'filter_include_ids' => isset( $_POST['filter_include_ids'] ) ? array_map( 'intval', (array) $_POST['filter_include_ids'] ) : array(),
 			'filter_exclude_ids' => isset( $_POST['filter_exclude_ids'] ) ? array_map( 'intval', (array) $_POST['filter_exclude_ids'] ) : array(),
 			'filter_exclude_categories' => isset( $_POST['filter_exclude_categories'] ) ? array_map( 'intval', (array) $_POST['filter_exclude_categories'] ) : array(),
+			'filter_exclude_except_brands' => isset( $_POST['filter_exclude_except_brands'] ) ? array_map( 'intval', (array) $_POST['filter_exclude_except_brands'] ) : array(),
 			'product_fields'     => isset( $_POST['product_fields'] ) ? array_map( 'sanitize_key', (array) $_POST['product_fields'] ) : array(),
 			'tax_class_map'      => isset( $_POST['tax_class_map'] ) ? sanitize_textarea_field( wp_unslash( $_POST['tax_class_map'] ) ) : '',
 			'shops'          => $shops,
@@ -528,6 +544,57 @@ class WCIS_Admin {
 	}
 
 	/**
+	 * AJAX: startet die Aufräum-Analyse.
+	 */
+	public function ajax_cleanup_analyze() {
+		$this->check_ajax();
+		$job = WCIS_Cleanup::analyze_start(
+			array(
+				'origin' => isset( $_POST['origin'] ) ? sanitize_key( wp_unslash( $_POST['origin'] ) ) : 'marker', // phpcs:ignore WordPress.Security.NonceVerification
+				'since'  => isset( $_POST['since'] ) ? sanitize_text_field( wp_unslash( $_POST['since'] ) ) : '', // phpcs:ignore WordPress.Security.NonceVerification
+			)
+		);
+		if ( is_wp_error( $job ) ) {
+			wp_send_json_error( array( 'message' => $job->get_error_message() ) );
+		}
+		wp_send_json_success( WCIS_Cleanup::to_response( $job ) );
+	}
+
+	/**
+	 * AJAX: startet das Entfernen der analysierten Produkte.
+	 */
+	public function ajax_cleanup_remove() {
+		$this->check_ajax();
+		$mode = isset( $_POST['mode'] ) ? sanitize_key( wp_unslash( $_POST['mode'] ) ) : 'trash'; // phpcs:ignore WordPress.Security.NonceVerification
+		$job  = WCIS_Cleanup::remove_start( $mode );
+		if ( is_wp_error( $job ) ) {
+			wp_send_json_error( array( 'message' => $job->get_error_message() ) );
+		}
+		wp_send_json_success( WCIS_Cleanup::to_response( $job ) );
+	}
+
+	/**
+	 * AJAX: nächster Abschnitt des Aufräumens.
+	 */
+	public function ajax_cleanup_tick() {
+		$this->check_ajax();
+		$job = WCIS_Cleanup::tick();
+		if ( is_wp_error( $job ) ) {
+			wp_send_json_error( array( 'message' => $job->get_error_message() ) );
+		}
+		wp_send_json_success( WCIS_Cleanup::to_response( $job ) );
+	}
+
+	/**
+	 * AJAX: bricht das Aufräumen ab.
+	 */
+	public function ajax_cleanup_cancel() {
+		$this->check_ajax();
+		WCIS_Cleanup::cancel();
+		wp_send_json_success( WCIS_Cleanup::to_response( WCIS_Cleanup::state() ) );
+	}
+
+	/**
 	 * AJAX: Vorschau des Sync-Umfangs (berücksichtigt ungespeicherte Auswahl).
 	 */
 	public function ajax_filter_preview() {
@@ -545,6 +612,7 @@ class WCIS_Admin {
 				'filter_include_ids'        => $intarr( 'filter_include_ids' ),
 				'filter_exclude_ids'        => $intarr( 'filter_exclude_ids' ),
 				'filter_exclude_categories' => $intarr( 'filter_exclude_categories' ),
+				'filter_exclude_except_brands' => $intarr( 'filter_exclude_except_brands' ),
 			)
 		);
 

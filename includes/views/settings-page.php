@@ -429,7 +429,7 @@ $wcis_tabs = array(
 				<section class="wcis-tab" data-tab="filter">
 					<div class="wcis-card">
 						<div class="wcis-card-head"><h2><?php esc_html_e( 'Sync-Filter: Welche Produkte?', 'blocksocial-woocommerce-sync' ); ?></h2>
-							<p><?php esc_html_e( 'Legt fest, welche Produkte dieser Shop synchronisiert (Bestands- und Produkt-Sync). Ausgeschlossene werden nie verändert.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+							<p><?php esc_html_e( 'Legt fest, welche Produkte dieser Shop synchronisiert (Bestands- und Produkt-Sync) – in BEIDE Richtungen: Produkte außerhalb des Umfangs werden weder gesendet noch von anderen Shops angelegt oder verändert. Eine Kategorie gilt immer inklusive ihrer Unterkategorien.', 'blocksocial-woocommerce-sync' ); ?></p></div>
 						<div class="wcis-card-body">
 							<div class="wcis-field">
 								<label><?php esc_html_e( 'Umfang', 'blocksocial-woocommerce-sync' ); ?></label>
@@ -514,8 +514,24 @@ $wcis_tabs = array(
 									}
 									?>
 								</select>
-								<small><?php esc_html_e( 'Harter Ausschluss – hat Vorrang vor allen Einschluss-Kriterien.', 'blocksocial-woocommerce-sync' ); ?></small>
+								<small><?php esc_html_e( 'Harter Ausschluss inkl. Unterkategorien – hat Vorrang vor allen Einschluss-Kriterien (außer den Ausnahme-Marken unten).', 'blocksocial-woocommerce-sync' ); ?></small>
 							</div>
+							<?php if ( $wcis_btax ) : ?>
+							<div class="wcis-field">
+								<label for="wcis-filter-except-brands"><?php esc_html_e( 'Ausnahmen vom Kategorie-Ausschluss (Marken)', 'blocksocial-woocommerce-sync' ); ?></label>
+								<?php $wcis_exbr = array_map( 'intval', (array) $s['filter_exclude_except_brands'] ); ?>
+								<select id="wcis-filter-except-brands" name="filter_exclude_except_brands[]" multiple="multiple" class="wc-enhanced-select" data-placeholder="<?php esc_attr_e( 'Marken wählen …', 'blocksocial-woocommerce-sync' ); ?>">
+									<?php
+									if ( ! is_wp_error( $wcis_bterms ) ) {
+										foreach ( $wcis_bterms as $wcis_bt ) {
+											printf( '<option value="%d" %s>%s</option>', (int) $wcis_bt->term_id, selected( in_array( (int) $wcis_bt->term_id, $wcis_exbr, true ), true, false ), esc_html( $wcis_bt->name ) );
+										}
+									}
+									?>
+								</select>
+								<small><?php esc_html_e( 'Produkte dieser Marken werden trotz ausgeschlossener Kategorie synchronisiert – z. B. „Growshop" ausschließen, außer Marke „Spider Farmer". Einzeln ausgeschlossene Produkte bleiben ausgeschlossen.', 'blocksocial-woocommerce-sync' ); ?></small>
+							</div>
+							<?php endif; ?>
 							<div class="wcis-field">
 								<button type="button" class="wcis-btn wcis-btn--ghost" id="wcis-filter-preview-btn"><?php esc_html_e( 'Vorschau: Umfang anzeigen', 'blocksocial-woocommerce-sync' ); ?></button>
 								<div id="wcis-filter-preview" class="wcis-preview" style="display:none;"></div>
@@ -596,6 +612,50 @@ $wcis_tabs = array(
 							<?php endif; ?>
 						</div>
 					</div>
+
+				<?php if ( WCIS_Cleanup::available() ) : ?>
+					<?php
+					$wcis_cjob      = WCIS_Cleanup::state();
+					$wcis_cresp     = WCIS_Cleanup::to_response( $wcis_cjob );
+					$wcis_crunning  = $wcis_cjob && 'running' === $wcis_cjob['status'];
+					$wcis_cpct      = WCIS_Cleanup::percent( $wcis_cjob );
+					$wcis_cremoving = $wcis_crunning && 'remove' === $wcis_cjob['phase'];
+					?>
+					<div class="wcis-card" id="wcis-cleanup-card" data-state="<?php echo esc_attr( wp_json_encode( $wcis_cresp ) ); ?>">
+						<div class="wcis-card-head"><h2><?php esc_html_e( 'Aufräumen: Produkte außerhalb des Sync-Filters entfernen', 'blocksocial-woocommerce-sync' ); ?></h2>
+							<p><?php esc_html_e( 'Findet Produkte, die vom Hauptshop übertragen wurden, aber nicht (mehr) im Sync-Umfang liegen – nach dem Sync-Filter dieses Shops (Reiter „Sync-Filter") und dem des Hauptshops. Eigene Produkte dieses Shops, deren SKU es im Hauptshop nicht gibt, werden nie angefasst. Erst analysieren, dann die Liste prüfen und entfernen.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+						<div class="wcis-card-body">
+							<form method="post" id="wcis-cleanup-form" class="wcis-actionrow" onsubmit="return false;">
+								<div class="wcis-field">
+									<label><?php esc_html_e( 'Welche Produkte kommen in Frage?', 'blocksocial-woocommerce-sync' ); ?></label>
+									<label class="wcis-radio"><input type="radio" name="cleanup_origin" value="since" checked /> <span><?php esc_html_e( 'Angelegt ab Datum:', 'blocksocial-woocommerce-sync' ); ?></span>
+										<input type="date" id="wcis-cleanup-since" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" /></label>
+									<label class="wcis-radio"><input type="radio" name="cleanup_origin" value="marker" /> <span><?php esc_html_e( 'Alle vom Sync angelegten Produkte (Markierung ab Version 3.1.1)', 'blocksocial-woocommerce-sync' ); ?></span></label>
+									<small><?php esc_html_e( 'Produkte, die mit einer älteren Version übertragen wurden, haben noch keine Markierung – dafür das Datum der Übertragung wählen. Gespeicherte Filter-Einstellungen werden verwendet.', 'blocksocial-woocommerce-sync' ); ?></small>
+								</div>
+								<button type="submit" class="wcis-btn wcis-btn--primary" id="wcis-cleanup-analyze"><?php esc_html_e( 'Analysieren', 'blocksocial-woocommerce-sync' ); ?></button>
+								<button type="button" class="wcis-btn wcis-btn--ghost" id="wcis-cleanup-cancel" style="display:none;"><?php esc_html_e( 'Abbrechen', 'blocksocial-woocommerce-sync' ); ?></button>
+							</form>
+							<div id="wcis-cleanup-progress-wrap" class="wcis-progress-wrap" style="<?php echo ( $wcis_crunning && ! $wcis_cremoving ) ? '' : 'display:none;'; ?>">
+								<div class="wcis-progress-bar"><div class="wcis-progress-fill" id="wcis-cleanup-progress-fill" style="width:<?php echo esc_attr( $wcis_cpct ); ?>%;"><span id="wcis-cleanup-progress-label"><?php echo esc_html( $wcis_cpct . '%' ); ?></span></div></div>
+								<p class="wcis-progress-text" id="wcis-cleanup-progress-text"></p>
+							</div>
+							<div id="wcis-cleanup-result" class="wcis-preview" style="display:none;"></div>
+							<form method="post" id="wcis-cleanup-remove-form" class="wcis-actionrow" onsubmit="return false;" style="display:none;">
+								<select id="wcis-cleanup-mode" style="width:auto;max-width:100%;">
+									<option value="trash"><?php esc_html_e( 'In den Papierkorb verschieben (wiederherstellbar)', 'blocksocial-woocommerce-sync' ); ?></option>
+									<option value="delete"><?php esc_html_e( 'Endgültig löschen inkl. importierter Bilder', 'blocksocial-woocommerce-sync' ); ?></option>
+								</select>
+								<button type="submit" class="wcis-btn wcis-btn--danger" id="wcis-cleanup-remove"><?php esc_html_e( 'Gefundene Produkte entfernen', 'blocksocial-woocommerce-sync' ); ?></button>
+								<button type="button" class="wcis-btn wcis-btn--ghost" id="wcis-cleanup-remove-cancel" style="display:none;"><?php esc_html_e( 'Abbrechen', 'blocksocial-woocommerce-sync' ); ?></button>
+							</form>
+							<div id="wcis-cleanup-remove-wrap" class="wcis-progress-wrap" style="<?php echo $wcis_cremoving ? '' : 'display:none;'; ?>">
+								<div class="wcis-progress-bar"><div class="wcis-progress-fill" id="wcis-cleanup-remove-fill" style="width:<?php echo esc_attr( $wcis_cpct ); ?>%;"><span id="wcis-cleanup-remove-label"><?php echo esc_html( $wcis_cpct . '%' ); ?></span></div></div>
+								<p class="wcis-progress-text" id="wcis-cleanup-remove-text"></p>
+							</div>
+						</div>
+					</div>
+				<?php endif; ?>
 
 				<div class="wcis-card">
 					<div class="wcis-card-head"><h2><?php esc_html_e( 'Weitere Aktionen', 'blocksocial-woocommerce-sync' ); ?></h2></div>

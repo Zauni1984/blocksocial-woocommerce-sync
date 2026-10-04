@@ -652,8 +652,9 @@ class WCIS_Sync_Engine {
 			return 'ignored';
 		}
 
-		// Explizit ausgeschlossene Produkte auch eingehend nicht verändern.
-		if ( WCIS_Filter::is_excluded( $product ) ) {
+		// Produkte außerhalb des Sync-Filters (ausgeschlossen bzw. im Modus „Nur
+		// ausgewählte" nicht gewählt) auch eingehend nicht verändern.
+		if ( ! WCIS_Filter::should_sync( $product ) ) {
 			return 'skipped';
 		}
 

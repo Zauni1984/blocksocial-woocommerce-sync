@@ -58,13 +58,15 @@ class WCIS_Settings {
 			'update_prices'                => false,    // Empfänger: Preise bestehender Produkte aktualisieren (auch ohne volle Überschreibung).
 			'price_gross_mode'             => false,    // Empfänger (Kleinunternehmer §19): eingehende Preise als Brutto übernehmen.
 			'accept_sale_prices'           => true,     // Empfänger: Angebotspreise übernehmen (aus = eigene Angebotspreise bleiben unangetastet).
-			// Sync-Filter: welche Produkte werden (ausgehend) synchronisiert?
+			// Sync-Filter: welche Produkte werden synchronisiert (gesendet UND empfangen)?
 			'filter_mode'        => 'all', // all | selected
 			'filter_categories'  => array(),
 			'filter_brands'      => array(),
 			'filter_include_ids' => array(),
 			'filter_exclude_ids' => array(),
 			'filter_exclude_categories' => array(),
+			// Marken, die vom Kategorie-Ausschluss ausgenommen sind.
+			'filter_exclude_except_brands' => array(),
 			// Welche Produkt-Felder werden beim Produkt-Sync übertragen? (null = alle)
 			'product_fields'     => array( 'name', 'price', 'sale_price', 'tax', 'description', 'short_description', 'images', 'categories', 'tags', 'brands', 'manufacturer', 'gtin', 'attributes', 'shipping_class', 'delivery_time', 'germanized', 'dimensions', 'status', 'stock' ),
 			// Steuerklassen-Zuordnung (Empfängerseite), z. B. "reduzierter-preis=reduced-rate" je Zeile.
@@ -152,6 +154,7 @@ class WCIS_Settings {
 		$s['filter_include_ids']        = array();
 		$s['filter_exclude_ids']        = array();
 		$s['filter_exclude_categories'] = array();
+		$s['filter_exclude_except_brands'] = array();
 
 		// Abgleich koordiniert ausschließlich der Hauptshop.
 		$s['reconcile_interval'] = 'off';

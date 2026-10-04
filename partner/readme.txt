@@ -6,7 +6,7 @@ Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 3.1.0
+Stable tag: 3.1.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -39,6 +39,10 @@ Dieses Plugin verbindet deinen WooCommerce-Shop als **Partnershop** mit einem Ha
 Hinweis: Nicht gleichzeitig mit dem Admin-Plugin „BlockSocial WooCommerce Sync" aktivieren.
 
 == Changelog ==
+
+= 3.1.1 =
+* Produkte werden mit vollständigem Kategorie-Pfad übernommen: fehlende Kategorien entstehen unter der richtigen Oberkategorie statt als neue Hauptkategorie.
+* Gemeinsame Fehlerbehebungen mit dem Admin-Plugin 3.1.1 (Sync-Filter inkl. Unterkategorien).
 
 = 3.1.0 =
 * Neue Option „Angebotspreise des Hauptshops übernehmen" (Reiter Produkte → Eigene Einstellungen). Ausgeschaltet werden nur reguläre Preise übernommen – eigene Angebotspreise bleiben unangetastet.

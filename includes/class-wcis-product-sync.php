@@ -549,6 +549,12 @@ class WCIS_Product_Sync {
 		// Kategorie-Ausschluss (auch bei NEUEN Produkten), selbst wenn das Feld
 		// „Kategorien" nicht übertragen/angewendet werden soll.
 		$data['cat_names'] = $cat_names;
+		// Vollständige Kategorie-Pfade (Haupt- › Unterkategorie): der Empfänger
+		// erkennt damit auch Oberkategorien (z. B. „Growshop") und legt fehlende
+		// Kategorien an der richtigen Stelle der Hierarchie an.
+		$data['cat_paths'] = self::category_paths( $product->get_id() );
+		// Marken immer mitsenden – für den Marken-Filter des Empfängers.
+		$data['brand_names'] = self::export_brands( $product );
 		if ( WCIS_Filter::field_enabled( 'categories' ) ) {
 			$data['categories'] = $cat_names;
 		}
@@ -557,7 +563,7 @@ class WCIS_Product_Sync {
 			$data['tags'] = is_wp_error( $tag_names ) ? array() : array_values( $tag_names );
 		}
 		if ( WCIS_Filter::field_enabled( 'brands' ) ) {
-			$data['brands'] = self::export_brands( $product );
+			$data['brands'] = $data['brand_names'];
 		}
 		if ( WCIS_Filter::field_enabled( 'manufacturer' ) ) {
 			$data['manufacturer'] = self::export_manufacturer( $product );
@@ -584,6 +590,33 @@ class WCIS_Product_Sync {
 		$data['variations'] = ( 'variable' === $type ) ? self::export_variations( $product ) : array();
 
 		return $data;
+	}
+
+	/**
+	 * Kategorie-Pfade eines Produkts: je zugeordneter Kategorie die Namen von
+	 * der Hauptkategorie bis zur Kategorie selbst.
+	 *
+	 * @param int $product_id Produkt-ID.
+	 * @return array Liste von Namenslisten.
+	 */
+	public static function category_paths( $product_id ) {
+		$terms = wp_get_post_terms( $product_id, 'product_cat' );
+		if ( is_wp_error( $terms ) ) {
+			return array();
+		}
+		$paths = array();
+		foreach ( $terms as $term ) {
+			$path = array();
+			foreach ( array_reverse( get_ancestors( $term->term_id, 'product_cat', 'taxonomy' ) ) as $aid ) {
+				$a = get_term( $aid, 'product_cat' );
+				if ( $a && ! is_wp_error( $a ) ) {
+					$path[] = $a->name;
+				}
+			}
+			$path[]  = $term->name;
+			$paths[] = $path;
+		}
+		return $paths;
 	}
 
 	/**
@@ -632,7 +665,7 @@ class WCIS_Product_Sync {
 	 * @param WC_Product $product Produkt.
 	 * @return array Liste von Marken-Namen.
 	 */
-	protected static function export_brands( $product ) {
+	public static function export_brands( $product ) {
 		// Marken aus der Taxonomie lesen, in der das Produkt tatsächlich Begriffe
 		// hat (deckt auch Shops mit mehreren Marken-Taxonomien ab).
 		$candidates = apply_filters(
@@ -1186,7 +1219,10 @@ class WCIS_Product_Sync {
 		// Explizit ausgeschlossene Produkte auch eingehend nicht anlegen/verändern.
 		// Greift auch bei NEUEN Produkten anhand der mitgesendeten Kategorien
 		// (z. B. ausgeschlossene Kategorie „Merch").
-		if ( WCIS_Filter::is_excluded_incoming( $payload ) ) {
+		// Sync-Filter dieses Shops gilt auch eingehend: ausgeschlossene Kategorien
+		// (inkl. Unterkategorien, Ausnahme-Marken) und im Modus „Nur ausgewählte"
+		// alles außerhalb der gewählten Kategorien/Marken wird nicht angelegt.
+		if ( ! WCIS_Filter::accepts_incoming( $payload, (int) $existing_id ) ) {
 			return 'skipped';
 		}
 
@@ -1240,7 +1276,14 @@ class WCIS_Product_Sync {
 
 			// Kategorien / Schlagwörter per Name.
 			if ( isset( $payload['categories'] ) ) {
-				wp_set_object_terms( $product_id, self::term_ids( (array) $payload['categories'], 'product_cat' ), 'product_cat' );
+				$cat_ids = ! empty( $payload['cat_paths'] ) && is_array( $payload['cat_paths'] )
+					? self::category_ids_from_paths( $payload['cat_paths'] )
+					: self::term_ids( (array) $payload['categories'], 'product_cat' );
+				wp_set_object_terms( $product_id, $cat_ids, 'product_cat' );
+			}
+			// Herkunfts-Markierung: vom Sync angelegt (für „Aufräumen").
+			if ( $is_new ) {
+				update_post_meta( $product_id, WCIS_Cleanup::ORIGIN_META, time() );
 			}
 			if ( isset( $payload['tags'] ) ) {
 				wp_set_object_terms( $product_id, self::term_ids( (array) $payload['tags'], 'product_tag' ), 'product_tag' );
@@ -1829,6 +1872,64 @@ class WCIS_Product_Sync {
 			}
 		}
 		return $ids;
+	}
+
+	/**
+	 * Ermittelt Kategorie-IDs aus Kategorie-Pfaden. Eine hier schon vorhandene
+	 * Kategorie gleichen Namens wird weiterverwendet (bisheriges Verhalten);
+	 * fehlende Kategorien werden unter ihrer Oberkategorie angelegt statt als
+	 * neue Hauptkategorie.
+	 *
+	 * @param array $paths Liste von Namenslisten (Haupt- › Unterkategorie).
+	 * @return int[]
+	 */
+	protected static function category_ids_from_paths( array $paths ) {
+		$ids = array();
+		foreach ( $paths as $path ) {
+			$path = array_values( array_filter( array_map( static function ( $n ) {
+				return trim( wp_strip_all_tags( (string) $n ) );
+			}, (array) $path ), 'strlen' ) );
+			if ( empty( $path ) ) {
+				continue;
+			}
+			$leaf = get_term_by( 'name', end( $path ), 'product_cat' );
+			if ( $leaf ) {
+				$ids[] = (int) $leaf->term_id;
+				continue;
+			}
+			$parent = 0;
+			foreach ( $path as $name ) {
+				$found = get_terms(
+					array(
+						'taxonomy'   => 'product_cat',
+						'name'       => $name,
+						'parent'     => $parent,
+						'hide_empty' => false,
+						'number'     => 1,
+						'fields'     => 'ids',
+					)
+				);
+				if ( ! is_wp_error( $found ) && ! empty( $found ) ) {
+					$parent = (int) $found[0];
+					continue;
+				}
+				$new = wp_insert_term( $name, 'product_cat', array( 'parent' => $parent ) );
+				if ( is_wp_error( $new ) ) {
+					$existing = $new->get_error_data( 'term_exists' );
+					if ( ! $existing ) {
+						$parent = 0;
+						break;
+					}
+					$parent = (int) $existing;
+				} else {
+					$parent = (int) $new['term_id'];
+				}
+			}
+			if ( $parent ) {
+				$ids[] = $parent;
+			}
+		}
+		return array_values( array_unique( $ids ) );
 	}
 
 	/**

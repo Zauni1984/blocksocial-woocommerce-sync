@@ -33,6 +33,7 @@ class WCIS_REST_Controller {
 		self::route( '/config', 'POST', 'receive_config', array( 'network', 'master' ) );
 		self::route( '/product', 'POST', 'receive_product', array( 'network', 'master' ) );
 		self::route( '/products-export', 'GET', 'export_products', array( 'network', 'partner' ) );
+		self::route( '/products-terms', 'GET', 'export_terms', array( 'network' ) );
 		self::route( '/partner/hello', 'GET', 'partner_hello', array( 'partner' ) );
 	}
 
@@ -318,6 +319,31 @@ class WCIS_REST_Controller {
 				'page'        => $page,
 				'per_page'    => $per_page,
 				'total'       => $result['total'],
+				'total_pages' => $result['total_pages'],
+				'items'       => $result['items'],
+			),
+			200
+		);
+	}
+
+	/**
+	 * Schlanker Export (SKUs, Kategorie-Pfade, Marken, Umfang) für das
+	 * Aufräumen auf Neben-Shops.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response
+	 */
+	public static function export_terms( $request ) {
+		$page     = max( 1, (int) $request->get_param( 'page' ) );
+		$per_page = (int) $request->get_param( 'per_page' );
+		$per_page = $per_page > 0 ? min( 250, $per_page ) : 200;
+
+		$result = WCIS_Cleanup::export_terms_page( $page, $per_page );
+
+		return new WP_REST_Response(
+			array(
+				'ok'          => true,
+				'page'        => $page,
 				'total_pages' => $result['total_pages'],
 				'items'       => $result['items'],
 			),

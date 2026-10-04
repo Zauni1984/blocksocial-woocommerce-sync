@@ -270,7 +270,8 @@
 				filter_brands: $( '#wcis-filter-brands' ).val() || [],
 				filter_include_ids: $( '#wcis-filter-include' ).val() || [],
 				filter_exclude_ids: $( '#wcis-filter-exclude' ).val() || [],
-				filter_exclude_categories: $( '#wcis-filter-excl-cats' ).val() || []
+				filter_exclude_categories: $( '#wcis-filter-excl-cats' ).val() || [],
+				filter_exclude_except_brands: $( '#wcis-filter-except-brands' ).val() || []
 			};
 
 			$.post( WCIS.ajaxUrl, data )
@@ -352,6 +353,86 @@
 				return '';
 			}
 		} );
+
+		// --- Aufräumen: Produkte außerhalb des Sync-Filters ---
+		function renderCleanup( d ) {
+			var $res = $( '#wcis-cleanup-result' );
+			var $rm = $( '#wcis-cleanup-remove-form' );
+			if ( ! d || d.status !== 'analyzed' ) {
+				$rm.hide();
+				if ( ! d || d.status !== 'done' ) {
+					$res.hide();
+				}
+				return;
+			}
+			var html = '<p>' + num( d.checked ) + ' ' + esc( WCIS.i18n.cleanupChecked ) + ', ' + num( d.own ) + ' ' + esc( WCIS.i18n.cleanupOwn ) + '.</p>';
+			if ( ! d.candidates ) {
+				html += '<p><strong>✓ ' + esc( WCIS.i18n.cleanupNone ) + '</strong></p>';
+				$rm.hide();
+			} else {
+				html += '<p><strong>' + num( d.candidates ) + ' ' + esc( WCIS.i18n.cleanupFound ) + ':</strong></p><ul class="wcis-preview-list">';
+				$.each( d.sample || [], function ( i, r ) {
+					html += '<li>' + esc( r.name ) + ' <code>' + esc( r.sku ) + '</code>' + ( r.cats ? ' – ' + esc( r.cats ) : '' ) + '</li>';
+				} );
+				html += '</ul>';
+				if ( d.candidates > ( d.sample || [] ).length ) {
+					html += '<p><em>… ' + num( d.candidates - d.sample.length ) + ' ' + esc( WCIS.i18n.cleanupMore ) + '</em></p>';
+				}
+				$rm.show();
+			}
+			$res.html( html ).show();
+		}
+		if ( $( '#wcis-cleanup-card' ).length ) {
+			makeRunner( {
+				form: '#wcis-cleanup-form', btn: '#wcis-cleanup-analyze', cancel: '#wcis-cleanup-cancel',
+				wrap: '#wcis-cleanup-progress-wrap', fill: '#wcis-cleanup-progress-fill', label: '#wcis-cleanup-progress-label', text: '#wcis-cleanup-progress-text',
+				startAction: 'wcis_cleanup_analyze', tickAction: 'wcis_cleanup_tick', cancelAction: 'wcis_cleanup_cancel',
+				extra: function () {
+					return { origin: $( 'input[name="cleanup_origin"]:checked' ).val(), since: $( '#wcis-cleanup-since' ).val() };
+				},
+				message: function ( d ) {
+					renderCleanup( d );
+					if ( d.status === 'running' ) {
+						return ( d.phase === 'fetch' ? WCIS.i18n.cleanupFetch : WCIS.i18n.cleanupScan ) + ' ' + d.percent + '%';
+					}
+					if ( d.status === 'analyzed' ) {
+						return '✓ ' + WCIS.i18n.done + '.';
+					}
+					if ( d.status === 'error' ) {
+						return '✗ ' + ( d.message || WCIS.i18n.genericError );
+					}
+					if ( d.status === 'cancelled' ) {
+						return WCIS.i18n.cancelled + '.';
+					}
+					return '';
+				}
+			} );
+			makeRunner( {
+				form: '#wcis-cleanup-remove-form', btn: '#wcis-cleanup-remove', cancel: '#wcis-cleanup-remove-cancel',
+				wrap: '#wcis-cleanup-remove-wrap', fill: '#wcis-cleanup-remove-fill', label: '#wcis-cleanup-remove-label', text: '#wcis-cleanup-remove-text',
+				startAction: 'wcis_cleanup_remove', tickAction: 'wcis_cleanup_tick', cancelAction: 'wcis_cleanup_cancel',
+				confirm: function () {
+					return $( '#wcis-cleanup-mode' ).val() === 'delete' ? WCIS.i18n.confirmCleanupDelete : WCIS.i18n.confirmCleanupTrash;
+				},
+				extra: function () { return { mode: $( '#wcis-cleanup-mode' ).val() }; },
+				message: function ( d ) {
+					if ( d.status === 'running' ) {
+						return WCIS.i18n.cleanupRemoving + ' ' + d.percent + '% – ' + d.index + '/' + d.candidates + ' ' + WCIS.i18n.products;
+					}
+					if ( d.status === 'done' ) {
+						$( '#wcis-cleanup-remove-form' ).hide();
+						return '✓ ' + WCIS.i18n.done + ': ' + d.removed + ' ' + WCIS.i18n.cleanupRemoved + ( d.failed ? ', ' + d.failed + ' ' + WCIS.i18n.failedUnit : '' ) + '.';
+					}
+					if ( d.status === 'cancelled' ) {
+						return WCIS.i18n.cancelled + '.';
+					}
+					return '';
+				}
+			} );
+			try {
+				renderCleanup( JSON.parse( $( '#wcis-cleanup-card' ).attr( 'data-state' ) || 'null' ) );
+			} catch ( e ) {}
+		}
 
 		// --- Bestätigung für Formulare mit data-confirm (Löschen, Sperren …) ---
 		$( document ).on( 'submit', 'form[data-confirm]', function ( e ) {

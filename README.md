@@ -132,22 +132,39 @@ Optionale Funktion (Standard **aus**), um neue Produkte automatisch an alle Shop
 
 ## Sync-Filter: Welche Produkte werden synchronisiert?
 
-Jeder Shop legt selbst fest, welche seiner Produkte am Sync teilnehmen (gilt für
-**Bestands- und Produkt-Sync** sowie den Abgleich):
+Jeder Shop legt selbst fest, welche Produkte am Sync teilnehmen – **in beide Richtungen**
+(ab 3.1.1): Produkte außerhalb des Umfangs werden weder gesendet noch von anderen Shops hier
+angelegt oder verändert (gilt für **Bestands- und Produkt-Sync** sowie den Abgleich):
 
 - **Umfang:** „Alle Produkte" oder „Nur ausgewählte".
-- **Nach Kategorie** – eine oder mehrere Produktkategorien.
+- **Nach Kategorie** – eine oder mehrere Produktkategorien, jeweils **inklusive aller
+  Unterkategorien**.
 - **Nach Marke** – erkennt gängige Marken-Taxonomien automatisch (WooCommerce Brands,
   Perfect Brands, YITH u. a.).
 - **Einzelne Produkte einschließen** – gezielte Produktsuche (WooCommerce-Select2).
 - **Einzelne Produkte ausschließen** – harter Ausschluss: diese Produkte werden nie
   verändert, weder ausgehend noch eingehend.
-- **Kategorien ausschließen** – ganze Produktkategorien hart ausschließen (hat Vorrang vor
-  allen Einschluss-Kriterien).
+- **Kategorien ausschließen** – ganze Produktkategorien inkl. Unterkategorien hart
+  ausschließen (hat Vorrang vor allen Einschluss-Kriterien).
+- **Ausnahmen vom Kategorie-Ausschluss (Marken)** – z. B. „Growshop" ausschließen, **außer**
+  Marke „Spider Farmer".
 
 Im Modus „Nur ausgewählte" wird ein Produkt synchronisiert, sobald **mindestens ein**
 Kriterium zutrifft (Einzelauswahl **oder** Kategorie **oder** Marke) – sofern es nicht
 ausgeschlossen ist.
+
+Eingehende Produkte bringen ihren vollständigen **Kategorie-Pfad** (z. B.
+„Growshop › Zeltzubehör") und ihre Marken mit. Der Empfänger erkennt dadurch auch
+Oberkategorien (ein Ausschluss von „Growshop" greift auch für „Zeltzubehör", selbst wenn es
+diese Unterkategorie hier noch nicht gibt) und legt fehlende Kategorien unter der richtigen
+Oberkategorie an statt als neue Hauptkategorie.
+
+**Aufräumen (Neben-Shops, Reiter Aktionen):** findet vom Hauptshop übertragene Produkte, die
+nicht (mehr) im Sync-Umfang liegen – etwa nach einem falsch übertragenen Sortiment –, zeigt
+sie zur Prüfung an und verschiebt sie in den Papierkorb oder löscht sie endgültig inkl. der
+importierten Bilder (mit Fortschrittsbalken). Auswahl: alle vom Sync angelegten Produkte
+(Markierung ab 3.1.1) oder alle ab einem Stichtag angelegten. Eigene Produkte, deren SKU es im
+Hauptshop nicht gibt, werden nie angefasst.
 
 **Vorschau:** Der Button „Umfang anzeigen" berechnet anhand der aktuellen (auch
 ungespeicherten) Auswahl, wie viele Produkte in den Sync-Umfang fallen, und zeigt eine
