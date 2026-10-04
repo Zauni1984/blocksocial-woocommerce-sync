@@ -68,21 +68,111 @@ class WCIS_Settings {
 			'product_fields'     => array( 'name', 'price', 'tax', 'description', 'short_description', 'images', 'categories', 'tags', 'brands', 'manufacturer', 'gtin', 'attributes', 'shipping_class', 'delivery_time', 'germanized', 'dimensions', 'status', 'stock' ),
 			// Steuerklassen-Zuordnung (Empfängerseite), z. B. "reduzierter-preis=reduced-rate" je Zeile.
 			'tax_class_map'      => '',
+			// Preisregeln (Empfänger-Shops): Auf-/Abschlag in % für alle Produkte
+			// und/oder je Kategorie, optional mit Preis-Rundung.
+			'price_rules'        => array(
+				'global'     => 0,
+				'categories' => array(),
+				'rounding'   => 'none',
+			),
+			// Admin-Edition: Vorgaben für alle Partnershops (siehe WCIS_Partners).
+			'partner_policy'     => array(),
+			// Partner-Edition: Verbindung zum Hauptshop (aus dem Verbindungscode).
+			'partner_conn'       => array(),
+			// Partner-Edition: vom Hauptshop vorgegebene (schreibgeschützte) Einstellungen.
+			'managed'            => array(),
 		);
+	}
+
+	/**
+	 * Gespeicherte Werte + Defaults (ohne Partner-Overlay).
+	 *
+	 * @return array
+	 */
+	protected static function raw() {
+		$saved = get_option( WCIS_OPT, array() );
+		$saved = is_array( $saved ) ? $saved : array();
+		return wp_parse_args( $saved, self::defaults() );
 	}
 
 	/**
 	 * Liefert alle Einstellungen (mit Defaults gemischt).
 	 *
+	 * Im Partner-Plugin werden alle vom Administrator vorgegebenen Werte
+	 * erzwungen (Overlay) – lokal gespeicherte Abweichungen haben keine Wirkung.
+	 *
 	 * @return array
 	 */
 	public static function all() {
 		if ( null === self::$cache ) {
-			$saved        = get_option( WCIS_OPT, array() );
-			$saved        = is_array( $saved ) ? $saved : array();
-			self::$cache  = wp_parse_args( $saved, self::defaults() );
+			$all = self::raw();
+			if ( WCIS_Edition::is_partner() ) {
+				$all = self::partner_overlay( $all );
+			}
+			self::$cache = $all;
 		}
 		return self::$cache;
+	}
+
+	/**
+	 * Erzwingt im Partner-Plugin die Vorgaben des Hauptshops.
+	 *
+	 * @param array $s Einstellungen.
+	 * @return array
+	 */
+	protected static function partner_overlay( array $s ) {
+		$conn = is_array( $s['partner_conn'] ) ? $s['partner_conn'] : array();
+		$m    = wp_parse_args( is_array( $s['managed'] ) ? $s['managed'] : array(), WCIS_Partners::policy_defaults() );
+		$m    = array_merge( $m, WCIS_Partners::sanitize_policy( $m ) );
+
+		$connected = ! empty( $conn['master_url'] ) && ! empty( $conn['key'] ) && ! empty( $conn['secret'] );
+
+		$s['managed']        = $m;
+		$s['enabled']        = $connected;
+		$s['network_secret'] = '';
+		$s['this_shop_url']  = untrailingslashit( home_url() );
+		$s['master_url']     = $connected ? untrailingslashit( $conn['master_url'] ) : '';
+		$s['shops']          = $connected
+			? array( array( 'name' => isset( $conn['master_name'] ) ? $conn['master_name'] : $conn['master_url'], 'url' => untrailingslashit( $conn['master_url'] ) ) )
+			: array();
+
+		// Produkte kommen ausschließlich vom Hauptshop; Partner verteilen keine Produkte.
+		$s['product_sync_enabled']         = $connected;
+		$s['product_sync_source']          = 'master';
+		$s['product_sync_images']          = ! empty( $m['images'] );
+		$s['product_sync_update_existing'] = ! empty( $m['update_existing'] );
+		$s['update_prices']                = ! empty( $m['update_prices'] );
+		$s['sync_status']                  = ! empty( $m['sync_status'] );
+
+		// Bestandsmeldungen umfassen alle Produkte (der Hauptshop ignoriert Fremd-SKUs).
+		$s['filter_mode']               = 'all';
+		$s['filter_categories']         = array();
+		$s['filter_brands']             = array();
+		$s['filter_include_ids']        = array();
+		$s['filter_exclude_ids']        = array();
+		$s['filter_exclude_categories'] = array();
+
+		// Abgleich koordiniert ausschließlich der Hauptshop.
+		$s['reconcile_interval'] = 'off';
+
+		// Preisregeln nur, wenn vom Hauptshop erlaubt – und nur im erlaubten Rahmen.
+		$s['price_rules'] = WCIS_Pricing::sanitize_rules(
+			$s['price_rules'],
+			! empty( $m['allow_price_rules'] ) ? (float) $m['price_min'] : 0,
+			! empty( $m['allow_price_rules'] ) ? (float) $m['price_max'] : 0
+		);
+
+		return $s;
+	}
+
+	/**
+	 * Partner-Edition: Verbindungsdaten zum Hauptshop.
+	 *
+	 * @return array { master_url, master_name, key, secret } oder leer.
+	 */
+	public static function partner_conn() {
+		$c = self::get( 'partner_conn', array() );
+		return ( is_array( $c ) && ! empty( $c['key'] ) && ! empty( $c['secret'] ) && ! empty( $c['master_url'] ) ) ? $c : array();
 	}
 
 	/**
@@ -103,9 +193,11 @@ class WCIS_Settings {
 	 * @param array $values Neue Werte (werden mit vorhandenen gemischt).
 	 */
 	public static function update( array $values ) {
-		$merged = wp_parse_args( $values, self::all() );
+		// Mit den GESPEICHERTEN Werten mischen (nicht mit dem Partner-Overlay),
+		// damit erzwungene Vorgaben nicht dauerhaft in die Option geschrieben werden.
+		$merged = wp_parse_args( $values, self::raw() );
 		update_option( WCIS_OPT, $merged );
-		self::$cache = $merged;
+		self::$cache = null;
 	}
 
 	/**
@@ -156,32 +248,87 @@ class WCIS_Settings {
 	/**
 	 * Liefert alle Peer-Shops (alle Shops außer diesem).
 	 *
-	 * @return array Liste von ['name'=>..,'url'=>..].
+	 * Admin-Edition: eigene Shops des Netzwerks (type 'network') und – auf dem
+	 * Hauptshop – alle aktiven Partnershops (type 'partner').
+	 * Partner-Edition: ausschließlich der Hauptshop (type 'master').
+	 *
+	 * @param string $type Optional: nur Peers dieses Typs ('network'|'partner'|'master').
+	 * @return array Liste von ['name'=>..,'url'=>..,'type'=>..].
 	 */
-	public static function get_peers() {
+	public static function get_peers( $type = '' ) {
 		$self  = self::normalize_url( self::this_url() );
 		$peers = array();
+		$seen  = array();
+
+		$shop_type = WCIS_Edition::is_partner() ? 'master' : 'network';
 		foreach ( (array) self::get( 'shops', array() ) as $shop ) {
 			if ( empty( $shop['url'] ) ) {
 				continue;
 			}
-			if ( self::normalize_url( $shop['url'] ) === $self ) {
-				continue; // sich selbst überspringen.
+			$n = self::normalize_url( $shop['url'] );
+			if ( $n === $self || isset( $seen[ $n ] ) ) {
+				continue; // sich selbst / Doppelte überspringen.
 			}
-			$peers[] = array(
-				'name' => isset( $shop['name'] ) ? $shop['name'] : $shop['url'],
+			$seen[ $n ] = true;
+			$peers[]    = array(
+				'name' => isset( $shop['name'] ) && $shop['name'] ? $shop['name'] : $shop['url'],
 				'url'  => untrailingslashit( $shop['url'] ),
+				'type' => $shop_type,
+			);
+		}
+
+		// Partner hängen am Hauptshop: nur dort werden sie beliefert.
+		if ( WCIS_Edition::is_admin_edition() && self::is_master() ) {
+			foreach ( WCIS_Partners::active() as $p ) {
+				$n = self::normalize_url( $p['url'] );
+				if ( $n === $self || isset( $seen[ $n ] ) ) {
+					continue;
+				}
+				$seen[ $n ] = true;
+				$peers[]    = array(
+					'name' => $p['name'],
+					'url'  => untrailingslashit( $p['url'] ),
+					'type' => 'partner',
+					'key'  => $p['key'],
+				);
+			}
+		}
+
+		if ( '' !== $type ) {
+			$peers = array_values(
+				array_filter(
+					$peers,
+					static function ( $p ) use ( $type ) {
+						return $p['type'] === $type;
+					}
+				)
 			);
 		}
 		return $peers;
 	}
 
 	/**
-	 * Das Netzwerk-Secret.
+	 * Ist eine Kommunikation möglich (Secret bzw. Partner-Verbindung vorhanden)?
+	 *
+	 * @return bool
+	 */
+	public static function has_credentials() {
+		if ( WCIS_Edition::is_partner() ) {
+			return ! empty( self::partner_conn() );
+		}
+		return '' !== self::secret() || ! empty( WCIS_Partners::active() );
+	}
+
+	/**
+	 * Das Netzwerk-Secret (Partner-Edition: das persönliche Partner-Secret).
 	 *
 	 * @return string
 	 */
 	public static function secret() {
+		if ( WCIS_Edition::is_partner() ) {
+			$c = self::partner_conn();
+			return $c ? (string) $c['secret'] : '';
+		}
 		return (string) self::get( 'network_secret', '' );
 	}
 

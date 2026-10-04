@@ -49,6 +49,10 @@ $wcis_icon = static function ( $name ) {
 		'filter'    => '<path d="M3 5h18l-7 8v6l-4-2v-4L3 5z"/>',
 		'actions'   => '<path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/>',
 		'log'       => '<path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+		'partners'  => '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.2c3 .2 5.5 2.6 5.5 5.8"/>',
+		'shopify'   => '<path d="M5 7h14l-1.2 13H6.2L5 7z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/>',
+		'pricing'   => '<path d="M3 12V4h8l10 10-8 8L3 12z"/><circle cx="7.5" cy="8.5" r="1.5"/>',
+		'feeds'     => '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h7"/>',
 	);
 	$d = isset( $p[ $name ] ) ? $p[ $name ] : '';
 	return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $d . '</svg>';
@@ -57,8 +61,12 @@ $wcis_icon = static function ( $name ) {
 $wcis_tabs = array(
 	'general'   => __( 'Allgemein', 'blocksocial-woocommerce-sync' ),
 	'network'   => __( 'Netzwerk', 'blocksocial-woocommerce-sync' ),
+	'partners'  => __( 'Partner', 'blocksocial-woocommerce-sync' ),
+	'shopify'   => __( 'Shopify', 'blocksocial-woocommerce-sync' ),
 	'reconcile' => __( 'Abgleich', 'blocksocial-woocommerce-sync' ),
 	'product'   => __( 'Produkt-Sync', 'blocksocial-woocommerce-sync' ),
+	'pricing'   => __( 'Preise', 'blocksocial-woocommerce-sync' ),
+	'feeds'     => __( 'CSV-Feeds', 'blocksocial-woocommerce-sync' ),
 	'filter'    => __( 'Sync-Filter', 'blocksocial-woocommerce-sync' ),
 	'actions'   => __( 'Aktionen', 'blocksocial-woocommerce-sync' ),
 	'log'       => __( 'Protokoll', 'blocksocial-woocommerce-sync' ),
@@ -72,8 +80,8 @@ $wcis_tabs = array(
 		<div class="wcis-brand">
 			<span class="wcis-logo"><?php echo $wcis_icon( 'reconcile' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span>
 			<span class="wcis-brand-text">
-				<strong><?php esc_html_e( 'Lagerbestand-Sync', 'blocksocial-woocommerce-sync' ); ?></strong>
-				<small><?php esc_html_e( 'Multi-Shop-Synchronisation', 'blocksocial-woocommerce-sync' ); ?></small>
+				<strong><?php esc_html_e( 'BlockSocial Sync', 'blocksocial-woocommerce-sync' ); ?></strong>
+				<small><?php echo esc_html( sprintf( __( 'Admin-Edition · v%s', 'blocksocial-woocommerce-sync' ), WCIS_VERSION ) ); ?></small>
 			</span>
 		</div>
 		<div class="wcis-pills">
@@ -83,7 +91,10 @@ $wcis_tabs = array(
 			<span class="wcis-pill <?php echo $wcis_master ? 'is-master' : ''; ?>">
 				<?php echo $wcis_master ? esc_html__( 'Hauptshop', 'blocksocial-woocommerce-sync' ) : esc_html__( 'Neben-Shop', 'blocksocial-woocommerce-sync' ); ?>
 			</span>
-			<span class="wcis-pill"><?php echo esc_html( sprintf( __( '%d Shops', 'blocksocial-woocommerce-sync' ), count( $wcis_peers ) ) ); ?></span>
+			<span class="wcis-pill"><?php echo esc_html( sprintf( __( '%d Shops', 'blocksocial-woocommerce-sync' ), count( WCIS_Settings::get_peers( 'network' ) ) ) ); ?></span>
+			<?php if ( $wcis_master ) : ?>
+				<span class="wcis-pill"><?php echo esc_html( sprintf( __( '%1$d Partner · %2$d Shopify', 'blocksocial-woocommerce-sync' ), count( WCIS_Partners::active() ), count( WCIS_Shopify::active_stores() ) ) ); ?></span>
+			<?php endif; ?>
 			<span class="wcis-pill <?php echo $wcis_counts['failed'] > 0 ? 'is-warn' : ''; ?>">
 				<?php echo esc_html( sprintf( __( 'Queue %1$d/%2$d', 'blocksocial-woocommerce-sync' ), $wcis_counts['pending'], $wcis_counts['failed'] ) ); ?>
 			</span>
@@ -115,7 +126,38 @@ $wcis_tabs = array(
 			'queue_retried'  => array( 'ok', __( 'Warteschlange wird erneut verarbeitet.', 'blocksocial-woocommerce-sync' ) ),
 			'log_cleared'    => array( 'ok', __( 'Protokoll geleert.', 'blocksocial-woocommerce-sync' ) ),
 			'reconciled'     => array( 'ok', __( 'Abgleich ausgeführt.', 'blocksocial-woocommerce-sync' ) ),
+			'partner_added'     => array( 'ok', __( 'Partner angelegt. Verbindungscode unten kopieren und an den Partner geben.', 'blocksocial-woocommerce-sync' ) ),
+			'partner_updated'   => array( 'ok', __( 'Partner gespeichert und Vorgaben übertragen.', 'blocksocial-woocommerce-sync' ) ),
+			'partner_blocked'   => array( 'ok', __( 'Partner gesperrt.', 'blocksocial-woocommerce-sync' ) ),
+			'partner_unblocked' => array( 'ok', __( 'Partner entsperrt.', 'blocksocial-woocommerce-sync' ) ),
+			'partner_rotated'   => array( 'ok', __( 'Neuer Schlüssel erzeugt – der alte Verbindungscode ist ungültig. Neuen Code an den Partner geben.', 'blocksocial-woocommerce-sync' ) ),
+			'partner_deleted'   => array( 'ok', __( 'Partner gelöscht.', 'blocksocial-woocommerce-sync' ) ),
+			'partner_missing'   => array( 'err', __( 'Partner nicht gefunden.', 'blocksocial-woocommerce-sync' ) ),
+			'partner_error'     => array( 'err', __( 'Partner konnte nicht gespeichert werden.', 'blocksocial-woocommerce-sync' ) ),
+			'policy_saved'      => array( 'ok', __( 'Partner-Vorgaben gespeichert und verteilt.', 'blocksocial-woocommerce-sync' ) ),
+			'shopify_saved'     => array( 'ok', __( 'Shopify-Shop gespeichert. Jetzt „Verbindung testen" ausführen.', 'blocksocial-woocommerce-sync' ) ),
+			'shopify_deleted'   => array( 'ok', __( 'Shopify-Shop entfernt.', 'blocksocial-woocommerce-sync' ) ),
+			'shopify_error'     => array( 'err', __( 'Shopify-Shop konnte nicht gespeichert werden.', 'blocksocial-woocommerce-sync' ) ),
+			'feed_saved'        => array( 'ok', __( 'CSV-Feed gespeichert. Die Abruf-URL steht in der Liste.', 'blocksocial-woocommerce-sync' ) ),
+			'feed_generated'    => array( 'ok', __( 'CSV-Feed wird komplett neu aufgebaut.', 'blocksocial-woocommerce-sync' ) ),
+			'feed_rotated'      => array( 'ok', __( 'Neue Abruf-URL erzeugt – die alte ist ungültig.', 'blocksocial-woocommerce-sync' ) ),
+			'feed_deleted'      => array( 'ok', __( 'CSV-Feed gelöscht.', 'blocksocial-woocommerce-sync' ) ),
+			'feed_missing'      => array( 'err', __( 'CSV-Feed nicht gefunden.', 'blocksocial-woocommerce-sync' ) ),
+			'feed_error'        => array( 'err', __( 'CSV-Feed konnte nicht erzeugt werden.', 'blocksocial-woocommerce-sync' ) ),
 		);
+		if ( in_array( $wcis_notice, array( 'partner_error', 'shopify_error', 'feed_error' ), true ) ) {
+			$wcis_err = get_transient( 'wcis_admin_error_' . get_current_user_id() );
+			if ( $wcis_err ) {
+				$wcis_messages[ $wcis_notice ][1] .= ' ' . $wcis_err;
+				delete_transient( 'wcis_admin_error_' . get_current_user_id() );
+			}
+		}
+		if ( 'policy_saved' === $wcis_notice ) {
+			$wcis_r = get_transient( 'wcis_pushconfig_result' );
+			if ( $wcis_r ) {
+				$wcis_messages[ $wcis_notice ][1] .= ' ' . sprintf( __( '%1$d Partner erreicht, %2$d nicht erreichbar.', 'blocksocial-woocommerce-sync' ), $wcis_r['ok'], $wcis_r['fail'] );
+			}
+		}
 		if ( isset( $wcis_messages[ $wcis_notice ] ) ) {
 			$wcis_m = $wcis_messages[ $wcis_notice ];
 			printf( '<div class="wcis-alert is-%s">%s</div>', esc_attr( $wcis_m[0] ), esc_html( $wcis_m[1] ) );
@@ -217,7 +259,7 @@ $wcis_tabs = array(
 				<section class="wcis-tab" data-tab="network">
 					<div class="wcis-card">
 						<div class="wcis-card-head"><h2><?php esc_html_e( 'Netzwerk-Verbindung', 'blocksocial-woocommerce-sync' ); ?></h2>
-							<p><?php esc_html_e( 'Alle Shops im Verbund benötigen dasselbe Netzwerk-Secret.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+							<p><?php esc_html_e( 'Alle EIGENEN Shops im Verbund benötigen dasselbe Netzwerk-Secret. Partnershops werden NICHT hier eingetragen, sondern im Reiter „Partner" – sie erhalten einen eigenen Schlüssel.', 'blocksocial-woocommerce-sync' ); ?></p></div>
 						<div class="wcis-card-body">
 							<div class="wcis-field">
 								<label for="wcis-secret"><?php esc_html_e( 'Netzwerk-Secret', 'blocksocial-woocommerce-sync' ); ?></label>
@@ -477,6 +519,8 @@ $wcis_tabs = array(
 				</section>
 			</form>
 
+			<?php require WCIS_PATH . 'includes/views/admin-tabs.php'; ?>
+
 			<!-- TAB: Aktionen -->
 			<section class="wcis-tab" data-tab="actions">
 				<?php
@@ -518,6 +562,7 @@ $wcis_tabs = array(
 							<p class="wcis-progress-text" id="wcis-product-progress-text"></p>
 						</div>
 					</div>
+				</div>
 
 					<?php
 					$wcis_qjob     = WCIS_Product_Sync::pull_state();
@@ -545,7 +590,6 @@ $wcis_tabs = array(
 							<?php endif; ?>
 						</div>
 					</div>
-				</div>
 
 				<div class="wcis-card">
 					<div class="wcis-card-head"><h2><?php esc_html_e( 'Weitere Aktionen', 'blocksocial-woocommerce-sync' ); ?></h2></div>
@@ -554,7 +598,7 @@ $wcis_tabs = array(
 							<input type="hidden" name="action" value="wcis_push_config" />
 							<?php wp_nonce_field( 'wcis_push_config' ); ?>
 							<button type="submit" class="wcis-btn wcis-btn--ghost"><?php esc_html_e( 'Konfiguration an alle Shops verteilen', 'blocksocial-woocommerce-sync' ); ?></button>
-							<span class="wcis-hint"><?php esc_html_e( 'Verteilt Shop-Liste und Hauptshop-Auswahl (Secret & eigene URL bleiben unverändert).', 'blocksocial-woocommerce-sync' ); ?></span>
+							<span class="wcis-hint"><?php esc_html_e( 'Verteilt Shop-Liste und Hauptshop-Auswahl an die eigenen Shops (Secret & eigene URL bleiben unverändert) sowie die Vorgaben an alle Partner.', 'blocksocial-woocommerce-sync' ); ?></span>
 						</form>
 						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="wcis-actionrow">
 							<input type="hidden" name="action" value="wcis_reconcile_now" />

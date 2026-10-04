@@ -12,6 +12,18 @@ alle übrigen Shops übertragen; neue Produkte lassen sich 1:1 verteilen.
 
 Die Plugin-Dateien liegen im **Wurzelverzeichnis** dieses Repositorys – der Ordnername für die Installation lautet `blocksocial-woocommerce-sync`.
 
+## Zwei Plugins (ab 3.0)
+
+Aus demselben Quellcode entstehen **zwei installierbare Plugins**:
+
+| Plugin | Für wen | Ordner / ZIP |
+|---|---|---|
+| **BlockSocial WooCommerce Sync** (Admin-Plugin) | Hauptshop und alle eigenen Shops des Betreibers | `blocksocial-woocommerce-sync` |
+| **BlockSocial WooCommerce Sync – Partner** | Partnershops (Dropshipping-/B2B-Partner) | `blocksocial-woocommerce-sync-partner` |
+
+Beide ZIPs werden mit `bin/build.sh [ausgabeordner]` gebaut (prüft Versionsgleichheit und PHP-Syntax).
+Admin- und Partner-Plugin dürfen nicht gleichzeitig im selben Shop aktiv sein.
+
 > **Hinweis zum Update von 1.x („WC Inventory Sync"):** Ordner, Hauptdatei und Text-Domain
 > heißen ab 2.0.0 `blocksocial-woocommerce-sync`. Die internen REST-Namespaces und
 > Options-Keys bleiben unverändert – bestehende Verbünde synchronisieren nach dem Update
@@ -34,6 +46,10 @@ Die Plugin-Dateien liegen im **Wurzelverzeichnis** dieses Repositorys – der Or
 | Auswählen, was synchronisiert wird | **Sync-Filter** pro Shop: nach Kategorie, Marke, Einzelprodukt; Ausschlussliste; **Feld-Auswahl** (z. B. Preis) für den Produkt-Sync |
 | Steuer 1:1 übertragen | **Steuerstatus & Steuerklasse** als eigenes Feld (auch für Variationen); **Steuerklassen-Zuordnung** für abweichende Slugs zwischen Shops |
 | Erst-Sync auch vom Neben-Shop | **Pull**: ein Neben-Shop holt sich die Produkte des Hauptshops selbst – ohne dass der Hauptshop an alle verteilt |
+| Partnershops, die nichts kaputtmachen können | **Partner-Plugin** mit persönlichem Schlüssel, Rechteprüfung je Endpunkt und vom Hauptshop erzwungenen Vorgaben |
+| Preise nach dem Einspielen anpassen | **Preisregeln** in % (hoch/runter), für alle Produkte oder je Kategorie, mit Rundung, Vorschau und Fortschrittsbalken |
+| Shopify-Shops anbinden | **Shopify-Connector** (Admin GraphQL API): Produkte, Bestände in Echtzeit, Verkäufe per Webhook zurück |
+| Shops ohne Plugin beliefern | **CSV-Produktfeeds** mit geheimer Abruf-URL, immer aktuellem Bestand und eigenen Preisregeln |
 
 ## Funktionsweise
 
@@ -141,9 +157,73 @@ Beispielliste.
 
 Für den Produkt-Sync lässt sich wählen, welche Felder übertragen werden: **Preis**
 (regulär & Angebot), Beschreibung, Kurzbeschreibung, Bilder, Kategorien, Schlagwörter,
-Attribute, Maße/Gewicht, Status, Lagerbestand. Beispiel: Haken bei „Preis" entfernen,
+**Marken**, **Hersteller** (inkl. Adresse & EU-Bevollmächtigtem), **EAN/GTIN**, Attribute, **Versandklasse**, **Lieferzeit**, **Germanized-Grundpreis**, Maße/Gewicht, Status, Lagerbestand. Beispiel: Haken bei „Preis" entfernen,
 damit jeder Shop **eigene Preise** behalten kann. Der Produktname wird zur Zuordnung
 immer mitgesendet.
+
+## Partnershops (Partner-Plugin)
+
+Partner sind externe Shops, die das Sortiment des Hauptshops verkaufen. Sie bekommen **kein**
+Netzwerk-Secret, sondern einen **persönlichen Zugangsschlüssel**:
+
+1. Hauptshop → *BlockSocial Sync → Partner* → Name, Shop-URL und Sortiment (alle oder bestimmte Kategorien) eintragen → **Verbindungscode** kopieren.
+2. Partner installiert das Partner-Plugin → *WooCommerce → BlockSocial Partner → Verbindung* → Code einfügen → „Verbinden".
+3. Partner → *Produkte* → „Produkte vom Hauptshop holen" (Fortschrittsbalken).
+
+**Was ein Partner darf – und was nicht**
+
+| Aktion | Partner |
+|---|---|
+| Produkte seines Sortiments abrufen, Bestände empfangen | ✅ |
+| Verkäufe melden (als Mengen-Delta aus Bestellungen, idempotent) | ✅ (standardmäßig nur verringernd) |
+| Eigene Preisregeln im vom Hauptshop erlaubten Rahmen | ✅ (wenn freigegeben) |
+| Konfiguration/Topologie des Verbunds ändern (`/config`) | ❌ 403 |
+| Produkte im Hauptshop anlegen/ändern (`/product`) | ❌ 403 |
+| Gesamtbestand lesen (`/inventory`) | ❌ 403 |
+| Absolute Bestände setzen oder Bestand erhöhen | ❌ ignoriert |
+| Mit anderen Partnern oder eigenen Shops sprechen | ❌ (Schlüssel gilt nur gegenüber dem Hauptshop) |
+
+**Vorgaben für alle Partner** (im Hauptshop, im Partnershop schreibgeschützt): Produktdaten aktuell
+halten, Preisänderungen übernehmen, Bilder, Lagerstatus, eigene Preisregeln erlauben + Rahmen
+(Min/Max %), „Partner dürfen Bestand nur verringern". Partner lassen sich jederzeit **sperren**, ihr
+Schlüssel **erneuern** oder löschen; letzter Kontakt und Plugin-Version sind sichtbar.
+
+Der Hauptshop ist die **Verteil-Zentrale**: Verkäufe von Partnern, eigenen Neben-Shops und Shopify
+werden an alle übrigen Empfänger weitergereicht. Beim Abgleich werden Partner korrigiert, ihre
+Bestände bestimmen den Sollwert aber nie.
+
+## Preisregeln (Empfänger-Shops)
+
+Reiter **Preise** (Neben- und Partnershops): Auf-/Abschlag in % für **alle Produkte** und/oder **je
+Kategorie** (Unterkategorien erben, spezifischste Regel gewinnt), optional **Rundung** auf ,99 / ,95 /
+,90 / 10 Cent / volle Euro. „Vorschau" zeigt Beispielpreise, „Speichern & anwenden" läuft mit
+Fortschrittsbalken über alle Produkte.
+
+- Je Produkt/Variation wird der **Basispreis** gespeichert → kein Aufschlag auf den Aufschlag, beliebig oft anwendbar.
+- Neue Preise vom Hauptshop werden automatisch die neue Basis – die Regel wird sofort wieder angewendet, die Marge bleibt.
+- 0 % bzw. „Originalpreise wiederherstellen" setzt zurück; manuell geänderte Preise gelten als neue Basis.
+
+## Shopify-Anbindung
+
+Reiter **Shopify** (nur Hauptshop): Shopify-Shops werden direkt über die **Admin GraphQL API (2026-10)**
+beliefert – in Shopify ist kein Plugin nötig.
+
+- Zugang: App im **Shopify Dev Dashboard** (Client-ID + Client-Secret; Token wird automatisch geholt/erneuert) oder bestehende Legacy-Custom-App (`shpat_…`). Scopes: `read_products, write_products, read_inventory, write_inventory, read_locations`.
+- „Verbindung testen" erkennt Lagerort, Währung und Brutto/Netto (`taxesIncluded`) und richtet den Webhook `inventory_levels/update` ein.
+- **Produkte**: Anlegen inkl. Varianten (max. 3 Optionen), EAN, Gewicht, Bilder; Aktualisieren ohne Bilder/Varianten in Shopify zu löschen. Preise brutto/netto passend zum Shopify-Shop, mit **eigenen Preisregeln je Shopify-Shop**. Sortiment je Shop wählbar.
+- **Bestände**: Echtzeit mit Compare-and-Swap (`changeFromQuantity`) – Verkäufe in Shopify gehen auch bei gleichzeitigen Verkäufen nicht verloren; Webhooks werden per HMAC geprüft und dedupliziert.
+- Erstbefüllung/Abgleich über Jobs mit Fortschrittsbalken; Fehler landen in der Retry-Queue.
+
+## CSV-Produktfeeds (Shops ohne Plugin)
+
+Reiter **CSV-Feeds** (Admin-Plugin): Für Shops und Systeme, die kein Plugin installieren können
+(z. B. Jimdo, Marktplätze, Warenwirtschaft), stellt der Shop CSV-Feeds bereit.
+
+- Jeder Feed hat eine **eigene geheime Abruf-URL** (`https://shop.de/?blocksocial_feed=<id>&key=<token>`), jederzeit erneuerbar; zusätzlich **Download-Button**.
+- Eine Zeile je Artikel (einfache Produkte, Varianten mit `parent_sku`, optional Eltern-Zeilen): SKU, EAN, Preise (**brutto/netto**, eigene **Preisregeln je Feed**), Bestand, Lagerstatus, Lieferrückstand, Lieferzeit, Grundpreis, Kategorien, Marke, Hersteller, Gewicht, Bilder, Produkt-URL, Beschreibungen.
+- Optionen je Feed: Sortiment (Kategorien), nur lieferbare Artikel, Trennzeichen `;` / `,` / Tab, UTF-8-BOM, Beschreibungen ein/aus.
+- **Immer aktuell, ohne ständiges Neuschreiben einer Datei:** Jede Produktzeile ist einzeln gespeichert (Tabelle `wcis_feed_rows`). Ändert sich Bestand, Preis oder ein Produkt – auch durch Verkäufe in anderen Shops –, wird **nur die Zeile dieses Produkts** neu berechnet. Beim Abruf wird die CSV direkt aus den gespeicherten Zeilen ausgeliefert. `ETag`/`If-Modified-Since` werden unterstützt (unverändert → HTTP 304).
+- Sicherheit: Token-Prüfung mit `hash_equals`, `noindex`, Schutz vor CSV-Formel-Injektion in Textfeldern.
 
 ## Hauptshop wechseln
 
@@ -166,6 +246,8 @@ immer mitgesendet.
 - **Topologie-Schutz:** Änderungen an Shop-Liste/Hauptshop (`/config`) werden nur vom konfigurierten Hauptshop akzeptiert.
 - **Eingangs-Validierung:** Steuer-/Lagerstatus und Lieferrückstand werden gegen Whitelists geprüft; Beschreibungen laufen durch `wp_kses_post`; Ausgaben im Backend sind konsequent escaped.
 - **SSRF-Schutz:** der Bild-Import akzeptiert nur externe http(s)-URLs (interne/Loopback-Adressen werden via `wp_http_validate_url` blockiert).
+- **Partner-Isolation (ab 3.0):** Partner signieren mit einem persönlichen Schlüssel (`X-WCIS-Key`); jeder REST-Endpunkt prüft zusätzlich die **Rolle des Absenders** (eigener Shop / Partner / Hauptshop). Partner-Verkäufe sind idempotent (Ereignis-IDs), auf das Sortiment beschränkt und standardmäßig nur verringernd. Gesperrte Partner werden sofort abgewiesen.
+- **Shopify-Webhooks** werden per HMAC-SHA256 (Client-Secret) über den Roh-Body verifiziert und anhand der Webhook-ID dedupliziert; Zugangsdaten werden nie im Formular angezeigt.
 
 ## Dateien
 
@@ -183,7 +265,17 @@ blocksocial-woocommerce-sync.php     # Bootstrap, Konstanten, HPOS-Kompatibilit�
 │   ├── class-wcis-queue.php       # Retry-Queue
 │   ├── class-wcis-logger.php      # Protokoll
 │   ├── class-wcis-admin.php       # Backend & AJAX
-│   └── views/settings-page.php    # Einstellungsseite
+│   ├── bootstrap.php              # Gemeinsamer Start beider Editionen
+│   ├── class-wcis-edition.php     # Admin- oder Partner-Edition
+│   ├── class-wcis-partners.php    # Partner-Registry, Verbindungscode, Vorgaben, Sortiment
+│   ├── class-wcis-pricing.php     # Preisregeln + Massen-Anwendung
+│   ├── class-wcis-shopify.php     # Shopify: Bestand (CAS), Produkte, Webhooks, Jobs
+│   ├── class-wcis-shopify-api.php # Shopify GraphQL-Client (Token, Drosselung)
+│   ├── class-wcis-feeds.php       # CSV-Produktfeeds (Zeilen-Cache, Auslieferung)
+│   ├── class-wcis-view.php        # Darstellungs-Helfer
+│   └── views/                     # settings-page.php, admin-tabs.php, partner-page.php
+├── partner/                       # Haupt-Datei + readme des Partner-Plugins
+├── bin/build.sh                   # Baut beide Plugin-ZIPs
 └── assets/                        # admin.css, admin.js
 ```
 

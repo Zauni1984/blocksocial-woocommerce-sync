@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       BlockSocial WooCommerce Sync
+ * Plugin Name:       BlockSocial WooCommerce Sync – Partner
  * Plugin URI:        https://github.com/Zauni1984/blocksocial-woocommerce-sync
- * Description:        Enterprise-Grade WooCommerce-Plugin für Produkt- und Bestands-Synchronisation zwischen mehreren Shops in nahezu Echtzeit. Zuordnung per SKU, wählbarer Hauptshop (Master), Partner-Verwaltung mit eigenen Zugangsschlüsseln, Preisregeln und Shopify-Anbindung. Baue dein eigenes Dropshipping-/B2B-Business auf. (Admin-Edition – für Partnershops gibt es das separate Partner-Plugin.)
+ * Description:        Partner-Plugin für Partnershops im BlockSocial-Verbund. Verbindet diesen Shop per persönlichem Verbindungscode mit dem Hauptshop: Produkte und Bestände kommen automatisch vom Hauptshop, Verkäufe werden zurückgemeldet. Alle Vorgaben des Administrators sind geschützt – eigene Preisaufschläge (in %, je Kategorie oder für alle Produkte) sind im erlaubten Rahmen möglich.
  * Version:           3.0.0
  * Author:            BlockSocial UG (haftungsbeschränkt)
  * Author URI:        https://blocksocial.eu
@@ -34,7 +34,7 @@ if ( defined( 'WCIS_EDITION' ) ) {
 	return;
 }
 
-define( 'WCIS_EDITION', 'admin' );
+define( 'WCIS_EDITION', 'partner' );
 define( 'WCIS_FILE', __FILE__ );
 
 require_once __DIR__ . '/includes/bootstrap.php';

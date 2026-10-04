@@ -59,6 +59,13 @@ class WCIS_Product_Sync {
 	protected static $broadcasted = array();
 
 	/**
+	 * Produkt-IDs, die in diesem Request bereits für Shopify eingereiht wurden.
+	 *
+	 * @var array
+	 */
+	protected static $shopify_queued = array();
+
+	/**
 	 * Registriert die Hooks.
 	 *
 	 * Bewusst NICHT an `woocommerce_update_product` gehängt: dieser Hook feuert
@@ -69,12 +76,51 @@ class WCIS_Product_Sync {
 	 */
 	public static function init() {
 		add_action( 'woocommerce_new_product', array( __CLASS__, 'on_new_product' ), 20, 2 );
+		// Neue Variation an einem bestehenden variablen Produkt → Eltern-Produkt neu verteilen.
+		add_action( 'woocommerce_new_product_variation', array( __CLASS__, 'on_new_variation' ), 20, 1 );
 		add_action( 'transition_post_status', array( __CLASS__, 'on_status_transition' ), 20, 3 );
 		// Preisänderungen bestehender Produkte automatisch verteilen. Feuert bei
 		// jeder Produkt-/Variations-Speicherung, überträgt aber nur, wenn sich der
 		// Preis wirklich geändert hat (kein Spam bei reinen Bestandsänderungen).
 		add_action( 'woocommerce_update_product', array( __CLASS__, 'on_product_price_change' ), 20, 2 );
 		add_action( 'woocommerce_update_product_variation', array( __CLASS__, 'on_variation_price_change' ), 20, 2 );
+		// Exakte Erkennung: Preisänderung direkt vor dem Speichern festhalten (auch
+		// die allererste Änderung nach der Aktivierung wird so zuverlässig erkannt).
+		add_action( 'woocommerce_before_product_object_save', array( __CLASS__, 'capture_price_change' ), 10, 1 );
+	}
+
+	/**
+	 * Produkte (Eltern-IDs), deren Preis in diesem Request geändert wurde.
+	 *
+	 * @var array
+	 */
+	protected static $price_changed = array();
+
+	/**
+	 * Hook vor dem Speichern: merkt sich echte Preisänderungen (regulär/Angebot).
+	 *
+	 * @param WC_Product $product Produkt oder Variation.
+	 */
+	public static function capture_price_change( $product ) {
+		if ( self::$suppress || ! $product instanceof WC_Product || ! $product->get_id() ) {
+			return;
+		}
+		$changes = $product->get_changes();
+		if ( array_key_exists( 'regular_price', $changes ) || array_key_exists( 'sale_price', $changes ) ) {
+			$id = $product->is_type( 'variation' ) ? (int) $product->get_parent_id() : (int) $product->get_id();
+			if ( $id ) {
+				self::$price_changed[ $id ] = true;
+			}
+		}
+	}
+
+	/**
+	 * Setzt die Broadcast-Sperre (z. B. während Preisregeln angewendet werden).
+	 *
+	 * @param bool $on true = keine Produkt-Übertragungen auslösen.
+	 */
+	public static function set_suppress( $on ) {
+		self::$suppress = (bool) $on;
 	}
 
 	/**
@@ -115,9 +161,12 @@ class WCIS_Product_Sync {
 		$last = (string) get_post_meta( $pid, '_wcis_price_sig', true );
 		// Signatur ohne Produkt-Speicherung aktualisieren (keine Hook-Schleife).
 		update_post_meta( $pid, '_wcis_price_sig', $sig );
-		// Ersterfassung (leer) als Basiswert behandeln – erst spätere echte
-		// Änderungen verteilen (verhindert eine Verteil-Welle beim ersten Speichern).
-		if ( '' === $last || $last === $sig ) {
+		// Verteilen bei exakt erkannter Änderung (vor dem Speichern festgehalten) –
+		// sonst nur, wenn eine bekannte Signatur abweicht. Eine leere Signatur allein
+		// löst nichts aus (keine Verteil-Welle beim ersten Speichern aller Produkte).
+		$changed = isset( self::$price_changed[ $pid ] );
+		unset( self::$price_changed[ $pid ] );
+		if ( ! $changed && ( '' === $last || $last === $sig ) ) {
 			return;
 		}
 		self::broadcast_product( $product );
@@ -171,7 +220,7 @@ class WCIS_Product_Sync {
 		if ( ! WCIS_Settings::get( 'product_sync_enabled', false ) ) {
 			return false;
 		}
-		if ( '' === WCIS_Settings::secret() || empty( WCIS_Settings::get_peers() ) ) {
+		if ( ! WCIS_Settings::has_credentials() || empty( WCIS_Settings::get_peers() ) ) {
 			return false;
 		}
 		// Quelle: nur Hauptshop oder jeder Shop.
@@ -190,6 +239,42 @@ class WCIS_Product_Sync {
 	public static function on_new_product( $product_id, $product = null ) {
 		$product = $product instanceof WC_Product ? $product : wc_get_product( $product_id );
 		self::broadcast_product( $product );
+	}
+
+	/**
+	 * Hook: neue Variation angelegt – das Eltern-Produkt (mit allen Variationen)
+	 * erneut übertragen, damit die Variation auch in den anderen Shops entsteht.
+	 *
+	 * @param int $variation_id Variations-ID.
+	 */
+	public static function on_new_variation( $variation_id ) {
+		if ( self::$suppress ) {
+			return;
+		}
+		$variation = wc_get_product( $variation_id );
+		if ( $variation instanceof WC_Product && $variation->get_parent_id() ) {
+			// Am Request-Ende, damit SKU/Preis/Attribute der Variation bereits gespeichert sind.
+			$parent_id = (int) $variation->get_parent_id();
+			add_action(
+				'shutdown',
+				static function () use ( $parent_id ) {
+					WCIS_Product_Sync::broadcast_parent( $parent_id );
+				},
+				-1
+			);
+		}
+	}
+
+	/**
+	 * Überträgt ein Eltern-Produkt (für on_new_variation).
+	 *
+	 * @param int $parent_id Produkt-ID.
+	 */
+	public static function broadcast_parent( $parent_id ) {
+		$parent = wc_get_product( (int) $parent_id );
+		if ( $parent ) {
+			self::broadcast_product( $parent );
+		}
 	}
 
 	/**
@@ -219,6 +304,15 @@ class WCIS_Product_Sync {
 	 * @param WC_Product|false $product Produkt.
 	 */
 	protected static function broadcast_product( $product ) {
+		// Angebundene Shopify-Shops (Produkt-Sync) unabhängig von den WooCommerce-
+		// Peers beliefern – einmal je Produkt und Request.
+		if ( ! self::$suppress && $product instanceof WC_Product
+			&& ( $product->is_type( 'simple' ) || $product->is_type( 'variable' ) )
+			&& ! isset( self::$shopify_queued[ $product->get_id() ] ) ) {
+			self::$shopify_queued[ $product->get_id() ] = true;
+			WCIS_Shopify::queue_product( $product );
+		}
+
 		if ( ! self::should_broadcast() ) {
 			return;
 		}
@@ -250,7 +344,11 @@ class WCIS_Product_Sync {
 		}
 
 		// Guaranteed Delivery: über die Retry-Queue (wird bei Ausfall nachgereicht).
+		// Partner erhalten nur Produkte aus ihrem Sortiment.
 		foreach ( WCIS_Settings::get_peers() as $peer ) {
+			if ( ! WCIS_Partners::url_allows_product( $peer['url'], $product ) ) {
+				continue;
+			}
 			WCIS_Queue::add( $peer['url'], array( 'source' => WCIS_Settings::this_url(), 'product' => $payload ), '', '/product' );
 		}
 		WCIS_Logger::info( sprintf( 'Produkt „%s" (SKU %s) zur Übertragung eingereiht.', $product->get_name(), $payload['sku'] ), 'outbound' );
@@ -295,12 +393,15 @@ class WCIS_Product_Sync {
 				? $p['regular_price_gross']
 				: $p['regular_price'];
 			$product->set_regular_price( (string) $rp );
+			// Eingehender Preis = Basis für Preisregeln (Auf-/Abschläge).
+			WCIS_Pricing::set_base( $product, 'regular', (string) $rp );
 		}
 		if ( isset( $p['sale_price'] ) ) {
 			$sp = ( $use_gross && isset( $p['sale_price_gross'] ) )
 				? $p['sale_price_gross']
 				: $p['sale_price'];
 			$product->set_sale_price( (string) $sp );
+			WCIS_Pricing::set_base( $product, 'sale', (string) $sp );
 		}
 	}
 
@@ -346,6 +447,8 @@ class WCIS_Product_Sync {
 				self::set_prices( $product, $payload, $use_gross );
 				$product->save();
 			}
+			// Eigene Preisregeln (Auf-/Abschläge) auf die neuen Basispreise anwenden.
+			WCIS_Pricing::reprice_product( (int) $existing_id );
 		} catch ( \Throwable $e ) {
 			WCIS_Logger::error(
 				sprintf( 'Preis-Aktualisierung für Produkt-ID %d fehlgeschlagen: %s', (int) $existing_id, $e->getMessage() ),
@@ -1163,6 +1266,10 @@ class WCIS_Product_Sync {
 			if ( 'variable' === $type && ! empty( $payload['variations'] ) ) {
 				self::apply_variations( $product_id, $payload['variations'] );
 			}
+
+			// Eigene Preisregeln (Auf-/Abschläge je Kategorie/alle) anwenden – nach
+			// dem Setzen der Kategorien, damit Kategorie-Regeln greifen.
+			WCIS_Pricing::reprice_product( (int) $product_id );
 		} catch ( \Throwable $e ) {
 			WCIS_Logger::error(
 				sprintf( 'Produkt (SKU %s) konnte nicht angewendet werden – übersprungen: %s', $sku, $e->getMessage() ),
@@ -1528,7 +1635,7 @@ class WCIS_Product_Sync {
 	 * @param string $tax_class Steuerklassen-Slug ('' = Standard).
 	 * @return float|null Prozentsatz oder null, wenn nicht ermittelbar.
 	 */
-	protected static function tax_rate_for_class( $tax_class ) {
+	public static function tax_rate_for_class( $tax_class ) {
 		if ( ! class_exists( 'WC_Tax' ) ) {
 			return null;
 		}
@@ -1783,7 +1890,7 @@ class WCIS_Product_Sync {
 		if ( empty( $peers ) ) {
 			return new WP_Error( 'wcis_no_targets', __( 'Keine Ziel-Shops konfiguriert.', 'blocksocial-woocommerce-sync' ) );
 		}
-		if ( '' === WCIS_Settings::secret() ) {
+		if ( ! WCIS_Settings::has_credentials() ) {
 			return new WP_Error( 'wcis_no_secret', __( 'Kein Netzwerk-Secret gesetzt.', 'blocksocial-woocommerce-sync' ) );
 		}
 
@@ -1863,6 +1970,9 @@ class WCIS_Product_Sync {
 					$payload = self::build_payload( $product );
 					if ( $payload ) {
 						foreach ( $job['peers'] as $peer_url ) {
+							if ( ! WCIS_Partners::url_allows_product( $peer_url, $product ) ) {
+								continue; // nicht im Sortiment dieses Partners.
+							}
 							// Gebundenes Timeout: ein einzelner langsamer Peer darf den
 							// Tick nicht über das PHP-Zeitlimit hinaus blockieren.
 							$res  = WCIS_Client::post( $peer_url, '/product', array( 'source' => WCIS_Settings::this_url(), 'product' => $payload ), true, self::PRODUCT_HTTP_TIMEOUT );
@@ -1980,11 +2090,12 @@ class WCIS_Product_Sync {
 	/**
 	 * Liefert eine Seite an Produkt-Payloads dieses Shops (für Pull).
 	 *
-	 * @param int $page     Seite (1-basiert).
-	 * @param int $per_page Produkte pro Seite.
+	 * @param int        $page     Seite (1-basiert).
+	 * @param int        $per_page Produkte pro Seite.
+	 * @param array|null $partner  Abrufender Partner (Sortiment-Filter) oder null.
 	 * @return array { items, total, total_pages }.
 	 */
-	public static function export_page( $page, $per_page ) {
+	public static function export_page( $page, $per_page, $partner = null ) {
 		// Kein SKU-Meta-Filter: variable Produkte ohne Eltern-SKU müssen ebenfalls
 		// exportiert werden (Zuordnung über Variations-SKUs). Nicht zuordenbare
 		// einfache Produkte ohne SKU liefert build_payload() als null zurück.
@@ -2010,6 +2121,9 @@ class WCIS_Product_Sync {
 			if ( ! WCIS_Filter::should_sync( $product ) ) {
 				continue;
 			}
+			if ( is_array( $partner ) && ! WCIS_Partners::allows_product( $partner, $product ) ) {
+				continue; // nicht im Sortiment des abrufenden Partners.
+			}
 			$payload = self::build_payload( $product );
 			if ( $payload ) {
 				$items[] = $payload;
@@ -2033,7 +2147,7 @@ class WCIS_Product_Sync {
 		if ( '' === $master || WCIS_Settings::normalize_url( $master ) === WCIS_Settings::normalize_url( WCIS_Settings::this_url() ) ) {
 			return new WP_Error( 'wcis_no_master', __( 'Dieser Shop ist selbst der Hauptshop – nutze „Alle Produkte übertragen".', 'blocksocial-woocommerce-sync' ) );
 		}
-		if ( '' === WCIS_Settings::secret() ) {
+		if ( ! WCIS_Settings::has_credentials() ) {
 			return new WP_Error( 'wcis_no_secret', __( 'Kein Netzwerk-Secret gesetzt.', 'blocksocial-woocommerce-sync' ) );
 		}
 		if ( ! WCIS_Settings::get( 'product_sync_enabled', false ) ) {

@@ -100,8 +100,15 @@ class WCIS_Queue {
 			}
 
 			$endpoint = ! empty( $row['endpoint'] ) ? $row['endpoint'] : '/stock';
-			$result   = WCIS_Client::post( $row['peer_url'], $endpoint, $payload, true );
 			$attempts = (int) $row['attempts'] + 1;
+
+			if ( 0 === strpos( (string) $row['peer_url'], WCIS_Shopify::QUEUE_PREFIX ) ) {
+				// Shopify-Ziel: über die Shopify-API zustellen.
+				$sres   = WCIS_Shopify::deliver_queued( $row['peer_url'], $payload, $endpoint );
+				$result = is_wp_error( $sres ) ? $sres : array( 'code' => 200, 'body' => '' );
+			} else {
+				$result = WCIS_Client::post( $row['peer_url'], $endpoint, $payload, true );
+			}
 
 			if ( ! is_wp_error( $result ) && $result['code'] >= 200 && $result['code'] < 300 ) {
 				self::mark_done( (int) $row['id'] );
@@ -113,6 +120,12 @@ class WCIS_Queue {
 			}
 
 			$error = is_wp_error( $result ) ? $result->get_error_message() : ( 'HTTP ' . $result['code'] );
+
+			// Ziel ist kein (aktiver) Empfänger mehr (Shop entfernt, Partner gesperrt) → verwerfen.
+			if ( is_wp_error( $result ) && 'wcis_no_credentials' === $result->get_error_code() ) {
+				self::mark_failed( (int) $row['id'], $error, $attempts );
+				continue;
+			}
 
 			if ( $attempts >= self::MAX_ATTEMPTS ) {
 				self::mark_failed( (int) $row['id'], $error, $attempts );

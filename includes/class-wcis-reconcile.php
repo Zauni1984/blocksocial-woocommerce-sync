@@ -96,16 +96,22 @@ class WCIS_Reconcile {
 			'unreachable'   => 0,
 		);
 
-		if ( empty( $peers ) || '' === WCIS_Settings::secret() ) {
+		if ( empty( $peers ) || ! WCIS_Settings::has_credentials() ) {
 			return $stats;
 		}
 
 		$strategy  = WCIS_Settings::get( 'reconcile_strategy', 'lowest' );
 		$local_map = self::stock_map( WCIS_Sync_Engine::collect_all_items() );
 
-		// Bestände aller erreichbaren Peers einsammeln.
-		$peer_maps = array();
+		// Bestände aller erreichbaren Peers einsammeln. Partnershops werden
+		// mitgeprüft und korrigiert, bestimmen den Sollwert aber NIE mit (ihr
+		// Bestand ist nicht maßgeblich – Vorgabe kommt vom Hauptshop).
+		$peer_maps     = array();
+		$partner_peers = array();
 		foreach ( $peers as $peer ) {
+			if ( isset( $peer['type'] ) && 'partner' === $peer['type'] ) {
+				$partner_peers[ $peer['url'] ] = true;
+			}
 			$res = WCIS_Client::get( $peer['url'], '/inventory' );
 			if ( is_wp_error( $res ) || $res['code'] < 200 || $res['code'] >= 300 ) {
 				$stats['unreachable']++;
@@ -136,25 +142,38 @@ class WCIS_Reconcile {
 
 		foreach ( $all_skus as $sku ) {
 			// Alle Shops sammeln, die diese SKU führen (dieser Shop + Peers).
+			// $holders = maßgebliche Shops (dieser + eigene Shops), $followers = Partner.
 			$holders   = array();
+			$followers = array();
 			$has_local = array_key_exists( $sku, $local_map );
 			if ( $has_local ) {
 				$holders['__self__'] = $local_map[ $sku ];
 			}
 			foreach ( $peer_maps as $purl => $pmap ) {
 				if ( array_key_exists( $sku, $pmap ) ) {
-					$holders[ $purl ] = $pmap[ $sku ];
+					if ( isset( $partner_peers[ $purl ] ) ) {
+						// Nur Artikel aus dem Sortiment des Partners korrigieren (gleiche SKU
+						// eines partnereigenen Produkts bleibt unangetastet).
+						$lpid = wc_get_product_id_by_sku( $sku );
+						$lprd = $lpid ? wc_get_product( $lpid ) : null;
+						if ( $lprd && WCIS_Partners::url_allows_product( $purl, $lprd ) ) {
+							$followers[ $purl ] = $pmap[ $sku ];
+						}
+					} else {
+						$holders[ $purl ] = $pmap[ $sku ];
+					}
 				}
 			}
 
-			// Produkte, die nur in einem Shop existieren, werden ignoriert.
-			if ( count( $holders ) < 2 ) {
+			// Produkte, die nur in einem Shop existieren, werden ignoriert. Ohne
+			// maßgeblichen Shop (SKU nur bei Partnern) gibt es keinen Sollwert.
+			if ( empty( $holders ) || ( count( $holders ) + count( $followers ) ) < 2 ) {
 				continue;
 			}
 
 			$stats['skus_checked']++;
 
-			// Sollwert je nach Strategie.
+			// Sollwert je nach Strategie (nur aus maßgeblichen Shops).
 			if ( 'local' === $strategy ) {
 				if ( ! $has_local ) {
 					// Hauptshop führt diese SKU nicht → kann nicht maßgeblich sein; überspringen.
@@ -164,6 +183,7 @@ class WCIS_Reconcile {
 			} else {
 				$target = min( $holders ); // Niedrigster Bestand gewinnt (kein Überverkauf).
 			}
+			$holders = $holders + $followers;
 
 			// Alle abweichenden Shops korrigieren.
 			foreach ( $holders as $where => $value ) {

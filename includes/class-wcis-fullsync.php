@@ -50,7 +50,7 @@ class WCIS_Fullsync {
 		if ( empty( $peers ) ) {
 			return new WP_Error( 'wcis_no_targets', __( 'Keine Ziel-Shops konfiguriert.', 'blocksocial-woocommerce-sync' ) );
 		}
-		if ( '' === WCIS_Settings::secret() ) {
+		if ( ! WCIS_Settings::has_credentials() ) {
 			return new WP_Error( 'wcis_no_secret', __( 'Kein Netzwerk-Secret gesetzt.', 'blocksocial-woocommerce-sync' ) );
 		}
 
@@ -155,7 +155,12 @@ class WCIS_Fullsync {
 			$batch     = array_slice( $items, $offset, $job['batch_size'] );
 			$skip_peer = false;
 
-			if ( ! empty( $batch ) ) {
+			// Partner erhalten nur Artikel aus ihrem Sortiment.
+			$batch = array_values( WCIS_Partners::filter_items_for_url( $peer_url, $batch ) );
+
+			if ( empty( $batch ) ) {
+				$job['sent']++; // nichts zu senden (außerhalb des Sortiments) – zählt als erledigt.
+			} else {
 				$payload = array(
 					'source' => WCIS_Settings::this_url(),
 					'items'  => $batch,

@@ -6,46 +6,72 @@ Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 2.9.1
+Stable tag: 3.0.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-Enterprise-Grade WooCommerce-Plugin für Produkt- und Bestands-Synchronisation zwischen mehreren Shops in nahezu Echtzeit. Zuordnung per SKU, wählbarer Hauptshop. Baue dein eigenes Dropshipping-/B2B-Business auf.
+Enterprise-Grade WooCommerce-Plugin für Produkt- und Bestands-Synchronisation zwischen mehreren Shops in nahezu Echtzeit. Zuordnung per SKU, wählbarer Hauptshop, Partnershops mit eigenem Zugang, Preisregeln und Shopify-Anbindung. Baue dein eigenes Dropshipping-/B2B-Business auf.
 
 == Description ==
 
-BlockSocial WooCommerce Sync verbindet drei oder mehr WooCommerce-Shops zu einem Bestands- und Produkt-Verbund.
-Verkauft ein Shop einen Artikel, wird der neue Lagerbestand sofort an alle übrigen
-Shops übertragen (Zuordnung per SKU). Neue Produkte lassen sich 1:1 verteilen – ideal für
-Dropshipping- und B2B-Netzwerke.
+BlockSocial WooCommerce Sync verbindet WooCommerce-Shops (und Shopify-Shops) zu einem Bestands- und Produkt-Verbund.
+Verkauft ein Shop einen Artikel, wird der neue Lagerbestand sofort an alle übrigen Shops übertragen (Zuordnung per SKU).
+Neue Produkte lassen sich 1:1 verteilen – ideal für Dropshipping- und B2B-Netzwerke.
+
+Es gibt zwei Plugins aus demselben Code:
+
+* **BlockSocial WooCommerce Sync (Admin-Plugin)** – für den Hauptshop und die eigenen Shops des Betreibers.
+* **BlockSocial WooCommerce Sync – Partner** – für Partnershops. Verbindet sich per Verbindungscode nur mit dem Hauptshop; alle Vorgaben des Betreibers sind geschützt.
 
 **Funktionen**
 
-* Kopplung mehrerer Shops (3+) über die REST-API mit HMAC-signierten Anfragen.
-* Ein wählbarer Hauptshop (Master) für die erste Voll-Synchronisation – jederzeit änderbar.
+* Kopplung beliebig vieler eigener Shops über die REST-API mit HMAC-signierten Anfragen (gemeinsames Netzwerk-Secret).
+* Partnershops mit persönlichem Zugangsschlüssel: Partner erhalten Produkte und Bestände, melden Verkäufe – können aber weder Produkte, Preise, Bestände (außer echten Verkäufen) noch Einstellungen des Verbunds verändern. Sperren, Schlüssel erneuern und Sortiment je Partner (Kategorien) jederzeit möglich.
+* Shopify-Anbindung (Admin GraphQL API): Produkte anlegen/aktualisieren, Bestände in Echtzeit, Verkäufe in Shopify per Webhook zurück – mit eigenen Preisregeln je Shopify-Shop und automatischer Brutto/Netto-Erkennung.
+* CSV-Produktfeeds für Shops ohne Plugin (z. B. Jimdo, Marktplätze, Warenwirtschaft): eigene geheime Abruf-URL je Feed, immer aktueller Bestand, eigenes Sortiment, brutto/netto und Preisregeln je Feed, Download-Button.
+* Preisregeln für Empfänger-Shops: Preise nach dem Einspielen in % anpassen – nach oben oder unten, für alle Produkte oder je Kategorie, optional mit Rundung (z. B. auf ,99), mit Vorschau und Fortschrittsbalken. Bleibt bei Preis-Updates des Hauptshops erhalten.
+* Ein wählbarer Hauptshop (Master) – jederzeit änderbar; der Hauptshop verteilt Änderungen an Partner und Shopify weiter.
 * Nahezu Echtzeit-Push bei jeder Bestandsänderung (Bestellung, Storno, manuelle Änderung).
 * Zuordnung per SKU – einfache und variable Produkte (über Variations-SKUs) werden unterstützt.
-* Optionaler Produkt-Sync inkl. Steuerstatus/Steuerklasse und Steuerklassen-Zuordnung.
-* Slave-Pull: Neben-Shops können sich die Produkte des Hauptshops selbst holen.
+* Produkt-Sync inkl. Steuerklassen, Marken, Hersteller (inkl. Adresse & EU-Bevollmächtigtem), EAN/GTIN, Attribute, Versandklasse, Lieferzeit, Germanized-Grundpreis.
+* Kleinunternehmer-Modus (Bruttopreise übernehmen).
 * Automatischer Abgleich (Reconciliation) und Wiederholung fehlgeschlagener Zustellungen (Retry-Queue via Cron).
 * Sync-Filter pro Shop (Kategorie, Marke, Einzelprodukte, Feld-Auswahl) mit Umfang-Vorschau.
-* Produkte, die nur in einem Shop existieren, werden automatisch ignoriert.
 * Moderne Admin-Oberfläche (App-Layout, Dark-Mode, Fortschrittsbalken), Verbindungstest und Protokoll.
 
 == Installation ==
 
-1. Ordner `blocksocial-woocommerce-sync` nach `wp-content/plugins/` hochladen (auf jedem Shop).
-2. Plugin in jedem Shop aktivieren.
-3. Im Hauptshop unter *WooCommerce → Lagerbestand-Sync* ein Netzwerk-Secret erzeugen.
-4. In jedem Shop dasselbe Secret eintragen, alle Shop-URLs hinterlegen und den Hauptshop wählen.
-5. Verbindung testen und anschließend im Hauptshop die erste Voll-Synchronisation starten.
+1. Admin-Plugin im Hauptshop und in allen eigenen Shops installieren und aktivieren.
+2. Im Hauptshop unter *WooCommerce → BlockSocial Sync → Netzwerk* ein Netzwerk-Secret erzeugen, in allen eigenen Shops eintragen, Shop-URLs hinterlegen und den Hauptshop wählen.
+3. Partner: im Hauptshop unter *Partner* anlegen → Verbindungscode an den Partner geben. Der Partner installiert das Partner-Plugin und fügt den Code ein.
+4. CSV-Feeds: im Hauptshop unter *CSV-Feeds* einen Feed anlegen und die Abruf-URL im Zielsystem hinterlegen.
+5. Shopify: im Hauptshop unter *Shopify* den Shop mit Client-ID/Client-Secret (Dev-Dashboard-App) anbinden, Verbindung testen, Übertragung starten.
+6. Verbindung testen und anschließend im Hauptshop die erste Voll-Synchronisation starten.
+
+Admin- und Partner-Plugin dürfen nicht gleichzeitig im selben Shop aktiv sein.
 
 == Upgrade Notice ==
+
+= 3.0.0 =
+Neu: Partner-Plugin, Preisregeln und Shopify-Anbindung. Das Update ist kompatibel – bestehende eigene Shops (Netzwerk-Secret) laufen unverändert weiter. Für volle Funktion alle eigenen Shops auf 3.0.0 aktualisieren.
 
 = 2.0.0 =
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 3.0.0 =
+* NEU: Partner-Plugin „BlockSocial WooCommerce Sync – Partner" (zweites Plugin aus demselben Code, gebaut über bin/build.sh). Partner verbinden sich per Verbindungscode nur mit dem Hauptshop. Alle Vorgaben des Betreibers (Produktdaten aktuell halten, Preisübernahme, Bilder, Lagerstatus, erlaubter Preisrahmen, Sortiment) werden vom Hauptshop gesetzt und sind im Partnershop schreibgeschützt.
+* NEU: Persönliche Zugangsschlüssel je Partner (statt des gemeinsamen Netzwerk-Secrets) mit Rechteprüfung je Endpunkt: Partner dürfen Verkäufe melden, ihr Sortiment abrufen und ihre Vorgaben lesen – Konfiguration, Produkte und Gesamtbestand des Verbunds sind für sie gesperrt (403). Partner sperren/entsperren, Schlüssel erneuern, löschen; letzter Kontakt und Plugin-Version sichtbar.
+* NEU: Partner melden Verkäufe als Mengen-Deltas aus Bestellungen (statt absoluter Bestände) – idempotent (kein Doppelzählen bei Wiederholungen), nur im eigenen Sortiment, standardmäßig nur verringernd. Manuelle Bestandsänderungen im Partnershop wirken sich nicht auf den Hauptshop aus. Der Hauptshop verteilt den maßgeblichen Bestand anschließend an alle Shops, inkl. zurück an den Partner.
+* NEU: Hauptshop als Verteil-Zentrale: Änderungen eigener Neben-Shops, von Partnern und aus Shopify werden an alle übrigen Empfänger weitergereicht. Der Abgleich korrigiert Partnershops, ohne dass deren Bestände den Sollwert beeinflussen.
+* NEU: Preisregeln für Empfänger-Shops (Neben- und Partnershops): Auf-/Abschlag in % für alle Produkte und/oder je Kategorie (spezifischste Kategorie gewinnt), Rundung (,99 / ,95 / ,90 / 10 Cent / volle Euro), Vorschau, Massen-Anwendung mit Fortschrittsbalken, Zurücksetzen auf Originalpreise. Basispreise werden gespeichert – kein Aufschlag auf den Aufschlag; neue Preise vom Hauptshop werden automatisch mit der Regel versehen.
+* NEU: Shopify-Anbindung (Admin GraphQL API 2026-10): Zugang per Dev-Dashboard-App (Client-ID/Secret, Token-Erneuerung automatisch) oder Legacy-Custom-App-Token; Produkte (inkl. Varianten, EAN, Gewicht, Bilder beim Anlegen) anlegen und aktualisieren, ohne Bilder/Varianten in Shopify zu löschen; Bestände in Echtzeit mit Compare-and-Swap (keine verlorenen Verkäufe bei gleichzeitigen Verkäufen); Verkäufe in Shopify per signiertem Webhook zurück; eigene Preisregeln und Sortiment je Shopify-Shop; automatische Brutto/Netto-Erkennung; Übertragungs-Jobs mit Fortschrittsbalken; Retry-Queue.
+* NEU: CSV-Produktfeeds (Reiter „CSV-Feeds") für Shops und Systeme ohne Plugin: geheime Abruf-URL je Feed (jederzeit erneuerbar), eine Zeile je Artikel (einfache Produkte, Varianten, optional Eltern-Zeilen) mit SKU, EAN, Preisen (brutto/netto, eigene Preisregeln je Feed), Bestand, Lagerstatus, Lieferzeit, Grundpreis, Kategorien, Marke, Hersteller, Bildern und Beschreibungen; Trennzeichen ; , oder Tab, UTF-8-BOM, nur lieferbare Artikel, Sortiment je Feed. Kein ständiges Neuschreiben einer Datei: Jede Produktzeile ist einzeln gespeichert und wird nur bei einer Änderung dieses Produkts neu berechnet; die CSV wird beim Abruf direkt daraus ausgeliefert (inkl. ETag/HTTP 304). Schutz vor CSV-Formel-Injektion.
+* Verbessert: Preisänderungen werden jetzt exakt beim Speichern erkannt – auch die erste Preisänderung eines Produkts nach der Aktivierung wird zuverlässig verteilt.
+* Verbessert: Neue Variationen an bestehenden variablen Produkten werden automatisch an alle Shops (und Shopify) übertragen.
+* Verbessert: Deinstallation entfernt die Daten nur, wenn keine andere Edition mehr installiert ist.
+* Intern: gemeinsamer Bootstrap (includes/bootstrap.php) für beide Editionen; Menüpunkt heißt jetzt „BlockSocial Sync".
 
 = 2.9.1 =
 * Kompatibilität mit WordPress 7.1 und WooCommerce 11.1 geprüft und Header aktualisiert (getestet bis WP 7.1 / WC 11.1). Keine funktionalen Änderungen – der bestehende Code nutzt ausschließlich stabile WooCommerce-CRUD-/REST-APIs, HPOS ist deklariert und der Code ist PHP-8.1–8.3-kompatibel (keine dynamischen Properties, keine veralteten/entfernten Funktionen). Hinweis: WooCommerce plant, ab Version 11.5 (~Anfang 2027) mindestens PHP 8.1 zu verlangen – das Plugin ist darauf bereits vorbereitet.

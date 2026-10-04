@@ -33,11 +33,16 @@
 			activateTab( $( this ).data( 'tab' ) );
 		} );
 
-		// Zuletzt aktiven Tab wiederherstellen.
-		try {
-			var saved = window.localStorage.getItem( STORE );
-			if ( saved ) { activateTab( saved ); }
-		} catch ( e ) {}
+		// Reiter aus der URL (nach Aktionen) hat Vorrang, sonst zuletzt aktiver Reiter.
+		var urlTab = ( window.location.search.match( /[?&]wcis_tab=([a-z_]+)/ ) || [] )[1];
+		if ( urlTab && $( '.wcis-navitem[data-tab="' + urlTab + '"]' ).length ) {
+			activateTab( urlTab );
+		} else {
+			try {
+				var saved = window.localStorage.getItem( STORE );
+				if ( saved ) { activateTab( saved ); }
+			} catch ( e ) {}
+		}
 
 		// --- "Ungespeichert"-Indikator am Speichern-Button ---
 		var $save = $( '.wcis-save' );
@@ -167,9 +172,9 @@
 				tick();
 			}
 
-			$( cfg.form ).on( 'submit', function ( e ) {
-				e.preventDefault();
-				if ( ! window.confirm( cfg.confirm ) ) {
+			function start( more, confirmText ) {
+				var question = confirmText || ( typeof cfg.confirm === 'function' ? cfg.confirm() : cfg.confirm );
+				if ( question && ! window.confirm( question ) ) {
 					return;
 				}
 				$btn.prop( 'disabled', true );
@@ -180,6 +185,9 @@
 				var data = { action: cfg.startAction, nonce: WCIS.nonce };
 				if ( cfg.extra ) {
 					data = $.extend( data, cfg.extra() );
+				}
+				if ( more ) {
+					data = $.extend( data, more );
 				}
 				$.post( WCIS.ajaxUrl, data )
 					.done( function ( resp ) {
@@ -199,6 +207,11 @@
 						$text.text( '✗ ' + WCIS.i18n.genericError );
 						$btn.prop( 'disabled', false );
 					} );
+			}
+
+			$( cfg.form ).on( 'submit', function ( e ) {
+				e.preventDefault();
+				start();
 			} );
 
 			$cancel.on( 'click', function () {
@@ -212,6 +225,8 @@
 			if ( $wrap.length && $wrap.is( ':visible' ) ) {
 				startPolling();
 			}
+
+			return { start: start };
 		}
 
 		// Bestands-Voll-Synchronisation.
@@ -337,5 +352,190 @@
 				return '';
 			}
 		} );
+
+		// --- Bestätigung für Formulare mit data-confirm (Löschen, Sperren …) ---
+		$( document ).on( 'submit', 'form[data-confirm]', function ( e ) {
+			if ( ! window.confirm( $( this ).data( 'confirm' ) ) ) {
+				e.preventDefault();
+			}
+		} );
+
+		// --- Code kopieren ---
+		$( document ).on( 'click', '.wcis-copy', function () {
+			var $btn = $( this );
+			var $t = $( $btn.data( 'target' ) );
+			$t.trigger( 'select' );
+			var done = function () {
+				var old = $btn.text();
+				$btn.text( WCIS.i18n.copied );
+				setTimeout( function () { $btn.text( old ); }, 1500 );
+			};
+			if ( navigator.clipboard && window.isSecureContext ) {
+				navigator.clipboard.writeText( $t.val() ).then( done );
+			} else {
+				try { document.execCommand( 'copy' ); done(); } catch ( err ) {}
+			}
+		} );
+
+		// --- Regel-Editor (Preisregeln): Zeilen hinzufügen/entfernen ---
+		$( document ).on( 'click', '.wcis-rule-add', function () {
+			var $ed = $( this ).closest( '.wcis-rules-editor' );
+			var tpl = $ed.find( 'template.wcis-rule-tpl' ).get( 0 );
+			if ( tpl ) {
+				$ed.find( '.wcis-rules' ).append( $( tpl.innerHTML ) );
+			}
+		} );
+		$( document ).on( 'click', '.wcis-rule-remove', function () {
+			$( this ).closest( '.wcis-rule-row' ).remove();
+			$save.addClass( 'is-dirty' );
+		} );
+
+		// --- Preisregeln ---
+		function pricingData() {
+			var data = {};
+			var $f = $( '#wcis-pricing-form' );
+			data.rule_global = $f.find( '[name="rule_global"]' ).val();
+			data.rule_rounding = $f.find( '[name="rule_rounding"]' ).val();
+			data.rule_cat = [];
+			data.rule_pct = [];
+			$f.find( '.wcis-rules .wcis-rule-row' ).each( function () {
+				data.rule_cat.push( $( this ).find( '[name="rule_cat[]"]' ).val() );
+				data.rule_pct.push( $( this ).find( '[name="rule_pct[]"]' ).val() );
+			} );
+			return data;
+		}
+		var pricingRunner = null;
+		if ( $( '#wcis-pricing-form' ).length ) {
+			pricingRunner = makeRunner( {
+				form: '#wcis-pricing-form', btn: '#wcis-pricing-apply', cancel: '#wcis-pricing-cancel',
+				wrap: '#wcis-pricing-progress-wrap', fill: '#wcis-pricing-progress-fill', label: '#wcis-pricing-progress-label', text: '#wcis-pricing-progress-text',
+				startAction: 'wcis_pricing_start', tickAction: 'wcis_pricing_tick', cancelAction: 'wcis_pricing_cancel',
+				confirm: WCIS.i18n.confirmPricing,
+				extra: pricingData,
+				message: function ( d ) {
+					if ( d.status === 'running' ) {
+						return WCIS.i18n.syncing + ' ' + d.percent + '% – ' + d.index + '/' + d.total + ' ' + WCIS.i18n.products +
+							' (' + d.changed + ' ' + WCIS.i18n.changedUnit + ')';
+					}
+					if ( d.status === 'done' ) {
+						return '✓ ' + WCIS.i18n.done + ': ' + d.changed + ' ' + WCIS.i18n.changedUnit + ', ' + d.unchanged + ' ' + WCIS.i18n.unchangedUnit +
+							( d.failed ? ', ' + d.failed + ' ' + WCIS.i18n.failedUnit : '' ) + '.';
+					}
+					if ( d.status === 'cancelled' ) {
+						return WCIS.i18n.cancelled + '.';
+					}
+					return '';
+				}
+			} );
+		}
+		$( '#wcis-pricing-reset' ).on( 'click', function () {
+			if ( pricingRunner ) {
+				pricingRunner.start( { reset: 1 }, WCIS.i18n.confirmReset );
+			}
+		} );
+		$( '#wcis-pricing-save' ).on( 'click', function () {
+			var $msg = $( '#wcis-pricing-msg' );
+			$.post( WCIS.ajaxUrl, $.extend( { action: 'wcis_pricing_save', nonce: WCIS.nonce }, pricingData() ) )
+				.done( function ( resp ) {
+					$msg.text( resp && resp.success ? '✓ ' + resp.data.message : '✗ ' + ( resp && resp.data ? resp.data.message : WCIS.i18n.genericError ) );
+				} )
+				.fail( function () { $msg.text( '✗ ' + WCIS.i18n.genericError ); } );
+		} );
+		$( '#wcis-pricing-preview-btn' ).on( 'click', function () {
+			var $out = $( '#wcis-pricing-preview' );
+			$out.show().html( '<em>' + esc( WCIS.i18n.previewLoading ) + '</em>' );
+			$.post( WCIS.ajaxUrl, $.extend( { action: 'wcis_pricing_preview', nonce: WCIS.nonce }, pricingData() ) )
+				.done( function ( resp ) {
+					if ( ! resp || ! resp.success ) {
+						$out.html( '<span class="wcis-err-text">✗ ' + esc( resp && resp.data ? resp.data.message : WCIS.i18n.genericError ) + '</span>' );
+						return;
+					}
+					var d = resp.data;
+					var html = '<p><strong>' + num( d.affected ) + ' ' + esc( WCIS.i18n.pricingAffected ) + '</strong> (' + num( d.scanned ) + ' ' + esc( WCIS.i18n.previewScanned ) + ').</p>';
+					if ( d.rows && d.rows.length ) {
+						html += '<p>' + esc( WCIS.i18n.pricingSample ) + ':</p><ul class="wcis-preview-list">';
+						$.each( d.rows, function ( i, r ) {
+							html += '<li>' + esc( r.name ) + ': ' + esc( r.base ) + ' → <strong>' + esc( r.new ) + '</strong> (' + ( r.percent > 0 ? '+' : '' ) + esc( r.percent ) + ' %)</li>';
+						} );
+						html += '</ul>';
+					}
+					if ( d.truncated ) {
+						html += '<p><em>' + esc( WCIS.i18n.previewTruncated ) + '</em></p>';
+					}
+					$out.html( html );
+				} )
+				.fail( function () { $out.html( '✗ ' + esc( WCIS.i18n.genericError ) ); } );
+		} );
+
+		// --- Partner: Verbindungstest ---
+		$( document ).on( 'click', '.wcis-partner-test', function () {
+			var $btn = $( this );
+			var $res = $btn.closest( 'td' ).find( '.wcis-test-result' );
+			$btn.prop( 'disabled', true );
+			$res.removeClass( 'ok err' ).text( WCIS.i18n.testing );
+			$.post( WCIS.ajaxUrl, { action: 'wcis_partner_test', nonce: WCIS.nonce, key: $btn.data( 'key' ) } )
+				.done( function ( resp ) {
+					if ( resp && resp.success ) {
+						$res.addClass( 'ok' ).text( '✓ ' + resp.data.message );
+					} else {
+						$res.addClass( 'err' ).text( '✗ ' + ( resp && resp.data ? resp.data.message : WCIS.i18n.genericError ) );
+					}
+				} )
+				.fail( function () { $res.addClass( 'err' ).text( '✗ ' + WCIS.i18n.genericError ); } )
+				.always( function () { $btn.prop( 'disabled', false ); } );
+		} );
+
+		// --- Shopify: Zugangsart umschalten ---
+		function toggleAuth( $form ) {
+			var mode = $form.find( '.wcis-auth-toggle:checked' ).val();
+			$form.find( '.wcis-auth-client' ).toggle( mode !== 'token' );
+			$form.find( '.wcis-auth-token' ).toggle( mode === 'token' );
+		}
+		$( '.wcis-shopify-form' ).each( function () { toggleAuth( $( this ) ); } );
+		$( document ).on( 'change', '.wcis-auth-toggle', function () { toggleAuth( $( this ).closest( 'form' ) ); } );
+
+		// --- Shopify: Verbindungstest ---
+		$( document ).on( 'click', '.wcis-shopify-test', function () {
+			var $btn = $( this );
+			var $res = $btn.closest( '.wcis-store' ).find( '.wcis-test-result' ).first();
+			$btn.prop( 'disabled', true );
+			$res.removeClass( 'ok err' ).text( WCIS.i18n.testing );
+			$.post( WCIS.ajaxUrl, { action: 'wcis_shopify_test', nonce: WCIS.nonce, store: $btn.data( 'store' ) } )
+				.done( function ( resp ) {
+					if ( resp && resp.success ) {
+						$res.addClass( 'ok' ).text( '✓ ' + resp.data.message );
+					} else {
+						$res.addClass( 'err' ).text( '✗ ' + ( resp && resp.data ? resp.data.message : WCIS.i18n.genericError ) );
+					}
+				} )
+				.fail( function () { $res.addClass( 'err' ).text( '✗ ' + WCIS.i18n.genericError ); } )
+				.always( function () { $btn.prop( 'disabled', false ); } );
+		} );
+
+		// --- Shopify: Übertragung (Fortschrittsbalken) ---
+		if ( $( '#wcis-shopify-job-form' ).length ) {
+			makeRunner( {
+				form: '#wcis-shopify-job-form', btn: '#wcis-shopify-start', cancel: '#wcis-shopify-cancel',
+				wrap: '#wcis-shopify-progress-wrap', fill: '#wcis-shopify-progress-fill', label: '#wcis-shopify-progress-label', text: '#wcis-shopify-progress-text',
+				startAction: 'wcis_shopify_start', tickAction: 'wcis_shopify_tick', cancelAction: 'wcis_shopify_cancel',
+				confirm: WCIS.i18n.confirmShopify,
+				extra: function () { return { store: $( '#wcis-shopify-store' ).val(), mode: $( '#wcis-shopify-mode' ).val() }; },
+				message: function ( d ) {
+					if ( d.status === 'running' ) {
+						return WCIS.i18n.syncing + ' ' + d.percent + '% – ' + d.index + '/' + d.total + ' ' + WCIS.i18n.products +
+							' (' + d.created + ' ' + WCIS.i18n.createdUnit + ', ' + d.updated + ' ' + WCIS.i18n.updatedUnit +
+							( d.failed ? ', ' + d.failed + ' ' + WCIS.i18n.failedUnit : '' ) + ')';
+					}
+					if ( d.status === 'done' ) {
+						return '✓ ' + WCIS.i18n.done + ': ' + d.created + ' ' + WCIS.i18n.createdUnit + ', ' + d.updated + ' ' + WCIS.i18n.updatedUnit + ', ' +
+							d.skipped + ' ' + WCIS.i18n.skippedUnit + ( d.failed ? ', ' + d.failed + ' ' + WCIS.i18n.failedUnit + ( d.message ? ' – ' + d.message : '' ) : '' ) + '.';
+					}
+					if ( d.status === 'cancelled' ) {
+						return WCIS.i18n.cancelled + '.';
+					}
+					return '';
+				}
+			} );
+		}
 	} );
 } )( jQuery );

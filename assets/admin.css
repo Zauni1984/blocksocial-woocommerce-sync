@@ -294,3 +294,142 @@
 	.wcis-pills { order: 3; margin-left: 0; width: 100%; }
 	.wcis-navitem span:last-child { display: inline; }
 }
+
+/* ---------------------------------------------------------------------------
+ * v3.0: Partner, Shopify, Preisregeln, Partner-Plugin
+ * ------------------------------------------------------------------------- */
+.wcis-app .wcis-code {
+	width: 100%;
+	font-family: ui-monospace, Menlo, Consolas, monospace;
+	font-size: 12px;
+	word-break: break-all;
+	background: var(--wcis-surface-2);
+	border: 1px solid var(--wcis-border);
+	border-radius: 10px;
+	padding: 10px 12px;
+}
+.wcis-app .wcis-card--highlight {
+	border: 2px solid var(--wcis-primary);
+}
+.wcis-app .wcis-table td {
+	vertical-align: top;
+}
+.wcis-app .wcis-partner-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: flex-start;
+	max-width: 520px;
+}
+.wcis-app .wcis-partner-actions .wcis-test-result {
+	flex-basis: 100%;
+}
+.wcis-app .wcis-inline-form {
+	display: inline-block;
+	margin: 0;
+}
+.wcis-app .wcis-btn--danger {
+	color: var(--wcis-err);
+}
+.wcis-app .wcis-details {
+	margin-top: 8px;
+	flex-basis: 100%;
+}
+.wcis-app .wcis-details > summary {
+	cursor: pointer;
+	color: var(--wcis-primary);
+	font-weight: 600;
+	margin: 6px 0;
+}
+.wcis-app .wcis-details[open] > summary {
+	margin-bottom: 12px;
+}
+.wcis-app .wcis-store {
+	border: 1px solid var(--wcis-border);
+	border-radius: 12px;
+	padding: 14px 16px;
+	margin-bottom: 12px;
+	background: var(--wcis-surface-2);
+}
+.wcis-app .wcis-store-head {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+.wcis-app .wcis-store-actions {
+	display: flex;
+	gap: 6px;
+	align-items: flex-start;
+}
+.wcis-app .wcis-rule-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 8px;
+}
+.wcis-app .wcis-rule-row select {
+	min-width: 240px;
+	max-width: 100%;
+}
+.wcis-app .wcis-pct {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
+}
+.wcis-app .wcis-pct input[type="number"] {
+	width: 110px;
+}
+.wcis-app .wcis-kv {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 12px;
+}
+.wcis-app .wcis-kv th,
+.wcis-app .wcis-kv td {
+	text-align: left;
+	padding: 8px 10px;
+	border-bottom: 1px solid var(--wcis-border);
+	vertical-align: top;
+}
+.wcis-app .wcis-kv th {
+	width: 45%;
+	font-weight: 500;
+	color: var(--wcis-muted);
+}
+.wcis-app .wcis-lock svg {
+	width: 18px;
+	height: 18px;
+	vertical-align: -3px;
+}
+.wcis-app .wcis-err-text {
+	color: var(--wcis-err);
+}
+.wcis-app .wcis-steps {
+	margin: 0 0 12px 18px;
+}
+.wcis-app .wcis-steps li {
+	margin-bottom: 6px;
+}
+@media (max-width: 782px) {
+	.wcis-app .wcis-rule-row {
+		flex-wrap: wrap;
+	}
+	.wcis-app .wcis-rule-row select {
+		min-width: 0;
+		width: 100%;
+	}
+}
+.wcis-app #wcis-pricing-form .wcis-actionrow {
+	margin-top: 18px;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.wcis-app .wcis-feed-url {
+	width: 100%;
+	font-size: 12px;
+}
+.wcis-app .wcis-store .wcis-field {
+	margin-top: 10px;
+}
