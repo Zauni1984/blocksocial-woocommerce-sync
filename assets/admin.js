@@ -271,7 +271,8 @@
 				filter_include_ids: $( '#wcis-filter-include' ).val() || [],
 				filter_exclude_ids: $( '#wcis-filter-exclude' ).val() || [],
 				filter_exclude_categories: $( '#wcis-filter-excl-cats' ).val() || [],
-				filter_exclude_except_brands: $( '#wcis-filter-except-brands' ).val() || []
+				filter_exclude_except_brands: $( '#wcis-filter-except-brands' ).val() || [],
+				filter_ignore_categories: $( '#wcis-filter-ignore-cats' ).val() || []
 			};
 
 			$.post( WCIS.ajaxUrl, data )
@@ -370,11 +371,27 @@
 				html += '<p><strong>✓ ' + esc( WCIS.i18n.cleanupNone ) + '</strong></p>';
 				$rm.hide();
 			} else {
-				html += '<p><strong>' + num( d.candidates ) + ' ' + esc( WCIS.i18n.cleanupFound ) + ':</strong></p><ul class="wcis-preview-list">';
+				html += '<p><strong>' + num( d.candidates ) + ' ' + esc( WCIS.i18n.cleanupFound ) + '.</strong></p>';
+				if ( d.reasons && d.reasons.length ) {
+					html += '<p>' + esc( WCIS.i18n.cleanupReasons ) + ':</p><ul class="wcis-preview-list">';
+					$.each( d.reasons, function ( i, r ) {
+						html += '<li><strong>' + num( r.count ) + '</strong> – ' + esc( r.label ) + '</li>';
+					} );
+					html += '</ul>';
+				}
+				if ( d.by_cat && d.by_cat.length ) {
+					html += '<p>' + esc( WCIS.i18n.cleanupByCat ) + ':</p><ul class="wcis-preview-list">';
+					$.each( d.by_cat, function ( i, r ) {
+						html += '<li><strong>' + num( r.count ) + '</strong> – ' + esc( r.name ) + '</li>';
+					} );
+					html += '</ul>';
+				}
+				html += '<p>' + esc( WCIS.i18n.previewSample ) + ':</p><ul class="wcis-preview-list">';
 				$.each( d.sample || [], function ( i, r ) {
-					html += '<li>' + esc( r.name ) + ' <code>' + esc( r.sku ) + '</code>' + ( r.cats ? ' – ' + esc( r.cats ) : '' ) + '</li>';
+					html += '<li>' + esc( r.name ) + ' <code>' + esc( r.sku ) + '</code>' + ( r.cats ? ' – ' + esc( r.cats ) : '' ) + ( r.reason ? ' <em>(' + esc( r.reason ) + ')</em>' : '' ) + '</li>';
 				} );
 				html += '</ul>';
+				html += '<p><em>' + esc( WCIS.i18n.cleanupCheck ) + '</em></p>';
 				if ( d.candidates > ( d.sample || [] ).length ) {
 					html += '<p><em>… ' + num( d.candidates - d.sample.length ) + ' ' + esc( WCIS.i18n.cleanupMore ) + '</em></p>';
 				}

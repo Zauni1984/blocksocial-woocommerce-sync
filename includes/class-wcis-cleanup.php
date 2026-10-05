@@ -183,6 +183,8 @@ class WCIS_Cleanup {
 			'own'          => 0,
 			'candidates'   => 0,
 			'sample'       => array(),
+			'reasons'      => array(),
+			'by_cat'       => array(),
 			'removed'      => 0,
 			'failed'       => 0,
 			'message'      => '',
@@ -307,14 +309,21 @@ class WCIS_Cleanup {
 			$verdict = self::evaluate( $product, $map, $job );
 			if ( 'own' === $verdict ) {
 				$job['own']++;
-			} elseif ( 'remove' === $verdict ) {
+			} elseif ( 0 === strpos( $verdict, 'remove:' ) ) {
+				$reason  = substr( $verdict, 7 );
 				$found[] = (int) $product->get_id();
+				$cats    = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
+				$cats    = is_wp_error( $cats ) ? '' : html_entity_decode( implode( ', ', $cats ), ENT_QUOTES, 'UTF-8' );
+				$cat_key = '' !== $cats ? $cats : __( '(ohne Kategorie)', 'blocksocial-woocommerce-sync' );
+
+				$job['reasons'][ $reason ] = isset( $job['reasons'][ $reason ] ) ? $job['reasons'][ $reason ] + 1 : 1;
+				$job['by_cat'][ $cat_key ] = isset( $job['by_cat'][ $cat_key ] ) ? $job['by_cat'][ $cat_key ] + 1 : 1;
 				if ( count( $job['sample'] ) < self::SAMPLE ) {
-					$cats            = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
 					$job['sample'][] = array(
-						'name' => $product->get_name(),
-						'sku'  => $product->get_sku(),
-						'cats' => is_wp_error( $cats ) ? '' : html_entity_decode( implode( ', ', $cats ), ENT_QUOTES, 'UTF-8' ),
+						'name'   => $product->get_name(),
+						'sku'    => $product->get_sku(),
+						'cats'   => $cats,
+						'reason' => self::reason_label( $reason ),
 					);
 				}
 			}
@@ -340,7 +349,7 @@ class WCIS_Cleanup {
 	 * @param WC_Product $product Produkt.
 	 * @param array      $map     SKU => Index der Hauptshop-Daten (+ 'items').
 	 * @param array      $job     Job (Herkunfts-Kriterium).
-	 * @return string 'own' (nicht im Hauptshop) | 'keep' | 'remove'
+	 * @return string 'own' (nicht im Hauptshop) | 'keep' | 'remove:<grund>'
 	 */
 	protected static function evaluate( $product, array $map, array $job ) {
 		$entry = null;
@@ -366,7 +375,7 @@ class WCIS_Cleanup {
 
 		// Der Hauptshop würde das Produkt nicht (mehr) senden …
 		if ( empty( $entry['in_scope'] ) ) {
-			return 'remove';
+			return 'remove:master';
 		}
 		// … oder dieser Shop würde es nicht annehmen.
 		$payload = array(
@@ -374,7 +383,29 @@ class WCIS_Cleanup {
 			'cat_paths'   => isset( $entry['cat_paths'] ) ? $entry['cat_paths'] : array(),
 			'brand_names' => isset( $entry['brand_names'] ) ? $entry['brand_names'] : array(),
 		);
-		return WCIS_Filter::accepts_incoming( $payload, (int) $product->get_id() ) ? 'keep' : 'remove';
+		if ( WCIS_Filter::accepts_incoming( $payload, (int) $product->get_id() ) ) {
+			return 'keep';
+		}
+		return 'remove:' . ( '' !== WCIS_Filter::$last_reason ? WCIS_Filter::$last_reason : 'not_selected' );
+	}
+
+	/**
+	 * Lesbarer Grund für die Analyse.
+	 *
+	 * @param string $reason Grund-Schlüssel.
+	 * @return string
+	 */
+	public static function reason_label( $reason ) {
+		switch ( $reason ) {
+			case 'master':
+				return __( 'Sync-Filter des Hauptshops', 'blocksocial-woocommerce-sync' );
+			case 'excluded_id':
+				return __( 'einzeln ausgeschlossen', 'blocksocial-woocommerce-sync' );
+			case 'excluded_category':
+				return __( 'Kategorie ausgeschlossen', 'blocksocial-woocommerce-sync' );
+			default:
+				return __( 'nicht ausgewählt (Modus „Nur ausgewählte")', 'blocksocial-woocommerce-sync' );
+		}
 	}
 
 	/**
@@ -532,6 +563,36 @@ class WCIS_Cleanup {
 	}
 
 	/**
+	 * Gründe mit Klartext für die Ausgabe.
+	 *
+	 * @param array $reasons Grund => Anzahl.
+	 * @return array Liste { label, count }.
+	 */
+	protected static function labelled_reasons( array $reasons ) {
+		$out = array();
+		arsort( $reasons );
+		foreach ( $reasons as $key => $count ) {
+			$out[] = array( 'label' => self::reason_label( $key ), 'count' => (int) $count );
+		}
+		return $out;
+	}
+
+	/**
+	 * Kategorien der gefundenen Produkte, absteigend nach Anzahl.
+	 *
+	 * @param array $by_cat Kategorie => Anzahl.
+	 * @return array Liste { name, count }.
+	 */
+	protected static function top_categories( array $by_cat ) {
+		arsort( $by_cat );
+		$out = array();
+		foreach ( array_slice( $by_cat, 0, 60, true ) as $name => $count ) {
+			$out[] = array( 'name' => (string) $name, 'count' => (int) $count );
+		}
+		return $out;
+	}
+
+	/**
 	 * Aktueller Job.
 	 *
 	 * @return array|null
@@ -595,6 +656,8 @@ class WCIS_Cleanup {
 			'own'        => (int) $job['own'],
 			'candidates' => (int) $job['candidates'],
 			'sample'     => (array) $job['sample'],
+			'reasons'    => self::labelled_reasons( isset( $job['reasons'] ) ? (array) $job['reasons'] : array() ),
+			'by_cat'     => self::top_categories( isset( $job['by_cat'] ) ? (array) $job['by_cat'] : array() ),
 			'mode'       => $job['mode'],
 			'index'      => (int) $job['index'],
 			'removed'    => (int) $job['removed'],

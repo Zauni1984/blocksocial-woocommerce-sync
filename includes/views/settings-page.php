@@ -533,6 +533,20 @@ $wcis_tabs = array(
 							</div>
 							<?php endif; ?>
 							<div class="wcis-field">
+								<label for="wcis-filter-ignore-cats"><?php esc_html_e( 'Kategorien ignorieren', 'blocksocial-woocommerce-sync' ); ?></label>
+								<?php $wcis_igncats = array_map( 'intval', (array) $s['filter_ignore_categories'] ); ?>
+								<select id="wcis-filter-ignore-cats" name="filter_ignore_categories[]" multiple="multiple" class="wc-enhanced-select" data-placeholder="<?php esc_attr_e( 'Kategorien wählen …', 'blocksocial-woocommerce-sync' ); ?>">
+									<?php
+									if ( ! is_wp_error( $wcis_terms2 ) ) {
+										foreach ( $wcis_terms2 as $wcis_t2 ) {
+											printf( '<option value="%d" %s>%s</option>', (int) $wcis_t2->term_id, selected( in_array( (int) $wcis_t2->term_id, $wcis_igncats, true ), true, false ), esc_html( $wcis_t2->name ) );
+										}
+									}
+									?>
+								</select>
+								<small><?php esc_html_e( 'Z. B. „Angebote": Diese Kategorien (inkl. Unterkategorien) zählen weder für Auswahl noch Ausschluss – ein Produkt wird nur nach seinen übrigen Kategorien beurteilt. Sie werden nicht übertragen, beim Empfang nicht angelegt oder zugeordnet, und eigene Zuordnungen in diesem Shop bleiben unverändert. Eingehende Kategorien werden dabei per Name erkannt.', 'blocksocial-woocommerce-sync' ); ?></small>
+							</div>
+							<div class="wcis-field">
 								<button type="button" class="wcis-btn wcis-btn--ghost" id="wcis-filter-preview-btn"><?php esc_html_e( 'Vorschau: Umfang anzeigen', 'blocksocial-woocommerce-sync' ); ?></button>
 								<div id="wcis-filter-preview" class="wcis-preview" style="display:none;"></div>
 							</div>

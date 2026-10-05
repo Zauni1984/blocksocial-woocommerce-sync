@@ -6,7 +6,7 @@ Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 3.1.1
+Stable tag: 3.1.2
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -52,6 +52,9 @@ Admin- und Partner-Plugin dürfen nicht gleichzeitig im selben Shop aktiv sein.
 
 == Upgrade Notice ==
 
+= 3.1.2 =
+Aufräumen und Empfangs-Filter richten sich jetzt nach dem Kategoriebaum des eigenen Shops. Neu: Kategorien ignorieren (z. B. „Angebote"). Vor dem Aufräumen bitte neu analysieren.
+
 = 3.1.1 =
 Wichtige Fehlerbehebung: Der Sync-Filter eines Shops gilt jetzt auch für EINGEHENDE Produkte (Modus „Nur ausgewählte", Unterkategorien). Bitte Hauptshop UND alle Neben-Shops aktualisieren. Neu: „Aufräumen" entfernt bereits falsch übertragene Produkte.
 
@@ -65,6 +68,11 @@ Neu: Partner-Plugin, Preisregeln und Shopify-Anbindung. Das Update ist kompatibe
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 3.1.2 =
+* **Fehlerbehebung:** Der Sync-Filter des Empfängers wertete eingehende Produkte nach dem Kategoriebaum des Absenders aus. Hing z. B. „Vermehrungsmaterial" oder „Angebote" beim Hauptshop unter „Growshop", wurden solche Produkte beim Ausschluss von „Growshop" fälschlich erfasst – auch in der Aufräum-Analyse. Maßgeblich ist jetzt der Kategoriebaum des eigenen Shops (die Kategorie, in der das Produkt hier liegt bzw. landet).
+* Neu: „Kategorien ignorieren" (Sync-Filter), z. B. für „Angebote": zählt weder für Auswahl noch Ausschluss, wird nicht übertragen und beim Empfang nicht zugeordnet; eigene Zuordnungen bleiben erhalten.
+* Aufräumen: Die Analyse zeigt die Gründe (Kategorie ausgeschlossen, nicht ausgewählt, Filter des Hauptshops) und eine Aufschlüsselung nach Kategorie.
 
 = 3.1.1 =
 * **Fehlerbehebung (schwer):** Der Sync-Filter eines Neben-Shops wurde beim EMPFANG von Produkten nur für „Kategorien ausschließen" ausgewertet. Die Einstellung „Nur ausgewählte (Kategorie/Marke/Einzelprodukt)" wurde ignoriert – dadurch konnten Produkte außerhalb des gewählten Sortiments angelegt werden. Der Filter gilt jetzt in beide Richtungen (Produkte und Bestände).

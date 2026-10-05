@@ -67,6 +67,9 @@ class WCIS_Settings {
 			'filter_exclude_categories' => array(),
 			// Marken, die vom Kategorie-Ausschluss ausgenommen sind.
 			'filter_exclude_except_brands' => array(),
+			// Ignorierte Kategorien (z. B. „Angebote"): zählen nicht für den Filter,
+			// werden weder gesendet noch beim Empfang zugeordnet.
+			'filter_ignore_categories'     => array(),
 			// Welche Produkt-Felder werden beim Produkt-Sync übertragen? (null = alle)
 			'product_fields'     => array( 'name', 'price', 'sale_price', 'tax', 'description', 'short_description', 'images', 'categories', 'tags', 'brands', 'manufacturer', 'gtin', 'attributes', 'shipping_class', 'delivery_time', 'germanized', 'dimensions', 'status', 'stock' ),
 			// Steuerklassen-Zuordnung (Empfängerseite), z. B. "reduzierter-preis=reduced-rate" je Zeile.
@@ -155,6 +158,7 @@ class WCIS_Settings {
 		$s['filter_exclude_ids']        = array();
 		$s['filter_exclude_categories'] = array();
 		$s['filter_exclude_except_brands'] = array();
+		$s['filter_ignore_categories']     = array();
 
 		// Abgleich koordiniert ausschließlich der Hauptshop.
 		$s['reconcile_interval'] = 'off';

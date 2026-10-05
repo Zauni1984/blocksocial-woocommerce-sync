@@ -182,11 +182,14 @@ class WCIS_Admin {
 					'cleanupScan'      => __( 'Prüfe Produkte gegen den Sync-Filter …', 'blocksocial-woocommerce-sync' ),
 					'cleanupChecked'   => __( 'Produkte geprüft', 'blocksocial-woocommerce-sync' ),
 					'cleanupOwn'       => __( 'eigene Produkte (nicht im Hauptshop) – bleiben unangetastet', 'blocksocial-woocommerce-sync' ),
-					'cleanupFound'     => __( 'Produkte liegen außerhalb des Sync-Umfangs und können entfernt werden', 'blocksocial-woocommerce-sync' ),
+					'cleanupFound'     => __( 'Produkte liegen außerhalb des Sync-Umfangs und würden entfernt', 'blocksocial-woocommerce-sync' ),
 					'cleanupNone'      => __( 'Keine Produkte außerhalb des Sync-Umfangs gefunden.', 'blocksocial-woocommerce-sync' ),
 					'cleanupRemoving'  => __( 'Entferne', 'blocksocial-woocommerce-sync' ),
 					'cleanupRemoved'   => __( 'entfernt', 'blocksocial-woocommerce-sync' ),
 					'cleanupMore'      => __( 'weitere', 'blocksocial-woocommerce-sync' ),
+					'cleanupReasons'   => __( 'Gründe', 'blocksocial-woocommerce-sync' ),
+					'cleanupByCat'     => __( 'Nach Kategorie (in diesem Shop)', 'blocksocial-woocommerce-sync' ),
+					'cleanupCheck'     => __( 'Bitte prüfen: Gehört hier etwas NICHT zum Entfernen, zuerst den Sync-Filter anpassen, speichern und erneut analysieren.', 'blocksocial-woocommerce-sync' ),
 					'confirmCleanupTrash'  => __( 'Die gefundenen Produkte in den Papierkorb verschieben? Sie lassen sich dort 30 Tage lang wiederherstellen.', 'blocksocial-woocommerce-sync' ),
 					'confirmCleanupDelete' => __( 'Die gefundenen Produkte ENDGÜLTIG löschen – inklusive der vom Sync importierten Bilder? Das kann nicht rückgängig gemacht werden.', 'blocksocial-woocommerce-sync' ),
 				),
@@ -282,6 +285,7 @@ class WCIS_Admin {
 			'filter_exclude_ids' => isset( $_POST['filter_exclude_ids'] ) ? array_map( 'intval', (array) $_POST['filter_exclude_ids'] ) : array(),
 			'filter_exclude_categories' => isset( $_POST['filter_exclude_categories'] ) ? array_map( 'intval', (array) $_POST['filter_exclude_categories'] ) : array(),
 			'filter_exclude_except_brands' => isset( $_POST['filter_exclude_except_brands'] ) ? array_map( 'intval', (array) $_POST['filter_exclude_except_brands'] ) : array(),
+			'filter_ignore_categories'     => isset( $_POST['filter_ignore_categories'] ) ? array_map( 'intval', (array) $_POST['filter_ignore_categories'] ) : array(),
 			'product_fields'     => isset( $_POST['product_fields'] ) ? array_map( 'sanitize_key', (array) $_POST['product_fields'] ) : array(),
 			'tax_class_map'      => isset( $_POST['tax_class_map'] ) ? sanitize_textarea_field( wp_unslash( $_POST['tax_class_map'] ) ) : '',
 			'shops'          => $shops,
@@ -613,6 +617,7 @@ class WCIS_Admin {
 				'filter_exclude_ids'        => $intarr( 'filter_exclude_ids' ),
 				'filter_exclude_categories' => $intarr( 'filter_exclude_categories' ),
 				'filter_exclude_except_brands' => $intarr( 'filter_exclude_except_brands' ),
+				'filter_ignore_categories'     => $intarr( 'filter_ignore_categories' ),
 			)
 		);
 

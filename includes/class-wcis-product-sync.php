@@ -539,12 +539,17 @@ class WCIS_Product_Sync {
 				'height' => $product->get_height(),
 			);
 		}
-		// Kategorienamen einmal ermitteln.
-		$cat_names = wp_get_post_terms( $product->get_id(), 'product_cat', array( 'fields' => 'names' ) );
-		if ( is_wp_error( $cat_names ) ) {
-			$cat_names = array();
+		// Kategorienamen einmal ermitteln (ohne ignorierte Kategorien wie „Angebote").
+		$cat_terms = wp_get_post_terms( $product->get_id(), 'product_cat' );
+		$cat_names = array();
+		if ( ! is_wp_error( $cat_terms ) ) {
+			$ignored = WCIS_Filter::ignored_ids();
+			foreach ( $cat_terms as $ct ) {
+				if ( ! in_array( (int) $ct->term_id, $ignored, true ) ) {
+					$cat_names[] = $ct->name;
+				}
+			}
 		}
-		$cat_names = array_values( $cat_names );
 		// Immer mitsenden – der Empfänger braucht die Kategorien für den
 		// Kategorie-Ausschluss (auch bei NEUEN Produkten), selbst wenn das Feld
 		// „Kategorien" nicht übertragen/angewendet werden soll.
@@ -604,8 +609,12 @@ class WCIS_Product_Sync {
 		if ( is_wp_error( $terms ) ) {
 			return array();
 		}
-		$paths = array();
+		$paths   = array();
+		$ignored = WCIS_Filter::ignored_ids();
 		foreach ( $terms as $term ) {
+			if ( in_array( (int) $term->term_id, $ignored, true ) ) {
+				continue; // Ignorierte Kategorie (z. B. „Angebote") nicht senden.
+			}
 			$path = array();
 			foreach ( array_reverse( get_ancestors( $term->term_id, 'product_cat', 'taxonomy' ) ) as $aid ) {
 				$a = get_term( $aid, 'product_cat' );
@@ -1219,6 +1228,9 @@ class WCIS_Product_Sync {
 		// Explizit ausgeschlossene Produkte auch eingehend nicht anlegen/verändern.
 		// Greift auch bei NEUEN Produkten anhand der mitgesendeten Kategorien
 		// (z. B. ausgeschlossene Kategorie „Merch").
+		// Ignorierte Kategorien (z. B. „Angebote") hier weder werten noch zuordnen.
+		$payload = WCIS_Filter::strip_ignored( $payload );
+
 		// Sync-Filter dieses Shops gilt auch eingehend: ausgeschlossene Kategorien
 		// (inkl. Unterkategorien, Ausnahme-Marken) und im Modus „Nur ausgewählte"
 		// alles außerhalb der gewählten Kategorien/Marken wird nicht angelegt.
@@ -1279,7 +1291,14 @@ class WCIS_Product_Sync {
 				$cat_ids = ! empty( $payload['cat_paths'] ) && is_array( $payload['cat_paths'] )
 					? self::category_ids_from_paths( $payload['cat_paths'] )
 					: self::term_ids( (array) $payload['categories'], 'product_cat' );
-				wp_set_object_terms( $product_id, $cat_ids, 'product_cat' );
+				// Eigene Zuordnungen zu ignorierten Kategorien bleiben erhalten.
+				if ( ! $is_new ) {
+					$keep = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
+					if ( ! is_wp_error( $keep ) ) {
+						$cat_ids = array_merge( $cat_ids, array_intersect( array_map( 'intval', $keep ), WCIS_Filter::ignored_ids() ) );
+					}
+				}
+				wp_set_object_terms( $product_id, array_values( array_unique( array_map( 'intval', $cat_ids ) ) ), 'product_cat' );
 			}
 			// Herkunfts-Markierung: vom Sync angelegt (für „Aufräumen").
 			if ( $is_new ) {
@@ -1892,25 +1911,17 @@ class WCIS_Product_Sync {
 			if ( empty( $path ) ) {
 				continue;
 			}
-			$leaf = get_term_by( 'name', end( $path ), 'product_cat' );
+			// Gleiche Zuordnung wie die Filterprüfung (WCIS_Filter::local_category_ids).
+			$leaf = WCIS_Filter::find_category( end( $path ) );
 			if ( $leaf ) {
-				$ids[] = (int) $leaf->term_id;
+				$ids[] = $leaf;
 				continue;
 			}
 			$parent = 0;
 			foreach ( $path as $name ) {
-				$found = get_terms(
-					array(
-						'taxonomy'   => 'product_cat',
-						'name'       => $name,
-						'parent'     => $parent,
-						'hide_empty' => false,
-						'number'     => 1,
-						'fields'     => 'ids',
-					)
-				);
-				if ( ! is_wp_error( $found ) && ! empty( $found ) ) {
-					$parent = (int) $found[0];
+				$found = WCIS_Filter::find_category( $name, $parent );
+				if ( $found ) {
+					$parent = $found;
 					continue;
 				}
 				$new = wp_insert_term( $name, 'product_cat', array( 'parent' => $parent ) );

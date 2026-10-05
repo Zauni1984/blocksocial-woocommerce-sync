@@ -197,6 +197,73 @@ class WCIS_Filter {
 	}
 
 	/**
+	 * Ignorierte Kategorien inkl. Unterkategorien (z. B. „Angebote"): zählen für
+	 * den Filter nicht und werden weder gesendet noch beim Empfang zugeordnet.
+	 *
+	 * @return int[]
+	 */
+	public static function ignored_ids() {
+		return self::with_children( (array) self::cfg( 'filter_ignore_categories', array() ) );
+	}
+
+	/**
+	 * Kategorie-Set einer Filter-Einstellung inkl. Unterkategorien, ohne die
+	 * ignorierten Kategorien.
+	 *
+	 * @param string $key Einstellung (filter_categories | filter_exclude_categories).
+	 * @return int[]
+	 */
+	protected static function scope_set( $key ) {
+		return array_values( array_diff( self::with_children( (array) self::cfg( $key, array() ) ), self::ignored_ids() ) );
+	}
+
+	/**
+	 * Entfernt ignorierte Kategorien aus einer eingehenden Payload (Kategorie-
+	 * Pfade und -Namen). Ein Pfad entfällt, wenn eine seiner Kategorien hier
+	 * ignoriert wird – per Name oder weil er hier in einer ignorierten Kategorie
+	 * landen würde.
+	 *
+	 * @param array $payload Payload.
+	 * @return array
+	 */
+	public static function strip_ignored( array $payload ) {
+		$ignored = self::ignored_ids();
+		if ( empty( $ignored ) ) {
+			return $payload;
+		}
+		$names = array();
+		foreach ( $ignored as $tid ) {
+			$t = get_term( $tid, 'product_cat' );
+			if ( $t && ! is_wp_error( $t ) ) {
+				$names[ self::norm_name( $t->name ) ] = true;
+			}
+		}
+		$is_ignored = static function ( array $path ) use ( $names, $ignored ) {
+			foreach ( $path as $n ) {
+				if ( is_scalar( $n ) && isset( $names[ self::norm_name( $n ) ] ) ) {
+					return true;
+				}
+			}
+			$landing = self::local_category_ids( array( 'cat_paths' => array( $path ) ) );
+			return (bool) array_intersect( $landing, $ignored );
+		};
+
+		if ( ! empty( $payload['cat_paths'] ) && is_array( $payload['cat_paths'] ) ) {
+			$payload['cat_paths'] = array_values( array_filter( $payload['cat_paths'], static function ( $path ) use ( $is_ignored ) {
+				return ! $is_ignored( (array) $path );
+			} ) );
+		}
+		foreach ( array( 'cat_names', 'categories' ) as $k ) {
+			if ( ! empty( $payload[ $k ] ) && is_array( $payload[ $k ] ) ) {
+				$payload[ $k ] = array_values( array_filter( $payload[ $k ], static function ( $n ) use ( $is_ignored ) {
+					return ! $is_ignored( array( $n ) );
+				} ) );
+			}
+		}
+		return $payload;
+	}
+
+	/**
 	 * Setzt die Request-Caches zurück (z. B. nach geänderten Einstellungen).
 	 */
 	public static function flush_cache() {
@@ -245,7 +312,7 @@ class WCIS_Filter {
 			return true;
 		}
 
-		$cats = self::with_children( (array) self::cfg( 'filter_categories', array() ) );
+		$cats = self::scope_set( 'filter_categories' );
 		if ( ! empty( $cats ) && has_term( $cats, 'product_cat', $id ) ) {
 			return true;
 		}
@@ -277,7 +344,7 @@ class WCIS_Filter {
 
 		// Kategorie-Ausschluss inkl. aller Unterkategorien – außer für Marken,
 		// die ausdrücklich davon ausgenommen sind.
-		$excl_cats = self::with_children( (array) self::cfg( 'filter_exclude_categories', array() ) );
+		$excl_cats = self::scope_set( 'filter_exclude_categories' );
 		if ( ! empty( $excl_cats ) && has_term( $excl_cats, 'product_cat', $id ) ) {
 			return ! self::has_exception_brand( $id );
 		}
@@ -298,18 +365,28 @@ class WCIS_Filter {
 	}
 
 	/**
+	 * Grund der letzten Ablehnung durch accepts_incoming() (für die Analyse):
+	 * 'excluded_id' | 'excluded_category' | 'not_selected' | ''.
+	 *
+	 * @var string
+	 */
+	public static $last_reason = '';
+
+	/**
 	 * Darf ein EINGEHENDES Produkt (Payload) hier angelegt/verändert werden?
 	 *
 	 * Der Sync-Filter dieses Shops gilt in BEIDE Richtungen: Was hier nicht im
-	 * Umfang liegt, wird weder gesendet noch empfangen. Die Prüfung arbeitet mit
-	 * den mitgesendeten Kategorie-Pfaden (inkl. Oberkategorien) und Marken – sie
-	 * greift deshalb auch bei Produkten, die es hier noch NICHT gibt.
+	 * Umfang liegt, wird weder gesendet noch empfangen. Maßgeblich ist der
+	 * Kategoriebaum DIESES Shops – also die Kategorien, in denen das Produkt hier
+	 * landet bzw. liegt (siehe local_category_ids()). Die Prüfung greift deshalb
+	 * auch bei Produkten, die es hier noch NICHT gibt.
 	 *
 	 * @param array $payload     Produkt-Payload.
 	 * @param int   $existing_id Bereits vorhandenes lokales Produkt (0 = neu, null = per SKU suchen).
 	 * @return bool
 	 */
 	public static function accepts_incoming( $payload, $existing_id = null ) {
+		self::$last_reason = '';
 		if ( ! is_array( $payload ) ) {
 			return false;
 		}
@@ -318,33 +395,42 @@ class WCIS_Filter {
 			$existing_id = '' !== $sku ? (int) wc_get_product_id_by_sku( $sku ) : 0;
 		}
 		$existing_id = (int) $existing_id;
+		$local_id    = $existing_id ? self::base_id( $existing_id ) : 0;
 
-		$terms = self::payload_terms( $payload );
+		$payload = self::strip_ignored( $payload );
+		$terms   = self::payload_terms( $payload );
+		$cat_ids = self::local_category_ids( $payload );
+		if ( $local_id ) {
+			$own = wp_get_post_terms( $local_id, 'product_cat', array( 'fields' => 'ids' ) );
+			if ( ! is_wp_error( $own ) ) {
+				foreach ( $own as $tid ) {
+					$cat_ids[] = (int) $tid;
+					$cat_ids   = array_merge( $cat_ids, array_map( 'intval', get_ancestors( (int) $tid, 'product_cat', 'taxonomy' ) ) );
+				}
+			}
+		}
+		$cat_ids = array_values( array_unique( $cat_ids ) );
 
 		// 1) Harte Ausschlüsse: Einzelprodukt (lokal) …
-		if ( $existing_id ) {
+		if ( $local_id ) {
 			$excluded_ids = array_map( 'intval', (array) self::cfg( 'filter_exclude_ids', array() ) );
-			if ( in_array( self::base_id( $existing_id ), $excluded_ids, true ) ) {
+			if ( in_array( $local_id, $excluded_ids, true ) ) {
+				self::$last_reason = 'excluded_id';
 				return false;
 			}
 		}
 
-		// … und Kategorie (Payload ODER lokale Zuordnung), außer Ausnahme-Marke.
-		$excl_cat_ids = (array) self::cfg( 'filter_exclude_categories', array() );
-		if ( ! empty( $excl_cat_ids ) ) {
-			$cat_hit = self::category_match( $terms, $excl_cat_ids );
-			if ( ! $cat_hit && $existing_id ) {
-				$cat_hit = has_term( self::with_children( $excl_cat_ids ), 'product_cat', self::base_id( $existing_id ) );
+		// … und Kategorie (inkl. Unterkategorien), außer Ausnahme-Marke.
+		$excl = self::scope_set( 'filter_exclude_categories' );
+		if ( ! empty( $excl ) && array_intersect( $cat_ids, $excl ) ) {
+			$except = (array) self::cfg( 'filter_exclude_except_brands', array() );
+			$exempt = ! empty( $except ) && self::names_intersect( $terms['brands'], self::brand_names( $except ) );
+			if ( ! $exempt && $local_id ) {
+				$exempt = self::has_exception_brand( $local_id );
 			}
-			if ( $cat_hit ) {
-				$except = (array) self::cfg( 'filter_exclude_except_brands', array() );
-				$exempt = ! empty( $except ) && self::names_intersect( $terms['brands'], self::brand_names( $except ) );
-				if ( ! $exempt && $existing_id ) {
-					$exempt = self::has_exception_brand( self::base_id( $existing_id ) );
-				}
-				if ( ! $exempt ) {
-					return false;
-				}
+			if ( ! $exempt ) {
+				self::$last_reason = 'excluded_category';
+				return false;
 			}
 		}
 
@@ -353,8 +439,8 @@ class WCIS_Filter {
 			return true;
 		}
 
-		$sel_cats = (array) self::cfg( 'filter_categories', array() );
-		if ( ! empty( $sel_cats ) && self::category_match( $terms, $sel_cats ) ) {
+		$sel = self::scope_set( 'filter_categories' );
+		if ( ! empty( $sel ) && array_intersect( $cat_ids, $sel ) ) {
 			return true;
 		}
 		$sel_brands = (array) self::cfg( 'filter_brands', array() );
@@ -362,12 +448,93 @@ class WCIS_Filter {
 			return true;
 		}
 		// Bereits vorhandenes Produkt, das lokal im Umfang liegt (Einzel-Freigabe,
-		// lokale Kategorie/Marke).
-		if ( $existing_id && self::should_sync( $existing_id ) ) {
+		// lokale Marke).
+		if ( $local_id && self::should_sync( $local_id ) ) {
 			return true;
 		}
 
+		self::$last_reason = 'not_selected';
 		return false;
+	}
+
+	/**
+	 * Kategorien DIESES Shops, in denen ein eingehendes Produkt landet – jeweils
+	 * mit allen lokalen Oberkategorien. Gleiche Zuordnung wie beim Anlegen:
+	 * Gibt es die (Unter-)Kategorie hier schon, zählt ihre Position im hiesigen
+	 * Kategoriebaum (z. B. „Vermehrungsmaterial" als eigene Hauptkategorie, auch
+	 * wenn sie beim Absender unter „Growshop" hängt). Fehlt sie, zählt der Teil
+	 * des Absender-Pfads, der hier existiert (z. B. „Growshop" für
+	 * „Growshop › Zeltzubehör").
+	 *
+	 * @param array $payload Payload.
+	 * @return int[]
+	 */
+	public static function local_category_ids( array $payload ) {
+		$paths = array();
+		if ( ! empty( $payload['cat_paths'] ) && is_array( $payload['cat_paths'] ) ) {
+			$paths = $payload['cat_paths'];
+		} else {
+			foreach ( array( 'cat_names', 'categories' ) as $k ) {
+				if ( ! empty( $payload[ $k ] ) && is_array( $payload[ $k ] ) ) {
+					foreach ( $payload[ $k ] as $n ) {
+						$paths[] = array( $n );
+					}
+					break;
+				}
+			}
+		}
+
+		$ids = array();
+		foreach ( $paths as $path ) {
+			$path = array_values( array_filter( array_map( static function ( $n ) {
+				return is_scalar( $n ) ? trim( wp_strip_all_tags( (string) $n ) ) : '';
+			}, (array) $path ), 'strlen' ) );
+			if ( empty( $path ) ) {
+				continue;
+			}
+			$leaf = self::find_category( end( $path ) );
+			if ( $leaf ) {
+				$ids[] = $leaf;
+				$ids   = array_merge( $ids, array_map( 'intval', get_ancestors( $leaf, 'product_cat', 'taxonomy' ) ) );
+				continue;
+			}
+			$parent = 0;
+			foreach ( $path as $name ) {
+				$tid = self::find_category( $name, $parent );
+				if ( ! $tid ) {
+					break;
+				}
+				$ids[]  = $tid;
+				$parent = $tid;
+			}
+		}
+		return array_values( array_unique( array_map( 'intval', $ids ) ) );
+	}
+
+	/**
+	 * Sucht eine Produktkategorie per Name (optional unter einer Elternkategorie).
+	 * Vergleicht auch mit/ohne HTML-Entities („&" / „&amp;").
+	 *
+	 * @param string   $name   Name.
+	 * @param int|null $parent Elternkategorie oder null = beliebig.
+	 * @return int Term-ID oder 0.
+	 */
+	public static function find_category( $name, $parent = null ) {
+		$decoded  = html_entity_decode( (string) $name, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+		$variants = array_unique( array( (string) $name, $decoded, esc_html( $decoded ) ) );
+		$args     = array(
+			'taxonomy'   => 'product_cat',
+			'name'       => $variants,
+			'hide_empty' => false,
+			'number'     => 1,
+			'fields'     => 'ids',
+			'orderby'    => 'term_id',
+		);
+		if ( null !== $parent ) {
+			$args['parent'] = (int) $parent;
+		}
+		$found = get_terms( $args );
+		return ( ! is_wp_error( $found ) && ! empty( $found ) ) ? (int) $found[0] : 0;
 	}
 
 	/**
@@ -414,72 +581,6 @@ class WCIS_Filter {
 	}
 
 	/**
-	 * Liegt eine Payload in einer der Kategorien (inkl. Unterkategorien)?
-	 *
-	 * Mit Kategorie-Pfaden (Absender ab 3.1.1) wird der Zweig berücksichtigt:
-	 * Trifft nur ein gleichnamiger Unterkategorie-Name (z. B. „Filter"), liegt
-	 * der Pfad aber hier in einer ANDEREN Hauptkategorie, zählt das nicht.
-	 * Ohne Pfade (ältere Absender) wird über die Kategorienamen verglichen.
-	 *
-	 * @param array $terms   Ergebnis von payload_terms().
-	 * @param array $cat_ids Term-IDs (gewählt bzw. ausgeschlossen).
-	 * @return bool
-	 */
-	protected static function category_match( array $terms, array $cat_ids ) {
-		$direct = array();
-		foreach ( array_map( 'intval', $cat_ids ) as $tid ) {
-			$term = get_term( $tid, 'product_cat' );
-			if ( $term && ! is_wp_error( $term ) ) {
-				$direct[ self::norm_name( $term->name ) ] = true;
-			}
-		}
-		$all = self::category_names( $cat_ids );
-
-		if ( empty( $terms['paths'] ) ) {
-			return self::names_intersect( $terms['cats'], $all );
-		}
-
-		$roots = self::root_category_names();
-		foreach ( $terms['paths'] as $path ) {
-			if ( self::names_intersect( array_flip( $path ), $direct ) ) {
-				return true;
-			}
-			if ( ! self::names_intersect( array_flip( $path ), $all ) ) {
-				continue;
-			}
-			// Nur über einen Unterkategorie-Namen getroffen: zählt nicht, wenn die
-			// Hauptkategorie des Pfads hier eine andere (bekannte) Hauptkategorie ist.
-			$root = $path[0];
-			if ( count( $path ) > 1 && isset( $roots[ $root ] ) && ! isset( $all[ $root ] ) ) {
-				continue;
-			}
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * Set der Hauptkategorien (ohne Elternkategorie) dieses Shops.
-	 *
-	 * @return array name => true
-	 */
-	protected static function root_category_names() {
-		if ( isset( self::$tree_cache['__roots'] ) ) {
-			return self::$tree_cache['__roots'];
-		}
-		$names = get_terms(
-			array(
-				'taxonomy'   => 'product_cat',
-				'parent'     => 0,
-				'hide_empty' => false,
-				'fields'     => 'names',
-			)
-		);
-		self::$tree_cache['__roots'] = is_wp_error( $names ) ? array() : self::name_set( (array) $names );
-		return self::$tree_cache['__roots'];
-	}
-
-	/**
 	 * Wandelt eine Namensliste in ein normalisiertes Set um.
 	 *
 	 * @param array $names Namen.
@@ -513,24 +614,6 @@ class WCIS_Filter {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Set (name => true) der Kategorien inkl. ihrer Unterkategorien.
-	 *
-	 * @param array $cat_ids Term-IDs.
-	 * @return array
-	 */
-	protected static function category_names( array $cat_ids ) {
-		$names = array();
-		foreach ( self::with_children( $cat_ids ) as $tid ) {
-			$term = get_term( $tid, 'product_cat' );
-			if ( $term && ! is_wp_error( $term ) ) {
-				$names[ self::norm_name( $term->name ) ] = true;
-			}
-		}
-		unset( $names[''] );
-		return $names;
 	}
 
 	/**

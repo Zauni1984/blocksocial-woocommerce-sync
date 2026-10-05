@@ -148,20 +148,25 @@ angelegt oder verändert (gilt für **Bestands- und Produkt-Sync** sowie den Abg
   ausschließen (hat Vorrang vor allen Einschluss-Kriterien).
 - **Ausnahmen vom Kategorie-Ausschluss (Marken)** – z. B. „Growshop" ausschließen, **außer**
   Marke „Spider Farmer".
+- **Kategorien ignorieren** – z. B. „Angebote": zählen weder für Auswahl noch Ausschluss,
+  werden nicht übertragen und beim Empfang nicht zugeordnet; eigene Zuordnungen bleiben.
 
 Im Modus „Nur ausgewählte" wird ein Produkt synchronisiert, sobald **mindestens ein**
 Kriterium zutrifft (Einzelauswahl **oder** Kategorie **oder** Marke) – sofern es nicht
 ausgeschlossen ist.
 
-Eingehende Produkte bringen ihren vollständigen **Kategorie-Pfad** (z. B.
+Maßgeblich ist immer der **Kategoriebaum des eigenen Shops**: Ein eingehendes Produkt wird
+danach beurteilt, in welcher Kategorie es hier liegt bzw. landen würde (hängt z. B.
+„Vermehrungsmaterial" beim Absender unter „Growshop", hier aber nicht, zählt es nicht zum
+Growshop). Eingehende Produkte bringen ihren vollständigen **Kategorie-Pfad** (z. B.
 „Growshop › Zeltzubehör") und ihre Marken mit. Der Empfänger erkennt dadurch auch
-Oberkategorien (ein Ausschluss von „Growshop" greift auch für „Zeltzubehör", selbst wenn es
-diese Unterkategorie hier noch nicht gibt) und legt fehlende Kategorien unter der richtigen
+Oberkategorien für Kategorien, die es hier noch nicht gibt (ein Ausschluss von „Growshop"
+greift auch für „Growshop › Zeltzubehör") und legt fehlende Kategorien unter der richtigen
 Oberkategorie an statt als neue Hauptkategorie.
 
 **Aufräumen (Neben-Shops, Reiter Aktionen):** findet vom Hauptshop übertragene Produkte, die
 nicht (mehr) im Sync-Umfang liegen – etwa nach einem falsch übertragenen Sortiment –, zeigt
-sie zur Prüfung an und verschiebt sie in den Papierkorb oder löscht sie endgültig inkl. der
+sie mit Grund und Aufschlüsselung nach Kategorie zur Prüfung an und verschiebt sie in den Papierkorb oder löscht sie endgültig inkl. der
 importierten Bilder (mit Fortschrittsbalken). Auswahl: alle vom Sync angelegten Produkte
 (Markierung ab 3.1.1) oder alle ab einem Stichtag angelegten. Eigene Produkte, deren SKU es im
 Hauptshop nicht gibt, werden nie angefasst.
