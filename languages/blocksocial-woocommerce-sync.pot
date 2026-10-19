@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-19T20:13:58+00:00\n"
+"POT-Creation-Date: 2026-10-19T20:28:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: blocksocial-woocommerce-sync\n"
@@ -2097,15 +2097,21 @@ msgstr ""
 msgid "Neben-Shop"
 msgstr ""
 
+#. translators: %d: Anzahl Shops
 #: includes/views/settings-page.php:96
 #, php-format
-msgid "%d Shops"
-msgstr ""
+msgid "%d Shop"
+msgid_plural "%d Shops"
+msgstr[0] ""
+msgstr[1] ""
 
+#. translators: %d: Anzahl Partner
 #: includes/views/settings-page.php:98
 #, php-format
-msgid "%1$d Partner · %2$d Shopify"
-msgstr ""
+msgid "%d Partner"
+msgid_plural "%d Partner"
+msgstr[0] ""
+msgstr[1] ""
 
 #: includes/views/settings-page.php:106
 msgid "Abgleich: aus"

@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: BlockSocial WooCommerce Sync 3.2.0\n"
 "Report-Msgid-Bugs-To: https://blocksocial.eu\n"
-"POT-Creation-Date: 2026-10-19T20:13:58+00:00\n"
+"POT-Creation-Date: 2026-10-19T20:28:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: BlockSocial <info@blocksocial.eu>\n"
@@ -2431,15 +2431,21 @@ msgstr "Sync inactive"
 msgid "Neben-Shop"
 msgstr "Secondary shop"
 
+#. translators: %d: Anzahl Shops
 #: includes/views/settings-page.php:96
 #, php-format
-msgid "%d Shops"
-msgstr "%d shops"
+msgid "%d Shop"
+msgid_plural "%d Shops"
+msgstr[0] "%d shop"
+msgstr[1] "%d shops"
 
+#. translators: %d: Anzahl Partner
 #: includes/views/settings-page.php:98
 #, php-format
-msgid "%1$d Partner · %2$d Shopify"
-msgstr "%1$d partners · %2$d Shopify"
+msgid "%d Partner"
+msgid_plural "%d Partner"
+msgstr[0] "%d partner"
+msgstr[1] "%d partners"
 
 #: includes/views/settings-page.php:106
 msgid "Abgleich: aus"

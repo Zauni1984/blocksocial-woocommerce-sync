@@ -93,9 +93,9 @@ $wcis_tabs = array(
 			<span class="wcis-pill <?php echo $wcis_master ? 'is-master' : ''; ?>">
 				<?php echo $wcis_master ? esc_html__( 'Hauptshop', 'blocksocial-woocommerce-sync' ) : esc_html__( 'Neben-Shop', 'blocksocial-woocommerce-sync' ); ?>
 			</span>
-			<span class="wcis-pill"><?php echo esc_html( sprintf( __( '%d Shops', 'blocksocial-woocommerce-sync' ), count( WCIS_Settings::get_peers( 'network' ) ) ) ); ?></span>
+			<span class="wcis-pill"><?php $wcis_n = count( WCIS_Settings::get_peers( 'network' ) ); /* translators: %d: Anzahl Shops */ echo esc_html( sprintf( _n( '%d Shop', '%d Shops', $wcis_n, 'blocksocial-woocommerce-sync' ), $wcis_n ) ); ?></span>
 			<?php if ( $wcis_master ) : ?>
-				<span class="wcis-pill"><?php echo esc_html( sprintf( __( '%1$d Partner · %2$d Shopify', 'blocksocial-woocommerce-sync' ), count( WCIS_Partners::active() ), count( WCIS_Shopify::active_stores() ) ) ); ?></span>
+				<span class="wcis-pill"><?php $wcis_n = count( WCIS_Partners::active() ); /* translators: %d: Anzahl Partner */ echo esc_html( sprintf( _n( '%d Partner', '%d Partner', $wcis_n, 'blocksocial-woocommerce-sync' ), $wcis_n ) . ' · ' . sprintf( '%d Shopify', count( WCIS_Shopify::active_stores() ) ) ); ?></span>
 			<?php endif; ?>
 			<span class="wcis-pill <?php echo $wcis_counts['failed'] > 0 ? 'is-warn' : ''; ?>">
 				<?php echo esc_html( sprintf( __( 'Queue %1$d/%2$d', 'blocksocial-woocommerce-sync' ), $wcis_counts['pending'], $wcis_counts['failed'] ) ); ?>

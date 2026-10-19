@@ -207,6 +207,9 @@ installiert werden – im Hauptshop, in allen Neben-Shops und bei Partnern. Vora
 Die Oberfläche ist verfügbar auf **Deutsch, Englisch, Französisch, Spanisch, Italienisch, Niederländisch und
 Polnisch**. Sie richtet sich nach der Sprache der Website bzw. des Benutzerprofils. Regionale Varianten
 (z. B. Englisch (UK), Französisch (Schweiz), Spanisch (Mexiko)) nutzen automatisch die passende Sprache.
+Jeder Benutzer kann seine Sprache unter **Benutzer → Profil → Sprache** selbst wählen.
+
+![Englische Oberfläche](img/15-lizenz-englisch.png)
 
 ## 15. Häufige Fragen
 
