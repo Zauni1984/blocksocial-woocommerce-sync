@@ -6,7 +6,7 @@ Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 3.1.2
+Stable tag: 3.2.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -22,6 +22,8 @@ Dieses Plugin verbindet deinen WooCommerce-Shop als **Partnershop** mit einem Ha
 * **Angebote nach Wahl:** Angebotspreise des Hauptshops übernehmen – oder eigene Angebote machen.
 * **Eigene Preise:** Preise nach dem Einspielen in % anpassen – nach oben oder unten, für alle Produkte oder je Kategorie, optional mit Rundung (z. B. auf ,99). Die Regeln bleiben bei Preis-Updates des Hauptshops erhalten (im vom Hauptshop erlaubten Rahmen).
 * **Kleinunternehmer (§19):** Preise können als Bruttopreise übernommen werden.
+* **Keine eigene Lizenz nötig:** Dein Shop ist über die Lizenz des Hauptshops abgedeckt – auch automatische Updates kommen darüber.
+* **Mehrsprachig:** Deutsch, Englisch, Französisch, Spanisch, Italienisch, Niederländisch, Polnisch.
 
 = Sicherheit =
 
@@ -39,6 +41,11 @@ Dieses Plugin verbindet deinen WooCommerce-Shop als **Partnershop** mit einem Ha
 Hinweis: Nicht gleichzeitig mit dem Admin-Plugin „BlockSocial WooCommerce Sync" aktivieren.
 
 == Changelog ==
+
+= 3.2.0 =
+* Automatische Updates über den Hauptshop-Verbund (blocksocial.eu) – keine eigene Lizenz nötig.
+* Oberfläche in 7 Sprachen.
+* Fehlerbehebung: PHP-Hinweis zu früh geladener Übersetzungen nach einem Update.
 
 = 3.1.2 =
 * Kategorie-Zuordnung beim Empfang einheitlich mit dem Admin-Plugin 3.1.2.

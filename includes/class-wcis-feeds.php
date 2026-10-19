@@ -892,6 +892,12 @@ class WCIS_Feeds {
 			echo 'Forbidden';
 			exit;
 		}
+		if ( ! WCIS_License::sync_allowed() ) {
+			status_header( 402 );
+			header( 'Content-Type: text/plain; charset=utf-8' );
+			echo 'License required';
+			exit;
+		}
 
 		// Nur geänderte Produkte nachziehen (meist wenige Zeilen, sofort erledigt).
 		$left = self::refresh( $f, self::SERVE_BUDGET );

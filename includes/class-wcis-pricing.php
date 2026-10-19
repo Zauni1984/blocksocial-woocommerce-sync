@@ -56,8 +56,11 @@ class WCIS_Pricing {
 	 */
 	protected static $ancestors = array();
 
+	/** Gültige Rundungsarten (ohne Übersetzung – auch vor „init" nutzbar). */
+	const ROUNDING_KEYS = array( 'none', 'x99', 'x95', 'x90', 'tenth', 'whole' );
+
 	/**
-	 * Verfügbare Rundungs-Optionen.
+	 * Verfügbare Rundungs-Optionen mit Beschriftung (für die Oberfläche).
 	 *
 	 * @return array slug => Label.
 	 */
@@ -101,7 +104,7 @@ class WCIS_Pricing {
 		}
 
 		$rounding = isset( $rules['rounding'] ) ? (string) $rules['rounding'] : 'none';
-		if ( ! array_key_exists( $rounding, self::rounding_options() ) ) {
+		if ( ! in_array( $rounding, self::ROUNDING_KEYS, true ) ) {
 			$rounding = 'none';
 		}
 

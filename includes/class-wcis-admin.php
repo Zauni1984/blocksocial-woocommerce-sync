@@ -86,6 +86,10 @@ class WCIS_Admin {
 
 		// Admin-Plugin: Partner-Verwaltung.
 		add_action( 'admin_post_wcis_partner_add', array( $this, 'handle_partner_add' ) );
+		add_action( 'admin_post_wcis_license_activate', array( $this, 'handle_license_activate' ) );
+		add_action( 'admin_post_wcis_license_deactivate', array( $this, 'handle_license_deactivate' ) );
+		add_action( 'admin_post_wcis_license_check', array( $this, 'handle_license_check' ) );
+		add_action( 'admin_notices', array( $this, 'license_notice' ) );
 		add_action( 'admin_post_wcis_partner_update', array( $this, 'handle_partner_update' ) );
 		add_action( 'admin_post_wcis_partner_action', array( $this, 'handle_partner_action' ) );
 		add_action( 'admin_post_wcis_partner_policy', array( $this, 'handle_partner_policy' ) );
@@ -155,6 +159,8 @@ class WCIS_Admin {
 					'batchesSent' => __( 'Batches gesendet', 'blocksocial-woocommerce-sync' ),
 					'failedUnit'  => __( 'fehlgeschlagen', 'blocksocial-woocommerce-sync' ),
 					'genericError' => __( 'Fehler', 'blocksocial-woocommerce-sync' ),
+					'urlMissing'   => __( 'URL fehlt', 'blocksocial-woocommerce-sync' ),
+					'requestFailed' => __( 'Anfrage fehlgeschlagen', 'blocksocial-woocommerce-sync' ),
 					'confirmProducts' => __( 'Alle einfachen und variablen Produkte (inkl. Status) an alle verbundenen Shops übertragen? Neue Produkte werden angelegt; bestehende bleiben unangetastet, sofern nicht anders eingestellt.', 'blocksocial-woocommerce-sync' ),
 					'confirmPull'  => __( 'Produkte vom Hauptshop auf diesen Shop holen? Neue Produkte werden hier angelegt; bestehende bleiben unangetastet, sofern nicht anders eingestellt.', 'blocksocial-woocommerce-sync' ),
 					'products'    => __( 'Produkte', 'blocksocial-woocommerce-sync' ),
@@ -764,6 +770,84 @@ class WCIS_Admin {
 			)
 		);
 		exit;
+	}
+
+	/**
+	 * Lizenz aktivieren.
+	 */
+	public function handle_license_activate() {
+		$this->require_cap();
+		check_admin_referer( 'wcis_license_activate' );
+		$key = isset( $_POST['license_key'] ) ? sanitize_text_field( wp_unslash( $_POST['license_key'] ) ) : '';
+		$res = WCIS_License::activate( $key );
+		if ( is_wp_error( $res ) ) {
+			set_transient( 'wcis_admin_error_' . get_current_user_id(), $res->get_error_message(), 120 );
+			$this->redirect_tab( 'license_error', 'license' );
+		}
+		$this->redirect_tab( 'license_activated', 'license' );
+	}
+
+	/**
+	 * Lizenz deaktivieren (Umzug).
+	 */
+	public function handle_license_deactivate() {
+		$this->require_cap();
+		check_admin_referer( 'wcis_license_deactivate' );
+		WCIS_License::deactivate();
+		$this->redirect_tab( 'license_deactivated', 'license' );
+	}
+
+	/**
+	 * Lizenz jetzt prüfen.
+	 */
+	public function handle_license_check() {
+		$this->require_cap();
+		check_admin_referer( 'wcis_license_check' );
+		if ( 'member' === WCIS_License::role() ) {
+			WCIS_License::refresh_from_master();
+			$this->redirect_tab( 'license_checked', 'license' );
+		}
+		$res = WCIS_License::check();
+		if ( is_wp_error( $res ) ) {
+			set_transient( 'wcis_admin_error_' . get_current_user_id(), $res->get_error_message(), 120 );
+			$this->redirect_tab( 'license_error', 'license' );
+		}
+		$this->redirect_tab( 'license_checked', 'license' );
+	}
+
+	/**
+	 * Hinweis im WordPress-Admin, wenn die Lizenz Aufmerksamkeit braucht
+	 * (Hauptshop): keine Lizenz, Testphase endet bald, Plätze voll, abgelaufen.
+	 */
+	public function license_notice() {
+		if ( ! current_user_can( 'manage_woocommerce' ) || WCIS_Edition::is_partner() || 'master' !== WCIS_License::role() || ! WCIS_Settings::is_enabled() ) {
+			return;
+		}
+		$url   = admin_url( 'admin.php?page=' . self::SLUG . '&wcis_tab=license' );
+		$state = WCIS_License::state();
+		$msg   = '';
+		$type  = 'warning';
+		if ( 'unlicensed' === $state ) {
+			$type = 'error';
+			$msg  = __( 'BlockSocial Sync: Die Testphase ist abgelaufen – die Synchronisation ist pausiert. Bitte einen Lizenzschlüssel eintragen.', 'blocksocial-woocommerce-sync' );
+		} elseif ( 'trial' === $state && WCIS_License::trial_days_left() <= 5 ) {
+			$days = WCIS_License::trial_days_left();
+			/* translators: %d: verbleibende Tage */
+			$msg = sprintf( _n( 'BlockSocial Sync: Die Testphase endet in %d Tag. Danach pausiert die Synchronisation ohne Lizenz.', 'BlockSocial Sync: Die Testphase endet in %d Tagen. Danach pausiert die Synchronisation ohne Lizenz.', $days, 'blocksocial-woocommerce-sync' ), $days );
+		} elseif ( 'licensed' === $state ) {
+			$uncovered = count( WCIS_License::seat_list() ) + 1 - WCIS_License::seats();
+			if ( WCIS_License::seats() > 0 && $uncovered > 0 ) {
+				/* translators: %d: Anzahl Shops ohne Platz */
+				$msg = sprintf( _n( 'BlockSocial Sync: %d verbundener Shop überschreitet die Plätze der Lizenz und wird nicht beliefert. Upgrade nötig.', 'BlockSocial Sync: %d verbundene Shops überschreiten die Plätze der Lizenz und werden nicht beliefert. Upgrade nötig.', $uncovered, 'blocksocial-woocommerce-sync' ), $uncovered );
+			} elseif ( 'expired' === WCIS_License::data()['status'] ) {
+				$type = 'info';
+				$msg  = __( 'BlockSocial Sync: Die Lizenz ist abgelaufen. Die Synchronisation läuft weiter, Updates und Support gibt es nach der Verlängerung.', 'blocksocial-woocommerce-sync' );
+			}
+		}
+		if ( '' === $msg ) {
+			return;
+		}
+		printf( '<div class="notice notice-%1$s"><p>%2$s <a href="%3$s">%4$s</a></p></div>', esc_attr( $type ), esc_html( $msg ), esc_url( $url ), esc_html__( 'Zur Lizenz', 'blocksocial-woocommerce-sync' ) );
 	}
 
 	/**

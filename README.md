@@ -29,6 +29,25 @@ Admin- und Partner-Plugin dürfen nicht gleichzeitig im selben Shop aktiv sein.
 > Options-Keys bleiben unverändert – bestehende Verbünde synchronisieren nach dem Update
 > ohne Neukonfiguration weiter.
 
+## Lizenz, Updates & Sprachen (ab 3.2)
+
+- **Verkauf über [blocksocial.eu](https://blocksocial.eu)** mit Lizenzstufen nach Plätzen
+  (= verbundene Shops: Hauptshop, eigene Shops, Partnershops, Shopify): **Standard** bis 3,
+  **Premium** bis 10, **Enterprise** unbegrenzt. Der Schlüssel wird nur im Hauptshop eingetragen
+  (Reiter *Lizenz*); Neben- und Partnershops sind darüber abgedeckt.
+- **14 Tage Testphase** nach der Installation. Abgelaufene Lizenz: Synchronisation läuft weiter,
+  nur Updates/Support entfallen. Ohne Lizenz nach der Testphase pausiert die Synchronisation.
+- **Automatische Updates:** Ein Versions-Tag (`v3.2.1`) startet die GitHub Action *Release*
+  (`.github/workflows/release.yml`), die beide ZIPs baut und ein GitHub-Release anlegt. Der
+  Lizenzserver auf blocksocial.eu liest das Release (Token bleibt dort) und liefert es nur an
+  lizenzierte Shops aus – das Repository kann privat sein.
+- **Lizenzserver:** eigenes WooCommerce-Plugin *BlockSocial Lizenzserver*
+  (`license-server/` bzw. `blocksocial-license-server/`, ZIP unter `dist/server/`).
+- **Sprachen:** Deutsch (Ausgangssprache), Englisch, Französisch, Spanisch, Italienisch,
+  Niederländisch, Polnisch (`languages/`, POT-Vorlage für weitere Sprachen enthalten).
+- **Dokumentation:** [Anleitung mit Screenshots](docs/ANLEITUNG.md) ·
+  [Verkauf: Einrichtung, Preise, Texte](docs/VERKAUF.md)
+
 ## Kernfunktionen
 
 | Anforderung | Umsetzung |
@@ -298,9 +317,15 @@ blocksocial-woocommerce-sync.php     # Bootstrap, Konstanten, HPOS-Kompatibilit�
 │   ├── class-wcis-shopify-api.php # Shopify GraphQL-Client (Token, Drosselung)
 │   ├── class-wcis-feeds.php       # CSV-Produktfeeds (Zeilen-Cache, Auslieferung)
 │   ├── class-wcis-view.php        # Darstellungs-Helfer
+│   ├── class-wcis-license.php     # Lizenz: Aktivierung, Plätze, Testphase
+│   ├── class-wcis-updater.php     # Automatische Updates über blocksocial.eu
+│   ├── class-wcis-cleanup.php     # Aufräumen (Produkte außerhalb des Sync-Filters)
 │   └── views/                     # settings-page.php, admin-tabs.php, partner-page.php
 ├── partner/                       # Haupt-Datei + readme des Partner-Plugins
-├── bin/build.sh                   # Baut beide Plugin-ZIPs
+├── bin/build.sh                   # Baut beide Plugin-ZIPs (+ Lizenzserver-ZIP)
+├── languages/                     # Übersetzungen (POT, PO, MO)
+├── docs/                          # ANLEITUNG.md, VERKAUF.md, Screenshots
+├── .github/workflows/release.yml  # GitHub-Release bei Versions-Tag
 └── assets/                        # admin.css, admin.js
 ```
 

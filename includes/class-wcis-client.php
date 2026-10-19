@@ -231,6 +231,10 @@ class WCIS_Client {
 		if ( '' === self::credentials_for( $peer_url )['secret'] ) {
 			return self::no_credentials_error();
 		}
+		$blocked = WCIS_License::outbound_block( $peer_url, $endpoint );
+		if ( $blocked ) {
+			return $blocked;
+		}
 
 		$eff_timeout = ( null !== $timeout ) ? max( 5, min( 60, (int) $timeout ) ) : self::timeout();
 
@@ -267,6 +271,10 @@ class WCIS_Client {
 		$body = ''; // GET signiert einen leeren Body.
 		if ( '' === self::credentials_for( $peer_url )['secret'] ) {
 			return self::no_credentials_error();
+		}
+		$blocked = WCIS_License::outbound_block( $peer_url, strtok( $endpoint, '?' ) );
+		if ( $blocked ) {
+			return $blocked;
 		}
 
 		$response = wp_remote_get(

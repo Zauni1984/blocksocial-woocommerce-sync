@@ -1,0 +1,50 @@
+# Baut bei jedem Versions-Tag (z. B. v3.2.0) beide Plugin-ZIPs und legt ein
+# GitHub-Release an. Der Lizenzserver auf blocksocial.eu liest dieses Release
+# (stündlich) und liefert die ZIPs als automatische Updates an lizenzierte Shops.
+#
+# Ablauf für ein neues Update:
+#   1. Version in includes/bootstrap.php, beiden Plugin-Dateien und beiden
+#      readme.txt (Stable tag + Changelog) erhöhen und committen.
+#   2. git tag v3.2.1 && git push origin v3.2.1
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tag und Plugin-Version vergleichen
+        run: |
+          V=$(sed -n "s/.*define( 'WCIS_VERSION', '\([^']*\)'.*/\1/p" includes/bootstrap.php)
+          if [ "v$V" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME passt nicht zur Plugin-Version $V"
+            exit 1
+          fi
+
+      - name: Plugins bauen (inkl. PHP-Syntaxprüfung)
+        run: bash bin/build.sh "$RUNNER_TEMP/dist"
+
+      - name: Release-Notizen aus dem Changelog
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          awk -v v="$V" '$0 == "= " v " =" {f=1; next} /^= / {if (f) exit} f' readme.txt > "$RUNNER_TEMP/notes.md"
+          [ -s "$RUNNER_TEMP/notes.md" ] || echo "Version $V" > "$RUNNER_TEMP/notes.md"
+
+      - name: GitHub-Release anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          gh release create "$GITHUB_REF_NAME" \
+            "$RUNNER_TEMP/dist/blocksocial-woocommerce-sync-$V.zip" \
+            "$RUNNER_TEMP/dist/blocksocial-woocommerce-sync-partner-$V.zip" \
+            --title "BlockSocial WooCommerce Sync $V" \
+            --notes-file "$RUNNER_TEMP/notes.md"

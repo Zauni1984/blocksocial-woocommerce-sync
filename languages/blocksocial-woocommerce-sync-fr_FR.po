@@ -1,0 +1,3217 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: BlockSocial WooCommerce Sync 3.2.0\n"
+"Report-Msgid-Bugs-To: https://blocksocial.eu\n"
+"POT-Creation-Date: 2026-10-19T20:13:58+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: BlockSocial <info@blocksocial.eu>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Domain: blocksocial-woocommerce-sync\n"
+"X-Generator: WP-CLI 2.12.0\n"
+
+#. Plugin Name of the plugin
+#: blocksocial-woocommerce-sync.php includes/class-wcis-edition.php:59
+msgid "BlockSocial WooCommerce Sync"
+msgstr "BlockSocial WooCommerce Sync"
+
+#. Plugin URI of the plugin
+#: blocksocial-woocommerce-sync.php
+msgid "https://blocksocial.eu/produkt/blocksocial-woocommerce-sync/"
+msgstr "https://blocksocial.eu/produkt/blocksocial-woocommerce-sync/"
+
+#. Description of the plugin
+#: blocksocial-woocommerce-sync.php
+msgid ""
+"Enterprise-Grade WooCommerce-Plugin für Produkt- und Bestands-"
+"Synchronisation zwischen mehreren Shops in nahezu Echtzeit. Zuordnung per "
+"SKU, wählbarer Hauptshop (Master), Partner-Verwaltung mit eigenen "
+"Zugangsschlüsseln, Preisregeln und Shopify-Anbindung. Baue dein eigenes "
+"Dropshipping-/B2B-Business auf. (Admin-Edition – für Partnershops gibt es "
+"das separate Partner-Plugin.)"
+msgstr ""
+"Extension WooCommerce de niveau professionnel pour synchroniser produits et "
+"stocks entre plusieurs boutiques en temps quasi réel. Correspondance par "
+"SKU, boutique principale (maître) au choix, gestion des partenaires avec "
+"leurs propres clés d’accès, règles de prix et connexion Shopify. Développez "
+"votre propre activité de dropshipping/B2B. (Édition Admin – pour les "
+"boutiques partenaires, il existe une extension Partenaire distincte.)"
+
+#. Author of the plugin
+#: blocksocial-woocommerce-sync.php
+msgid "BlockSocial UG (haftungsbeschränkt)"
+msgstr "BlockSocial UG (haftungsbeschränkt)"
+
+#. Author URI of the plugin
+#: blocksocial-woocommerce-sync.php
+msgid "https://blocksocial.eu"
+msgstr "https://blocksocial.eu"
+
+#: blocksocial-woocommerce-sync.php:31
+#: partner/blocksocial-woocommerce-sync-partner.php:31
+msgid ""
+"BlockSocial WooCommerce Sync: Admin- und Partner-Plugin sind gleichzeitig "
+"aktiv. Bitte nur EINES davon aktivieren."
+msgstr ""
+"BlockSocial WooCommerce Sync : les extensions Admin et Partenaire sont "
+"activées simultanément. Veuillez n’en activer qu’UNE seule."
+
+#. translators: %s: Plugin-Name
+#: includes/bootstrap.php:103
+#, php-format
+msgid ""
+"%s benötigt WooCommerce. Bitte WooCommerce installieren und aktivieren."
+msgstr "%s nécessite WooCommerce. Veuillez installer et activer WooCommerce."
+
+#: includes/class-wcis-admin.php:116 includes/views/partner-page.php:52
+msgid "BlockSocial Partner"
+msgstr "BlockSocial Partenaire"
+
+#: includes/class-wcis-admin.php:117 includes/views/settings-page.php:85
+msgid "BlockSocial Sync"
+msgstr "BlockSocial Sync"
+
+#: includes/class-wcis-admin.php:151
+msgid "Teste …"
+msgstr "Test en cours…"
+
+#: includes/class-wcis-admin.php:152
+msgid ""
+"Voll-Synchronisation vom Hauptshop an alle Shops starten? Dies überschreibt "
+"die Bestände der anderen Shops mit den Werten dieses Shops (Zuordnung per "
+"SKU)."
+msgstr ""
+"Lancer une synchronisation complète de la boutique principale vers toutes "
+"les boutiques ? Les stocks des autres boutiques seront écrasés par les "
+"valeurs de cette boutique (correspondance par SKU)."
+
+#: includes/class-wcis-admin.php:153
+msgid "Starte …"
+msgstr "Démarrage…"
+
+#: includes/class-wcis-admin.php:154
+msgid "Synchronisiere"
+msgstr "Synchronisation"
+
+#: includes/class-wcis-admin.php:155
+msgid "an"
+msgstr "vers"
+
+#: includes/class-wcis-admin.php:156
+msgid "Fertig"
+msgstr "Terminé"
+
+#: includes/class-wcis-admin.php:157
+msgid "Abgebrochen"
+msgstr "Annulé"
+
+#: includes/class-wcis-admin.php:158
+msgid "Artikel"
+msgstr "articles"
+
+#: includes/class-wcis-admin.php:159
+msgid "Batches gesendet"
+msgstr "lots envoyés"
+
+#: includes/class-wcis-admin.php:160
+msgid "fehlgeschlagen"
+msgstr "échec"
+
+#: includes/class-wcis-admin.php:161
+msgid "Fehler"
+msgstr "Erreur"
+
+#: includes/class-wcis-admin.php:162
+msgid "URL fehlt"
+msgstr "URL manquante"
+
+#: includes/class-wcis-admin.php:163
+msgid "Anfrage fehlgeschlagen"
+msgstr "Échec de la requête"
+
+#: includes/class-wcis-admin.php:164
+msgid ""
+"Alle einfachen und variablen Produkte (inkl. Status) an alle verbundenen "
+"Shops übertragen? Neue Produkte werden angelegt; bestehende bleiben "
+"unangetastet, sofern nicht anders eingestellt."
+msgstr ""
+"Transférer tous les produits simples et variables (statut compris) vers "
+"toutes les boutiques connectées ? Les nouveaux produits seront créés ; les "
+"produits existants restent inchangés, sauf réglage contraire."
+
+#: includes/class-wcis-admin.php:165
+msgid ""
+"Produkte vom Hauptshop auf diesen Shop holen? Neue Produkte werden hier "
+"angelegt; bestehende bleiben unangetastet, sofern nicht anders eingestellt."
+msgstr ""
+"Récupérer les produits de la boutique principale sur cette boutique ? Les "
+"nouveaux produits seront créés ici ; les produits existants restent "
+"inchangés, sauf réglage contraire."
+
+#: includes/class-wcis-admin.php:166 includes/views/partner-page.php:37
+msgid "Produkte"
+msgstr "Produits"
+
+#: includes/class-wcis-admin.php:167
+msgid "angelegt"
+msgstr "créés"
+
+#: includes/class-wcis-admin.php:168
+msgid "aktualisiert"
+msgstr "mis à jour"
+
+#: includes/class-wcis-admin.php:169
+msgid "übersprungen"
+msgstr "ignorés"
+
+#: includes/class-wcis-admin.php:170
+msgid "Vorschau wird berechnet …"
+msgstr "Calcul de l’aperçu…"
+
+#: includes/class-wcis-admin.php:171
+msgid "Produkte im Sync-Umfang"
+msgstr "produits dans le périmètre de synchronisation"
+
+#: includes/class-wcis-admin.php:172
+msgid "von"
+msgstr "sur"
+
+#: includes/class-wcis-admin.php:173
+msgid "geprüft"
+msgstr "vérifiés"
+
+#: includes/class-wcis-admin.php:174
+msgid "ausgeschlossen"
+msgstr "exclus"
+
+#: includes/class-wcis-admin.php:175 includes/class-wcis-admin.php:182
+msgid "Beispiele"
+msgstr "Exemples"
+
+#: includes/class-wcis-admin.php:176
+msgid "Hinweis: Es wurden nur die ersten Produkte geprüft."
+msgstr "Remarque : seuls les premiers produits ont été vérifiés."
+
+#: includes/class-wcis-admin.php:177
+msgid ""
+"Preisregeln speichern und jetzt auf alle Produkte anwenden? Die Preise "
+"werden aus den gespeicherten Basispreisen neu berechnet (kein Aufschlag auf "
+"den Aufschlag). 0 % stellt die Originalpreise wieder her."
+msgstr ""
+"Enregistrer les règles de prix et les appliquer maintenant à tous les "
+"produits ? Les prix sont recalculés à partir des prix de base enregistrés "
+"(pas de majoration sur la majoration). 0 % rétablit les prix d’origine."
+
+#: includes/class-wcis-admin.php:178
+msgid ""
+"Alle Preisregeln entfernen und die Originalpreise (Basispreise) "
+"wiederherstellen?"
+msgstr ""
+"Supprimer toutes les règles de prix et rétablir les prix d’origine (prix de "
+"base) ?"
+
+#: includes/class-wcis-admin.php:179
+msgid "geändert"
+msgstr "modifiés"
+
+#: includes/class-wcis-admin.php:180
+msgid "unverändert"
+msgstr "inchangés"
+
+#: includes/class-wcis-admin.php:181
+msgid "Gespeichert."
+msgstr "Enregistré."
+
+#: includes/class-wcis-admin.php:183
+msgid "Produkte würden sich ändern"
+msgstr "produits seraient modifiés"
+
+#: includes/class-wcis-admin.php:184
+msgid "Übertragung an den gewählten Shopify-Shop starten?"
+msgstr "Lancer le transfert vers la boutique Shopify sélectionnée ?"
+
+#: includes/class-wcis-admin.php:185
+msgid "Kopiert!"
+msgstr "Copié !"
+
+#: includes/class-wcis-admin.php:186 includes/class-wcis-view.php:116
+msgid "Regel entfernen"
+msgstr "Supprimer la règle"
+
+#: includes/class-wcis-admin.php:187
+msgid "Lade Produktliste vom Hauptshop …"
+msgstr "Chargement de la liste des produits de la boutique principale…"
+
+#: includes/class-wcis-admin.php:188
+msgid "Prüfe Produkte gegen den Sync-Filter …"
+msgstr "Vérification des produits selon le filtre de synchronisation…"
+
+#: includes/class-wcis-admin.php:189
+msgid "Produkte geprüft"
+msgstr "produits vérifiés"
+
+#: includes/class-wcis-admin.php:190
+msgid "eigene Produkte (nicht im Hauptshop) – bleiben unangetastet"
+msgstr ""
+"produits propres (absents de la boutique principale) – restent inchangés"
+
+#: includes/class-wcis-admin.php:191
+msgid "Produkte liegen außerhalb des Sync-Umfangs und würden entfernt"
+msgstr ""
+"produits sont hors du périmètre de synchronisation et seraient supprimés"
+
+#: includes/class-wcis-admin.php:192
+msgid "Keine Produkte außerhalb des Sync-Umfangs gefunden."
+msgstr "Aucun produit hors du périmètre de synchronisation trouvé."
+
+#: includes/class-wcis-admin.php:193
+msgid "Entferne"
+msgstr "Suppression"
+
+#: includes/class-wcis-admin.php:194
+msgid "entfernt"
+msgstr "supprimés"
+
+#: includes/class-wcis-admin.php:195
+msgid "weitere"
+msgstr "autres"
+
+#: includes/class-wcis-admin.php:196
+msgid "Gründe"
+msgstr "Raisons"
+
+#: includes/class-wcis-admin.php:197
+msgid "Nach Kategorie (in diesem Shop)"
+msgstr "Par catégorie (dans cette boutique)"
+
+#: includes/class-wcis-admin.php:198
+msgid ""
+"Bitte prüfen: Gehört hier etwas NICHT zum Entfernen, zuerst den Sync-Filter "
+"anpassen, speichern und erneut analysieren."
+msgstr ""
+"Veuillez vérifier : si un élément ne doit PAS être supprimé, ajustez d’abord"
+" le filtre de synchronisation, enregistrez et relancez l’analyse."
+
+#: includes/class-wcis-admin.php:199
+msgid ""
+"Die gefundenen Produkte in den Papierkorb verschieben? Sie lassen sich dort "
+"30 Tage lang wiederherstellen."
+msgstr ""
+"Déplacer les produits trouvés vers la corbeille ? Ils pourront y être "
+"restaurés pendant 30 jours."
+
+#: includes/class-wcis-admin.php:200
+msgid ""
+"Die gefundenen Produkte ENDGÜLTIG löschen – inklusive der vom Sync "
+"importierten Bilder? Das kann nicht rückgängig gemacht werden."
+msgstr ""
+"Supprimer DÉFINITIVEMENT les produits trouvés, y compris les images "
+"importées par la synchronisation ? Cette action est irréversible."
+
+#: includes/class-wcis-admin.php:211 includes/class-wcis-admin.php:408
+#: includes/class-wcis-admin.php:451
+msgid "Keine Berechtigung."
+msgstr "Autorisation refusée."
+
+#: includes/class-wcis-admin.php:413
+msgid "Keine URL angegeben."
+msgstr "Aucune URL indiquée."
+
+#: includes/class-wcis-admin.php:417
+msgid ""
+"Bitte zuerst Netzwerk-Secret und Shop-URL speichern, dann testen (aus "
+"Sicherheitsgründen wird nur an gespeicherte Shops signiert)."
+msgstr ""
+"Veuillez d’abord enregistrer le secret réseau et l’URL de la boutique, puis "
+"tester (pour des raisons de sécurité, seules les boutiques enregistrées "
+"reçoivent des requêtes signées)."
+
+#: includes/class-wcis-admin.php:427
+msgid "Verbindung erreichbar, aber Secret stimmt nicht überein (401)."
+msgstr "Connexion établie, mais le secret ne correspond pas (401)."
+
+#: includes/class-wcis-admin.php:428 includes/class-wcis-admin.php:986
+#, php-format
+msgid "Fehler: HTTP %d."
+msgstr "Erreur : HTTP %d."
+
+#. translators: 1: Shop-Name, 2: Version
+#: includes/class-wcis-admin.php:437
+#, php-format
+msgid "Verbunden mit „%1$s\" (Plugin v%2$s)."
+msgstr "Connecté à « %1$s » (extension v%2$s)."
+
+#: includes/class-wcis-admin.php:686 includes/class-wcis-pricing.php:567
+msgid "Preisregeln sind in diesem Shop nicht verfügbar."
+msgstr "Les règles de prix ne sont pas disponibles dans cette boutique."
+
+#: includes/class-wcis-admin.php:697
+msgid "Preisregeln gespeichert."
+msgstr "Règles de prix enregistrées."
+
+#: includes/class-wcis-admin.php:832
+msgid ""
+"BlockSocial Sync: Die Testphase ist abgelaufen – die Synchronisation ist "
+"pausiert. Bitte einen Lizenzschlüssel eintragen."
+msgstr ""
+"BlockSocial Sync : la période d’essai a expiré – la synchronisation est en "
+"pause. Veuillez saisir une clé de licence."
+
+#. translators: %d: verbleibende Tage
+#: includes/class-wcis-admin.php:836
+#, php-format
+msgid ""
+"BlockSocial Sync: Die Testphase endet in %d Tag. Danach pausiert die "
+"Synchronisation ohne Lizenz."
+msgid_plural ""
+"BlockSocial Sync: Die Testphase endet in %d Tagen. Danach pausiert die "
+"Synchronisation ohne Lizenz."
+msgstr[0] ""
+"BlockSocial Sync : la période d’essai se termine dans %d jour. Ensuite, la "
+"synchronisation est suspendue sans licence."
+msgstr[1] ""
+"BlockSocial Sync : la période d’essai se termine dans %d jours. Ensuite, la "
+"synchronisation est suspendue sans licence."
+
+#. translators: %d: Anzahl Shops ohne Platz
+#: includes/class-wcis-admin.php:841
+#, php-format
+msgid ""
+"BlockSocial Sync: %d verbundener Shop überschreitet die Plätze der Lizenz "
+"und wird nicht beliefert. Upgrade nötig."
+msgid_plural ""
+"BlockSocial Sync: %d verbundene Shops überschreiten die Plätze der Lizenz "
+"und werden nicht beliefert. Upgrade nötig."
+msgstr[0] ""
+"BlockSocial Sync : %d boutique connectée dépasse les emplacements de la "
+"licence et n’est pas approvisionnée. Mise à niveau nécessaire."
+msgstr[1] ""
+"BlockSocial Sync : %d boutiques connectées dépassent les emplacements de la "
+"licence et ne sont pas approvisionnées. Mise à niveau nécessaire."
+
+#: includes/class-wcis-admin.php:844
+msgid ""
+"BlockSocial Sync: Die Lizenz ist abgelaufen. Die Synchronisation läuft "
+"weiter, Updates und Support gibt es nach der Verlängerung."
+msgstr ""
+"BlockSocial Sync : la licence a expiré. La synchronisation continue ; les "
+"mises à jour et le support seront disponibles après le renouvellement."
+
+#: includes/class-wcis-admin.php:850
+msgid "Zur Lizenz"
+msgstr "Voir la licence"
+
+#: includes/class-wcis-admin.php:977 includes/views/settings-page.php:143
+msgid "Partner nicht gefunden."
+msgstr "Partenaire introuvable."
+
+#: includes/class-wcis-admin.php:985
+msgid ""
+"Shop erreichbar, aber noch nicht mit diesem Verbindungscode eingerichtet "
+"(401)."
+msgstr ""
+"Boutique joignable, mais pas encore configurée avec ce code de connexion "
+"(401)."
+
+#: includes/class-wcis-admin.php:986
+msgid "Partner-Plugin noch nicht verbunden oder deaktiviert (403)."
+msgstr "Extension Partenaire pas encore connectée ou désactivée (403)."
+
+#. translators: 1: Shop-Name, 2: Version
+#: includes/class-wcis-admin.php:995
+#, php-format
+msgid "Verbunden mit „%1$s\" (Partner-Plugin v%2$s). Vorgaben übertragen."
+msgstr ""
+"Connecté à « %1$s » (extension Partenaire v%2$s). Paramètres imposés "
+"transférés."
+
+#: includes/class-wcis-cleanup.php:143
+msgid "Aufräumen ist nur auf Neben-Shops mit eingetragenem Hauptshop möglich."
+msgstr ""
+"Le nettoyage n’est possible que sur les boutiques secondaires avec une "
+"boutique principale renseignée."
+
+#: includes/class-wcis-cleanup.php:146 includes/class-wcis-fullsync.php:54
+#: includes/class-wcis-product-sync.php:2021
+#: includes/class-wcis-product-sync.php:2278
+msgid "Kein Netzwerk-Secret gesetzt."
+msgstr "Aucun secret réseau défini."
+
+#: includes/class-wcis-cleanup.php:150
+msgid "Es läuft bereits ein Aufräum-Vorgang."
+msgstr "Un nettoyage est déjà en cours."
+
+#: includes/class-wcis-cleanup.php:158
+msgid "Bitte ein gültiges Datum angeben."
+msgstr "Veuillez indiquer une date valide."
+
+#: includes/class-wcis-cleanup.php:207
+msgid "Bitte zuerst „Analysieren\" ausführen."
+msgstr "Veuillez d’abord lancer « Analyser »."
+
+#: includes/class-wcis-cleanup.php:211
+msgid "Keine Produkte zum Entfernen gefunden."
+msgstr "Aucun produit à supprimer trouvé."
+
+#: includes/class-wcis-cleanup.php:233
+msgid "Kein laufender Aufräum-Vorgang."
+msgstr "Aucun nettoyage en cours."
+
+#: includes/class-wcis-cleanup.php:317
+msgid "(ohne Kategorie)"
+msgstr "(sans catégorie)"
+
+#: includes/class-wcis-cleanup.php:401
+msgid "Sync-Filter des Hauptshops"
+msgstr "Filtre de synchronisation de la boutique principale"
+
+#: includes/class-wcis-cleanup.php:403
+msgid "einzeln ausgeschlossen"
+msgstr "exclu individuellement"
+
+#: includes/class-wcis-cleanup.php:405
+msgid "Kategorie ausgeschlossen"
+msgstr "catégorie exclue"
+
+#: includes/class-wcis-cleanup.php:407
+msgid "nicht ausgewählt (Modus „Nur ausgewählte\")"
+msgstr "non sélectionné (mode « Sélection uniquement »)"
+
+#: includes/class-wcis-cleanup.php:520 includes/class-wcis-partners.php:543
+#, php-format
+msgid "Hauptshop nicht erreichbar: %s"
+msgstr "Boutique principale injoignable : %s"
+
+#: includes/class-wcis-cleanup.php:523
+msgid ""
+"Der Hauptshop unterstützt das Aufräumen noch nicht – bitte dort zuerst das "
+"Plugin auf Version 3.1.1 oder neuer aktualisieren."
+msgstr ""
+"La boutique principale ne prend pas encore en charge le nettoyage – veuillez"
+" d’abord y mettre à jour l’extension en version 3.1.1 ou supérieure."
+
+#: includes/class-wcis-cleanup.php:526
+#, php-format
+msgid "Hauptshop antwortet mit HTTP %d."
+msgstr "La boutique principale répond avec HTTP %d."
+
+#: includes/class-wcis-cleanup.php:530
+msgid "Ungültige Antwort des Hauptshops."
+msgstr "Réponse invalide de la boutique principale."
+
+#: includes/class-wcis-client.php:206
+msgid ""
+"Keine Zugangsdaten für dieses Ziel (Shop nicht eingetragen/gespeichert oder "
+"Partner gesperrt) – Anfrage nicht gesendet."
+msgstr ""
+"Aucun identifiant d’accès pour cette cible (boutique non "
+"renseignée/enregistrée ou partenaire bloqué) – requête non envoyée."
+
+#: includes/class-wcis-edition.php:58
+msgid "BlockSocial WooCommerce Sync – Partner"
+msgstr "BlockSocial WooCommerce Sync – Partenaire"
+
+#: includes/class-wcis-feeds.php:174
+msgid "CSV-Feed"
+msgstr "Flux CSV"
+
+#: includes/class-wcis-feeds.php:608
+msgid "Artikelnummer (SKU)"
+msgstr "Référence (SKU)"
+
+#: includes/class-wcis-feeds.php:609
+msgid "SKU des Eltern-Produkts (bei Varianten)"
+msgstr "SKU du produit parent (pour les variations)"
+
+#: includes/class-wcis-feeds.php:610
+msgid "simple | variable | variation"
+msgstr "simple | variable | variation"
+
+#: includes/class-wcis-feeds.php:611
+msgid "Produktname"
+msgstr "Nom du produit"
+
+#: includes/class-wcis-feeds.php:612
+msgid "Variante, z. B. „Größe: M\""
+msgstr "Variation, p. ex. « Taille : M »"
+
+#: includes/class-wcis-feeds.php:613
+msgid "Kategorien (Pfad mit „>\", mehrere mit „|\")"
+msgstr "Catégories (chemin avec « > », plusieurs avec « | »)"
+
+#: includes/class-wcis-feeds.php:614
+msgid "Marke"
+msgstr "Marque"
+
+#: includes/class-wcis-feeds.php:615 includes/class-wcis-filter.php:76
+msgid "Hersteller"
+msgstr "Fabricant"
+
+#: includes/class-wcis-feeds.php:616
+msgid "EAN/GTIN"
+msgstr "EAN/GTIN"
+
+#: includes/class-wcis-feeds.php:617
+msgid "Regulärer Preis"
+msgstr "Prix normal"
+
+#: includes/class-wcis-feeds.php:618
+msgid "Angebotspreis (leer = kein Angebot)"
+msgstr "Prix promo (vide = pas de promotion)"
+
+#: includes/class-wcis-feeds.php:619
+msgid "Währung"
+msgstr "Devise"
+
+#: includes/class-wcis-feeds.php:620
+msgid "gross | net"
+msgstr "gross | net"
+
+#: includes/class-wcis-feeds.php:621
+msgid "Steuersatz in %"
+msgstr "Taux de TVA en %"
+
+#: includes/class-wcis-feeds.php:622
+msgid "Grundpreis (Germanized)"
+msgstr "Prix unitaire (Germanized)"
+
+#: includes/class-wcis-feeds.php:623
+msgid "Grundpreis-Einheit, z. B. „1 l\""
+msgstr "Unité du prix unitaire, p. ex. « 1 l »"
+
+#: includes/class-wcis-feeds.php:624
+msgid "Bestand (leer = ohne Bestandsführung)"
+msgstr "Stock (vide = sans gestion de stock)"
+
+#: includes/class-wcis-feeds.php:625
+msgid "instock | outofstock | onbackorder"
+msgstr "instock | outofstock | onbackorder"
+
+#: includes/class-wcis-feeds.php:626
+msgid "no | notify | yes"
+msgstr "no | notify | yes"
+
+#: includes/class-wcis-feeds.php:627 includes/class-wcis-filter.php:80
+msgid "Lieferzeit"
+msgstr "Délai de livraison"
+
+#: includes/class-wcis-feeds.php:628
+msgid "Gewicht"
+msgstr "Poids"
+
+#: includes/class-wcis-feeds.php:629
+msgid "Hauptbild-URL"
+msgstr "URL de l’image principale"
+
+#: includes/class-wcis-feeds.php:630
+msgid "Weitere Bilder (mit „|\" getrennt)"
+msgstr "Autres images (séparées par « | »)"
+
+#: includes/class-wcis-feeds.php:631
+msgid "Produkt-URL"
+msgstr "URL du produit"
+
+#: includes/class-wcis-feeds.php:632
+msgid "Kurzbeschreibung (HTML)"
+msgstr "Description courte (HTML)"
+
+#: includes/class-wcis-feeds.php:633
+msgid "Beschreibung (HTML)"
+msgstr "Description (HTML)"
+
+#: includes/class-wcis-feeds.php:634
+msgid "Zuletzt geändert (ISO 8601)"
+msgstr "Dernière modification (ISO 8601)"
+
+#: includes/class-wcis-feeds.php:734
+msgid "beliebig"
+msgstr "quelconque"
+
+#: includes/class-wcis-feeds.php:947
+msgid "Feed nicht gefunden."
+msgstr "Flux introuvable."
+
+#: includes/class-wcis-feeds.php:952
+#, php-format
+msgid ""
+"Der Feed wird noch aufgebaut (%d Produkte offen). Bitte in Kürze erneut "
+"versuchen."
+msgstr ""
+"Le flux est en cours de construction (%d produits restants). Veuillez "
+"réessayer dans quelques instants."
+
+#: includes/class-wcis-filter.php:66
+msgid "Name/Titel"
+msgstr "Nom/titre"
+
+#: includes/class-wcis-filter.php:67
+msgid "Preis (regulär)"
+msgstr "Prix (normal)"
+
+#: includes/class-wcis-filter.php:68
+msgid "Angebotspreis"
+msgstr "Prix promo"
+
+#: includes/class-wcis-filter.php:69
+msgid "Steuerstatus & Steuerklasse"
+msgstr "État et classe de TVA"
+
+#: includes/class-wcis-filter.php:70
+msgid "Beschreibung"
+msgstr "Description"
+
+#: includes/class-wcis-filter.php:71
+msgid "Kurzbeschreibung"
+msgstr "Description courte"
+
+#: includes/class-wcis-filter.php:72
+msgid "Bilder"
+msgstr "Images"
+
+#: includes/class-wcis-filter.php:73 includes/views/settings-page.php:449
+msgid "Kategorien"
+msgstr "Catégories"
+
+#: includes/class-wcis-filter.php:74
+msgid "Schlagwörter"
+msgstr "Étiquettes"
+
+#: includes/class-wcis-filter.php:75 includes/views/settings-page.php:463
+msgid "Marken"
+msgstr "Marques"
+
+#: includes/class-wcis-filter.php:77
+msgid "EAN / GTIN"
+msgstr "EAN / GTIN"
+
+#: includes/class-wcis-filter.php:78
+msgid "Attribute"
+msgstr "Attributs"
+
+#: includes/class-wcis-filter.php:79
+msgid "Versandklasse"
+msgstr "Classe de livraison"
+
+#: includes/class-wcis-filter.php:81
+msgid "Germanized: Grundpreis"
+msgstr "Germanized : prix unitaire"
+
+#: includes/class-wcis-filter.php:82
+msgid "Maße & Gewicht"
+msgstr "Dimensions et poids"
+
+#: includes/class-wcis-filter.php:83
+msgid "Veröffentlichungsstatus"
+msgstr "État de publication"
+
+#: includes/class-wcis-filter.php:84
+msgid "Lagerbestand (bei Produktanlage)"
+msgstr "Stock (à la création du produit)"
+
+#: includes/class-wcis-fullsync.php:51
+#: includes/class-wcis-product-sync.php:2018
+#: includes/class-wcis-sync-engine.php:734
+msgid "Keine Ziel-Shops konfiguriert."
+msgstr "Aucune boutique cible configurée."
+
+#: includes/class-wcis-fullsync.php:106
+msgid "Kein laufender Sync-Job."
+msgstr "Aucune tâche de synchronisation en cours."
+
+#: includes/class-wcis-license.php:268
+msgid ""
+"Dieser Shop ist durch die Lizenz des Hauptshops nicht abgedeckt – "
+"Synchronisation pausiert."
+msgstr ""
+"Cette boutique n’est pas couverte par la licence de la boutique principale –"
+" synchronisation en pause."
+
+#: includes/class-wcis-license.php:276
+msgid ""
+"Keine gültige Lizenz – Synchronisation pausiert. Bitte unter BlockSocial "
+"Sync → Lizenz einen Lizenzschlüssel eintragen."
+msgstr ""
+"Aucune licence valide – synchronisation en pause. Veuillez saisir une clé de"
+" licence sous BlockSocial Sync → Licence."
+
+#: includes/class-wcis-license.php:278
+msgid ""
+"Alle Plätze der Lizenz sind belegt – dieser Shop wird nicht beliefert. "
+"Upgrade unter BlockSocial Sync → Lizenz."
+msgstr ""
+"Tous les emplacements de la licence sont occupés – cette boutique n’est pas "
+"approvisionnée. Mise à niveau sous BlockSocial Sync → Licence."
+
+#: includes/class-wcis-license.php:298
+msgid "Dieser Shop ist durch die Lizenz des Hauptshops nicht abgedeckt."
+msgstr ""
+"Cette boutique n’est pas couverte par la licence de la boutique principale."
+
+#: includes/class-wcis-license.php:352
+#, php-format
+msgid "Lizenzserver nicht erreichbar (HTTP %d)."
+msgstr "Serveur de licences injoignable (HTTP %d)."
+
+#: includes/class-wcis-license.php:403
+msgid "Bitte einen Lizenzschlüssel eingeben."
+msgstr "Veuillez saisir une clé de licence."
+
+#: includes/class-wcis-license.php:406
+msgid ""
+"Die Lizenz wird nur im Hauptshop eingetragen. Neben- und Partnershops sind "
+"darüber abgedeckt."
+msgstr ""
+"La licence se saisit uniquement dans la boutique principale. Les boutiques "
+"secondaires et partenaires sont couvertes par celle-ci."
+
+#: includes/class-wcis-license.php:422
+msgid "Aktivierung fehlgeschlagen."
+msgstr "Échec de l’activation."
+
+#: includes/class-wcis-license.php:543
+msgid "Lizenz: nicht abgedeckt"
+msgstr "Licence : non couverte"
+
+#: includes/class-wcis-license.php:545
+msgid "Lizenz über Hauptshop"
+msgstr "Licence via la boutique principale"
+
+#: includes/class-wcis-license.php:549
+#, php-format
+msgid "Testphase: %d Tag"
+msgid_plural "Testphase: %d Tage"
+msgstr[0] "Période d’essai : %d jour"
+msgstr[1] "Période d’essai : %d jours"
+
+#: includes/class-wcis-license.php:552
+msgid "Keine Lizenz"
+msgstr "Aucune licence"
+
+#: includes/class-wcis-license.php:555
+#, php-format
+msgid "Lizenz: %s"
+msgstr "Licence : %s"
+
+#: includes/class-wcis-license.php:555 includes/views/admin-tabs.php:63
+#: includes/views/admin-tabs.php:331
+msgid "aktiv"
+msgstr "active"
+
+#: includes/class-wcis-partners.php:211
+msgid "Bitte eine gültige Shop-URL des Partners angeben."
+msgstr "Veuillez indiquer une URL de boutique valide pour le partenaire."
+
+#: includes/class-wcis-partners.php:214
+msgid "Für diese URL existiert bereits ein Partner."
+msgstr "Un partenaire existe déjà pour cette URL."
+
+#: includes/class-wcis-partners.php:217
+msgid "Die URL ist dieser Shop selbst."
+msgstr "Cette URL correspond à cette boutique elle-même."
+
+#: includes/class-wcis-partners.php:221
+msgid "Diese URL ist bereits als eigener Shop im Netzwerk eingetragen."
+msgstr "Cette URL est déjà enregistrée comme boutique propre dans le réseau."
+
+#: includes/class-wcis-partners.php:384
+msgid "Ungültiger Verbindungscode (muss mit „BSWS1-\" beginnen)."
+msgstr "Code de connexion invalide (doit commencer par « BSWS1- »)."
+
+#: includes/class-wcis-partners.php:394
+msgid ""
+"Der Verbindungscode ist beschädigt oder unvollständig. Bitte erneut "
+"vollständig kopieren."
+msgstr ""
+"Le code de connexion est endommagé ou incomplet. Veuillez le copier à "
+"nouveau en entier."
+
+#: includes/class-wcis-partners.php:398
+msgid "Der Verbindungscode enthält keine gültige Hauptshop-URL."
+msgstr ""
+"Le code de connexion ne contient pas d’URL de boutique principale valide."
+
+#: includes/class-wcis-partners.php:421 includes/views/admin-tabs.php:118
+#: includes/views/admin-tabs.php:153 includes/views/admin-tabs.php:290
+msgid "Gesamtes Sortiment"
+msgstr "Catalogue complet"
+
+#. translators: %s: Kategorien
+#: includes/class-wcis-partners.php:432
+#, php-format
+msgid "Nur Kategorien: %s"
+msgstr "Catégories uniquement : %s"
+
+#: includes/class-wcis-partners.php:539
+msgid "Nicht mit einem Hauptshop verbunden."
+msgstr "Non connecté à une boutique principale."
+
+#: includes/class-wcis-partners.php:546
+msgid ""
+"Der Hauptshop lehnt den Verbindungscode ab (ungültig, gesperrt oder neu "
+"erzeugt). Bitte beim Administrator einen aktuellen Code anfordern."
+msgstr ""
+"La boutique principale refuse le code de connexion (invalide, bloqué ou "
+"régénéré). Veuillez demander un code à jour à l’administrateur."
+
+#: includes/class-wcis-partners.php:549
+#, php-format
+msgid ""
+"Hauptshop antwortete mit HTTP %d. Ist dort das BlockSocial-Admin-Plugin (ab "
+"v3.0) aktiv?"
+msgstr ""
+"La boutique principale a répondu avec HTTP %d. L’extension BlockSocial Admin"
+" (v3.0 ou supérieure) y est-elle active ?"
+
+#: includes/class-wcis-partners.php:553
+msgid "Unerwartete Antwort vom Hauptshop."
+msgstr "Réponse inattendue de la boutique principale."
+
+#: includes/class-wcis-plugin.php:95
+msgid "Jede Minute (BlockSocial WooCommerce Sync)"
+msgstr "Chaque minute (BlockSocial WooCommerce Sync)"
+
+#: includes/class-wcis-plugin.php:100
+msgid "Alle 6 Stunden (BlockSocial WooCommerce Sync)"
+msgstr "Toutes les 6 heures (BlockSocial WooCommerce Sync)"
+
+#: includes/class-wcis-plugin.php:114
+msgid "Einstellungen"
+msgstr "Réglages"
+
+#: includes/class-wcis-pricing.php:69
+msgid "Keine Rundung (auf Cent genau)"
+msgstr "Pas d’arrondi (au centime près)"
+
+#: includes/class-wcis-pricing.php:70
+msgid "Aufrunden auf ,99 (z. B. 23,47 → 23,99)"
+msgstr "Arrondir à ,99 (p. ex. 23,47 → 23,99)"
+
+#: includes/class-wcis-pricing.php:71
+msgid "Aufrunden auf ,95 (z. B. 23,47 → 23,95)"
+msgstr "Arrondir à ,95 (p. ex. 23,47 → 23,95)"
+
+#: includes/class-wcis-pricing.php:72
+msgid "Aufrunden auf ,90 (z. B. 23,47 → 23,90)"
+msgstr "Arrondir à ,90 (p. ex. 23,47 → 23,90)"
+
+#: includes/class-wcis-pricing.php:73
+msgid "Aufrunden auf 10 Cent (z. B. 23,47 → 23,50)"
+msgstr "Arrondir aux 10 centimes (p. ex. 23,47 → 23,50)"
+
+#: includes/class-wcis-pricing.php:74
+msgid "Aufrunden auf volle Euro (z. B. 23,47 → 24,00)"
+msgstr "Arrondir à l’euro supérieur (p. ex. 23,47 → 24,00)"
+
+#: includes/class-wcis-pricing.php:614 includes/class-wcis-shopify.php:1181
+msgid "Kein laufender Vorgang."
+msgstr "Aucune opération en cours."
+
+#: includes/class-wcis-product-sync.php:2067
+msgid "Keine laufende Übertragung."
+msgstr "Aucun transfert en cours."
+
+#: includes/class-wcis-product-sync.php:2275
+msgid ""
+"Dieser Shop ist selbst der Hauptshop – nutze „Alle Produkte übertragen\"."
+msgstr ""
+"Cette boutique est elle-même la boutique principale – utilisez « Transférer "
+"tous les produits »."
+
+#: includes/class-wcis-product-sync.php:2281
+msgid ""
+"Produkt-Sync ist auf diesem Shop nicht aktiv – bitte zuerst einschalten."
+msgstr ""
+"La synchronisation des produits n’est pas active sur cette boutique – "
+"veuillez d’abord l’activer."
+
+#: includes/class-wcis-product-sync.php:2287
+msgid "Hauptshop nicht erreichbar oder Secret falsch."
+msgstr "Boutique principale injoignable ou secret incorrect."
+
+#: includes/class-wcis-product-sync.php:2323
+msgid "Kein laufender Pull."
+msgstr "Aucune récupération en cours."
+
+#: includes/class-wcis-rest-controller.php:71
+msgid "Synchronisation ist deaktiviert."
+msgstr "La synchronisation est désactivée."
+
+#: includes/class-wcis-rest-controller.php:74
+msgid "Ungültige oder fehlende Signatur."
+msgstr "Signature invalide ou manquante."
+
+#: includes/class-wcis-rest-controller.php:87
+msgid "Für diesen Shop nicht erlaubt."
+msgstr "Non autorisé pour cette boutique."
+
+#: includes/class-wcis-shopify-api.php:73
+msgid "Kein Shopify-Zugriffstoken hinterlegt."
+msgstr "Aucun jeton d’accès Shopify enregistré."
+
+#. translators: %s: Fehlermeldung
+#: includes/class-wcis-shopify-api.php:103
+#, php-format
+msgid ""
+"Shopify-Token konnte nicht abgerufen werden: %s (Client-ID/Secret prüfen; "
+"App muss im Shop installiert sein)."
+msgstr ""
+"Impossible d’obtenir le jeton Shopify : %s (vérifiez l’ID client/le secret ;"
+" l’application doit être installée dans la boutique)."
+
+#: includes/class-wcis-shopify-api.php:173
+msgid "Shopify-API ausgelastet (Drosselung) – bitte später erneut versuchen."
+msgstr "API Shopify surchargée (limitation) – veuillez réessayer plus tard."
+
+#: includes/class-wcis-shopify-api.php:181
+#, php-format
+msgid ""
+"Shopify lehnt den Zugriff ab (HTTP %d) – Zugangsdaten und API-Berechtigungen"
+" (Scopes) prüfen."
+msgstr ""
+"Shopify refuse l’accès (HTTP %d) – vérifiez les identifiants et les "
+"autorisations de l’API (scopes)."
+
+#: includes/class-wcis-shopify-api.php:184
+#, php-format
+msgid "Shopify-API antwortete mit HTTP %d."
+msgstr "L’API Shopify a répondu avec HTTP %d."
+
+#: includes/class-wcis-shopify-api.php:195
+msgid "Shopify-API nicht erreichbar."
+msgstr "API Shopify injoignable."
+
+#: includes/class-wcis-shopify.php:184
+msgid "Bitte die Shopify-Adresse im Format „meinshop.myshopify.com\" angeben."
+msgstr ""
+"Veuillez indiquer l’adresse Shopify au format « maboutique.myshopify.com »."
+
+#: includes/class-wcis-shopify.php:188
+msgid "Dieser Shopify-Shop ist bereits angebunden."
+msgstr "Cette boutique Shopify est déjà connectée."
+
+#: includes/class-wcis-shopify.php:222
+msgid "Bitte Client-ID und Client-Secret der Shopify-App angeben."
+msgstr ""
+"Veuillez indiquer l’ID client et le secret client de l’application Shopify."
+
+#: includes/class-wcis-shopify.php:225
+msgid "Bitte den Admin-API-Zugriffstoken (shpat_…) angeben."
+msgstr "Veuillez indiquer le jeton d’accès Admin API (shpat_…)."
+
+#: includes/class-wcis-shopify.php:340 includes/class-wcis-shopify.php:1126
+msgid "Shopify-Shop nicht gefunden."
+msgstr "Boutique Shopify introuvable."
+
+#. translators: 1: Shopname, 2: Währung, 3: Lagerort, 4: brutto/netto
+#: includes/class-wcis-shopify.php:365
+#, php-format
+msgid "Verbunden mit „%1$s\" (%2$s). Lagerort: %3$s. Preise in Shopify: %4$s."
+msgstr ""
+"Connecté à « %1$s » (%2$s). Emplacement de stock : %3$s. Prix dans Shopify :"
+" %4$s."
+
+#: includes/class-wcis-shopify.php:369
+msgid "inkl. MwSt. (brutto)"
+msgstr "TTC (TVA incluse)"
+
+#: includes/class-wcis-shopify.php:369
+msgid "zzgl. MwSt. (netto)"
+msgstr "HT (hors TVA)"
+
+#: includes/class-wcis-shopify.php:372
+#, php-format
+msgid ""
+"Achtung: Shopify nutzt %1$s, dieser Shop %2$s – Preise werden NICHT "
+"umgerechnet."
+msgstr ""
+"Attention : Shopify utilise %1$s, cette boutique %2$s – les prix ne sont PAS"
+" convertis."
+
+#: includes/class-wcis-shopify.php:375
+#, php-format
+msgid "Webhook konnte nicht eingerichtet werden: %s"
+msgstr "Impossible de configurer le webhook : %s"
+
+#: includes/class-wcis-shopify.php:722
+msgid "Artikel wird gerade abgeglichen – wird später wiederholt."
+msgstr "Article en cours de rapprochement – nouvelle tentative plus tard."
+
+#: includes/class-wcis-shopify.php:853
+msgid "Shopify-Bestand ändert sich laufend – Abgleich wird später wiederholt."
+msgstr ""
+"Le stock Shopify change en permanence – le rapprochement sera relancé plus "
+"tard."
+
+#: includes/class-wcis-shopify.php:1015
+msgid "Shopify-Artikel nicht mehr vorhanden."
+msgstr "L’article Shopify n’existe plus."
+
+#: includes/class-wcis-shopify.php:1129
+msgid "Die Shopify-Anbindung arbeitet nur auf dem Hauptshop."
+msgstr ""
+"La connexion Shopify fonctionne uniquement sur la boutique principale."
+
+#: includes/class-wcis-shopify.php:1132
+msgid "Bitte zuerst „Verbindung testen\" ausführen."
+msgstr "Veuillez d’abord lancer « Tester la connexion »."
+
+#: includes/class-wcis-shopify.php:1135
+msgid "Produkt-Übertragung ist für diesen Shopify-Shop nicht aktiviert."
+msgstr ""
+"Le transfert de produits n’est pas activé pour cette boutique Shopify."
+
+#: includes/class-wcis-shopify.php:1541
+msgid "Shopify erlaubt höchstens 3 Varianten-Optionen – Produkt übersprungen."
+msgstr "Shopify autorise au maximum 3 options de variation – produit ignoré."
+
+#: includes/class-wcis-shopify.php:1544
+msgid "Zu viele Varianten für Shopify (max. 2048)."
+msgstr "Trop de variations pour Shopify (max. 2048)."
+
+#: includes/class-wcis-shopify.php:1605
+msgid "Shopify hat das Produkt nicht angelegt (keine Produkt-ID erhalten)."
+msgstr "Shopify n’a pas créé le produit (aucun ID produit reçu)."
+
+#: includes/class-wcis-shopify.php:1613
+msgid "Shopify hat keine Standard-Variante angelegt."
+msgstr "Shopify n’a pas créé de variation par défaut."
+
+#: includes/class-wcis-updater.php:129
+msgid ""
+"Für dieses Update ist eine aktive Lizenz nötig (BlockSocial Sync → Lizenz)."
+msgstr ""
+"Une licence active est nécessaire pour cette mise à jour (BlockSocial Sync →"
+" Licence)."
+
+#: includes/class-wcis-updater.php:166
+msgid "Siehe blocksocial.eu"
+msgstr "Voir blocksocial.eu"
+
+#: includes/class-wcis-view.php:94 includes/views/settings-page.php:451
+#: includes/views/settings-page.php:515 includes/views/settings-page.php:546
+msgid "Kategorien wählen …"
+msgstr "Choisir des catégories…"
+
+#: includes/class-wcis-view.php:112
+msgid "— Kategorie wählen —"
+msgstr "— Choisir une catégorie —"
+
+#: includes/class-wcis-view.php:123
+msgid "Alle Produkte"
+msgstr "Tous les produits"
+
+#: includes/class-wcis-view.php:125
+msgid ""
+"Positiv = Aufschlag, negativ = Abschlag. Beispiel: 15 = +15 %, -5 = −5 %."
+msgstr ""
+"Positif = majoration, négatif = remise. Exemple : 15 = +15 %, -5 = −5 %."
+
+#: includes/class-wcis-view.php:128
+msgid "Je Kategorie (hat Vorrang vor „Alle Produkte\")"
+msgstr "Par catégorie (prioritaire sur « Tous les produits »)"
+
+#: includes/class-wcis-view.php:137
+msgid "Kategorie-Regel hinzufügen"
+msgstr "Ajouter une règle de catégorie"
+
+#: includes/class-wcis-view.php:138
+msgid ""
+"Unterkategorien erben die Regel ihrer Oberkategorie, eigene Regeln der "
+"Unterkategorie haben Vorrang. Liegt ein Produkt in mehreren Kategorien mit "
+"Regel, gilt die spezifischste (bei Gleichstand der höhere Wert)."
+msgstr ""
+"Les sous-catégories héritent de la règle de leur catégorie parente ; les "
+"règles propres à une sous-catégorie sont prioritaires. Si un produit "
+"appartient à plusieurs catégories ayant une règle, la plus spécifique "
+"s’applique (en cas d’égalité, la valeur la plus élevée)."
+
+#: includes/class-wcis-view.php:141
+msgid "Rundung"
+msgstr "Arrondi"
+
+#: includes/class-wcis-view.php:147
+msgid ""
+"Wird nur auf angepasste Preise angewendet (0 % = Originalpreis ohne "
+"Rundung)."
+msgstr ""
+"S’applique uniquement aux prix ajustés (0 % = prix d’origine sans arrondi)."
+
+#: includes/class-wcis-view.php:175
+msgid "Preisregeln: Preise anpassen"
+msgstr "Règles de prix : ajuster les prix"
+
+#: includes/class-wcis-view.php:176
+msgid ""
+"Passe die Preise nach dem Einspielen in Prozent an – nach oben oder unten, "
+"für alle Produkte oder je Kategorie. Die Regeln bleiben gespeichert und "
+"werden bei jedem Preis-Update vom Hauptshop automatisch wieder angewendet, "
+"sodass deine Marge erhalten bleibt."
+msgstr ""
+"Ajustez les prix en pourcentage après l’import – à la hausse ou à la baisse,"
+" pour tous les produits ou par catégorie. Les règles restent enregistrées et"
+" sont réappliquées automatiquement à chaque mise à jour des prix depuis la "
+"boutique principale, afin de préserver votre marge."
+
+#: includes/class-wcis-view.php:182
+msgid ""
+"Eigene Preisregeln sind für deinen Shop vom Hauptshop nicht freigegeben "
+"(oder der Shop ist noch nicht verbunden)."
+msgstr ""
+"La boutique principale n’autorise pas de règles de prix propres pour votre "
+"boutique (ou la boutique n’est pas encore connectée)."
+
+#: includes/class-wcis-view.php:184
+msgid ""
+"Preisregeln sind für Empfänger-Shops (Neben- und Partnershops) gedacht. "
+"Dieser Shop ist der Hauptshop und gibt die Originalpreise vor. Für Shopify-"
+"Shops lassen sich eigene Preisregeln im Reiter „Shopify\" festlegen."
+msgstr ""
+"Les règles de prix sont destinées aux boutiques destinataires (boutiques "
+"secondaires et partenaires). Cette boutique est la boutique principale et "
+"définit les prix d’origine. Pour les boutiques Shopify, des règles de prix "
+"propres peuvent être définies dans l’onglet « Shopify »."
+
+#: includes/class-wcis-view.php:198
+#, php-format
+msgid ""
+"Vom Hauptshop erlaubter Rahmen: %1$s %% bis %2$s %%. Werte außerhalb werden "
+"automatisch begrenzt."
+msgstr ""
+"Plage autorisée par la boutique principale : %1$s %% à %2$s %%. Les valeurs "
+"hors plage sont automatiquement limitées."
+
+#: includes/class-wcis-view.php:201
+msgid "Speichern & auf alle Produkte anwenden"
+msgstr "Enregistrer et appliquer à tous les produits"
+
+#: includes/class-wcis-view.php:202
+msgid "Vorschau"
+msgstr "Aperçu"
+
+#: includes/class-wcis-view.php:203
+msgid "Nur speichern"
+msgstr "Enregistrer uniquement"
+
+#: includes/class-wcis-view.php:204
+msgid "Originalpreise wiederherstellen"
+msgstr "Rétablir les prix d’origine"
+
+#: includes/class-wcis-view.php:205 includes/views/admin-tabs.php:383
+#: includes/views/partner-page.php:169 includes/views/settings-page.php:583
+#: includes/views/settings-page.php:599 includes/views/settings-page.php:625
+#: includes/views/settings-page.php:659 includes/views/settings-page.php:672
+msgid "Abbrechen"
+msgstr "Annuler"
+
+#: includes/class-wcis-view.php:211
+msgid ""
+"Sicher & umkehrbar: Je Produkt wird der Basispreis gespeichert. Mehrfaches "
+"Anwenden ergibt keinen Aufschlag auf den Aufschlag; 0 % bzw. „Originalpreise"
+" wiederherstellen\" setzt zurück. Manuell im Shop geänderte Preise gelten "
+"als neue Basis."
+msgstr ""
+"Sûr et réversible : le prix de base est enregistré pour chaque produit. "
+"Appliquer plusieurs fois ne cumule pas les majorations ; 0 % ou « Rétablir "
+"les prix d’origine » réinitialise. Les prix modifiés manuellement dans la "
+"boutique servent de nouvelle base."
+
+#: includes/class-wcis-view.php:225 includes/views/partner-page.php:39
+#: includes/views/settings-page.php:73 includes/views/settings-page.php:710
+msgid "Protokoll"
+msgstr "Journal"
+
+#: includes/class-wcis-view.php:229 includes/views/settings-page.php:714
+msgid "Leeren"
+msgstr "Vider"
+
+#: includes/class-wcis-view.php:238 includes/views/settings-page.php:723
+msgid "Zeit (UTC)"
+msgstr "Heure (UTC)"
+
+#: includes/class-wcis-view.php:239 includes/views/settings-page.php:724
+msgid "Ebene"
+msgstr "Niveau"
+
+#: includes/class-wcis-view.php:240 includes/views/settings-page.php:725
+msgid "Richtung"
+msgstr "Direction"
+
+#: includes/class-wcis-view.php:241 includes/views/settings-page.php:726
+msgid "Nachricht"
+msgstr "Message"
+
+#: includes/class-wcis-view.php:246 includes/views/settings-page.php:731
+msgid "Noch keine Einträge."
+msgstr "Aucune entrée pour le moment."
+
+#: includes/class-wcis-view.php:274 includes/views/settings-page.php:125
+msgid "Einstellungen gespeichert."
+msgstr "Réglages enregistrés."
+
+#: includes/class-wcis-view.php:275 includes/views/settings-page.php:131
+msgid "Protokoll geleert."
+msgstr "Journal vidé."
+
+#: includes/class-wcis-view.php:276
+msgid ""
+"Diese Einstellung wird vom Hauptshop vorgegeben und kann hier nicht geändert"
+" werden."
+msgstr ""
+"Ce réglage est imposé par la boutique principale et ne peut pas être modifié"
+" ici."
+
+#: includes/class-wcis-view.php:277
+msgid "Aktion fehlgeschlagen."
+msgstr "Échec de l’action."
+
+#: includes/class-wcis-view.php:278 includes/views/settings-page.php:148
+msgid "Shopify-Shop konnte nicht gespeichert werden."
+msgstr "Impossible d’enregistrer la boutique Shopify."
+
+#: includes/views/admin-tabs.php:22
+msgid ""
+"Partnershops werden auf dem Hauptshop verwaltet. Dieser Shop ist ein Neben-"
+"Shop."
+msgstr ""
+"Les boutiques partenaires sont gérées sur la boutique principale. Cette "
+"boutique est une boutique secondaire."
+
+#: includes/views/admin-tabs.php:31
+#, php-format
+msgid "Verbindungscode für „%s\""
+msgstr "Code de connexion pour « %s »"
+
+#: includes/views/admin-tabs.php:32
+msgid ""
+"Diesen Code an den Partner geben. Er installiert das Partner-Plugin und fügt"
+" den Code unter WooCommerce → BlockSocial Partner → Verbindung ein. Der Code"
+" enthält einen geheimen Schlüssel – wie ein Passwort behandeln."
+msgstr ""
+"Transmettez ce code au partenaire. Il installe l’extension Partenaire et "
+"colle le code sous WooCommerce → BlockSocial Partenaire → Connexion. Le code"
+" contient une clé secrète – traitez-le comme un mot de passe."
+
+#: includes/views/admin-tabs.php:35
+msgid "Code kopieren"
+msgstr "Copier le code"
+
+#: includes/views/admin-tabs.php:41
+msgid "Partnershops"
+msgstr "Boutiques partenaires"
+
+#: includes/views/admin-tabs.php:42
+msgid ""
+"Jeder Partner hat einen eigenen Zugangsschlüssel und kann nur mit diesem "
+"Hauptshop sprechen: Er erhält Produkte und Bestände, meldet seine Verkäufe –"
+" kann aber weder Produkte, Preise noch Einstellungen des Verbunds verändern."
+msgstr ""
+"Chaque partenaire dispose de sa propre clé d’accès et ne peut communiquer "
+"qu’avec cette boutique principale : il reçoit les produits et les stocks et "
+"signale ses ventes – mais ne peut modifier ni les produits, ni les prix, ni "
+"les réglages du réseau."
+
+#: includes/views/admin-tabs.php:46
+msgid "Noch keine Partner angelegt."
+msgstr "Aucun partenaire créé pour le moment."
+
+#: includes/views/admin-tabs.php:51 includes/views/admin-tabs.php:664
+#: includes/views/settings-page.php:65
+msgid "Partner"
+msgstr "Partenaire"
+
+#: includes/views/admin-tabs.php:52
+msgid "Status"
+msgstr "État"
+
+#: includes/views/admin-tabs.php:53
+msgid "Letzter Kontakt"
+msgstr "Dernier contact"
+
+#: includes/views/admin-tabs.php:54 includes/views/admin-tabs.php:117
+#: includes/views/admin-tabs.php:152 includes/views/admin-tabs.php:289
+#: includes/views/admin-tabs.php:473 includes/views/partner-page.php:119
+msgid "Sortiment"
+msgstr "Catalogue"
+
+#: includes/views/admin-tabs.php:55 includes/views/settings-page.php:72
+msgid "Aktionen"
+msgstr "Actions"
+
+#: includes/views/admin-tabs.php:65
+msgid "gesperrt"
+msgstr "bloqué"
+
+#: includes/views/admin-tabs.php:71 includes/views/admin-tabs.php:631
+#, php-format
+msgid "vor %s"
+msgstr "il y a %s"
+
+#: includes/views/admin-tabs.php:76
+msgid "noch nie"
+msgstr "jamais"
+
+#: includes/views/admin-tabs.php:82 includes/views/settings-page.php:306
+msgid "Testen"
+msgstr "Tester"
+
+#: includes/views/admin-tabs.php:83
+msgid "Code anzeigen"
+msgstr "Afficher le code"
+
+#: includes/views/admin-tabs.php:86
+msgid "Sperren"
+msgstr "Bloquer"
+
+#: includes/views/admin-tabs.php:86
+msgid "Entsperren"
+msgstr "Débloquer"
+
+#: includes/views/admin-tabs.php:87
+msgid "Neuer Schlüssel"
+msgstr "Nouvelle clé"
+
+#: includes/views/admin-tabs.php:88 includes/views/admin-tabs.php:534
+msgid "Löschen"
+msgstr "Supprimer"
+
+#: includes/views/admin-tabs.php:91
+msgid ""
+"Neuen Schlüssel erzeugen? Der bisherige Verbindungscode wird sofort ungültig"
+" – der Partner muss den neuen Code eingeben."
+msgstr ""
+"Générer une nouvelle clé ? L’ancien code de connexion devient immédiatement "
+"invalide – le partenaire devra saisir le nouveau code."
+
+#: includes/views/admin-tabs.php:92
+msgid "Partner endgültig löschen? Er erhält danach keine Daten mehr."
+msgstr ""
+"Supprimer définitivement le partenaire ? Il ne recevra plus aucune donnée."
+
+#: includes/views/admin-tabs.php:93
+msgid ""
+"Partner sperren? Er kann bis zur Entsperrung weder Daten abrufen noch "
+"Verkäufe melden."
+msgstr ""
+"Bloquer le partenaire ? Jusqu’au déblocage, il ne pourra ni récupérer de "
+"données ni signaler de ventes."
+
+#: includes/views/admin-tabs.php:107
+msgid "Bearbeiten"
+msgstr "Modifier"
+
+#: includes/views/admin-tabs.php:113 includes/views/admin-tabs.php:230
+#: includes/views/admin-tabs.php:435
+msgid "Name"
+msgstr "Nom"
+
+#: includes/views/admin-tabs.php:119 includes/views/admin-tabs.php:154
+#: includes/views/admin-tabs.php:475
+msgid "Nur diese Kategorien (inkl. Unterkategorien):"
+msgstr "Uniquement ces catégories (sous-catégories incluses) :"
+
+#: includes/views/admin-tabs.php:122 includes/views/admin-tabs.php:300
+#: includes/views/admin-tabs.php:483 includes/views/partner-page.php:214
+#: includes/views/settings-page.php:117
+msgid "Speichern"
+msgstr "Enregistrer"
+
+#: includes/views/admin-tabs.php:136
+msgid "Partner hinzufügen"
+msgstr "Ajouter un partenaire"
+
+#: includes/views/admin-tabs.php:143
+msgid "Name des Partners"
+msgstr "Nom du partenaire"
+
+#: includes/views/admin-tabs.php:144
+msgid "z. B. Growshop Müller"
+msgstr "p. ex. Growshop Müller"
+
+#: includes/views/admin-tabs.php:147
+msgid "Shop-URL des Partners"
+msgstr "URL de la boutique du partenaire"
+
+#: includes/views/admin-tabs.php:157
+msgid "Partner anlegen & Verbindungscode erzeugen"
+msgstr "Créer le partenaire et générer le code de connexion"
+
+#: includes/views/admin-tabs.php:164
+msgid "Vorgaben für alle Partner"
+msgstr "Paramètres imposés à tous les partenaires"
+
+#: includes/views/admin-tabs.php:165
+msgid ""
+"Diese Regeln gelten in jedem Partnershop und können dort nicht geändert "
+"werden."
+msgstr ""
+"Ces règles s’appliquent dans chaque boutique partenaire et ne peuvent pas y "
+"être modifiées."
+
+#: includes/views/admin-tabs.php:172
+msgid "Produktdaten aktuell halten"
+msgstr "Maintenir les données produit à jour"
+
+#: includes/views/admin-tabs.php:172
+msgid ""
+"Texte, Bilder-Zuordnung, Pflichtangaben (Grundpreis, Hersteller, EAN …) "
+"werden bei Änderungen im Hauptshop beim Partner überschrieben. Empfohlen – "
+"so bleiben rechtliche Angaben korrekt."
+msgstr ""
+"Les textes, l’association des images et les mentions obligatoires (prix "
+"unitaire, fabricant, EAN…) sont écrasés chez le partenaire lors de "
+"modifications dans la boutique principale. Recommandé – ainsi, les mentions "
+"légales restent correctes."
+
+#: includes/views/admin-tabs.php:173
+msgid "Preisänderungen übernehmen"
+msgstr "Reprendre les changements de prix"
+
+#: includes/views/admin-tabs.php:173
+msgid ""
+"Neue Preise des Hauptshops werden beim Partner übernommen (seine Preisregeln"
+" werden danach automatisch wieder angewendet)."
+msgstr ""
+"Les nouveaux prix de la boutique principale sont repris chez le partenaire "
+"(ses règles de prix sont ensuite réappliquées automatiquement)."
+
+#: includes/views/admin-tabs.php:174 includes/views/settings-page.php:380
+msgid "Bilder übertragen"
+msgstr "Transférer les images"
+
+#: includes/views/admin-tabs.php:174
+msgid "Produktbilder beim Neuanlegen mitliefern."
+msgstr "Fournir les images produit lors de la création."
+
+#: includes/views/admin-tabs.php:175
+msgid "Lagerstatus übertragen"
+msgstr "Transférer l’état du stock"
+
+#: includes/views/admin-tabs.php:175
+msgid "Auch für Produkte ohne Mengenverwaltung."
+msgstr "Également pour les produits sans gestion des quantités."
+
+#: includes/views/admin-tabs.php:176
+msgid "Eigene Preisregeln erlauben"
+msgstr "Autoriser des règles de prix propres"
+
+#: includes/views/admin-tabs.php:176
+msgid ""
+"Partner dürfen Auf-/Abschläge in % festlegen (im unten festgelegten Rahmen)."
+msgstr ""
+"Les partenaires peuvent définir des majorations/remises en % (dans la plage "
+"définie ci-dessous)."
+
+#: includes/views/admin-tabs.php:177
+msgid "Partner dürfen Bestand nur verringern"
+msgstr "Les partenaires peuvent uniquement réduire le stock"
+
+#: includes/views/admin-tabs.php:177
+msgid ""
+"Gemeldete Verkäufe reduzieren den Bestand; Erhöhungen durch Partner (z. B. "
+"Stornos) werden ignoriert. Schützt vor Fehlbedienung und Manipulation."
+msgstr ""
+"Les ventes signalées réduisent le stock ; les augmentations par les "
+"partenaires (p. ex. annulations) sont ignorées. Protège contre les erreurs "
+"de manipulation et les abus."
+
+#: includes/views/admin-tabs.php:190
+msgid "Preisregeln: Minimum"
+msgstr "Règles de prix : minimum"
+
+#: includes/views/admin-tabs.php:192
+msgid "z. B. 0 = Partner dürfen nicht unter den Preis des Hauptshops gehen."
+msgstr ""
+"p. ex. 0 = les partenaires ne peuvent pas descendre sous le prix de la "
+"boutique principale."
+
+#: includes/views/admin-tabs.php:195
+msgid "Preisregeln: Maximum"
+msgstr "Règles de prix : maximum"
+
+#: includes/views/admin-tabs.php:199
+msgid "Vorgaben speichern & an alle Partner verteilen"
+msgstr "Enregistrer les paramètres et les distribuer à tous les partenaires"
+
+#: includes/views/admin-tabs.php:210
+msgid ""
+"Shopify-Shops werden auf dem Hauptshop angebunden. Dieser Shop ist ein "
+"Neben-Shop."
+msgstr ""
+"Les boutiques Shopify sont connectées sur la boutique principale. Cette "
+"boutique est une boutique secondaire."
+
+#: includes/views/admin-tabs.php:231
+msgid "z. B. Shopify Partner XY"
+msgstr "p. ex. Shopify Partenaire XY"
+
+#: includes/views/admin-tabs.php:234
+msgid "Shopify-Adresse"
+msgstr "Adresse Shopify"
+
+#: includes/views/admin-tabs.php:239
+msgid "Zugang"
+msgstr "Accès"
+
+#: includes/views/admin-tabs.php:240
+msgid ""
+"App aus dem Shopify Dev Dashboard (Client-ID + Client-Secret) – empfohlen"
+msgstr ""
+"Application du Shopify Dev Dashboard (ID client + secret client) – "
+"recommandé"
+
+#: includes/views/admin-tabs.php:241
+msgid "Bestehende Legacy-Custom-App (Admin-API-Token shpat_…)"
+msgstr ""
+"Application personnalisée existante (legacy) (jeton Admin API shpat_…)"
+
+#: includes/views/admin-tabs.php:245
+msgid "Client-ID"
+msgstr "ID client"
+
+#: includes/views/admin-tabs.php:249
+msgid "Client-Secret"
+msgstr "Secret client"
+
+#: includes/views/admin-tabs.php:250 includes/views/admin-tabs.php:256
+msgid "•••••• (gespeichert – leer lassen = unverändert)"
+msgstr "•••••• (enregistré – laisser vide = inchangé)"
+
+#: includes/views/admin-tabs.php:255
+msgid "Admin-API-Zugriffstoken"
+msgstr "Jeton d’accès Admin API"
+
+#: includes/views/admin-tabs.php:259
+msgid "API-Geheimschlüssel (für Webhooks)"
+msgstr "Clé secrète API (pour les webhooks)"
+
+#: includes/views/admin-tabs.php:260
+msgid "•••••• (gespeichert)"
+msgstr "•••••• (enregistré)"
+
+#: includes/views/admin-tabs.php:261
+msgid "Nötig, damit Verkäufe in Shopify per Webhook zurückgemeldet werden."
+msgstr ""
+"Nécessaire pour que les ventes dans Shopify soient signalées en retour par "
+"webhook."
+
+#: includes/views/admin-tabs.php:266 includes/views/admin-tabs.php:456
+msgid "Aktiv"
+msgstr "Actif"
+
+#: includes/views/admin-tabs.php:266
+msgid "Shop wird beliefert."
+msgstr "La boutique est approvisionnée."
+
+#: includes/views/admin-tabs.php:267
+msgid "Bestände synchronisieren"
+msgstr "Synchroniser les stocks"
+
+#: includes/views/admin-tabs.php:267
+msgid ""
+"Bestände in Echtzeit übertragen; Verkäufe in Shopify reduzieren den Bestand "
+"aller Shops."
+msgstr ""
+"Transférer les stocks en temps réel ; les ventes dans Shopify réduisent le "
+"stock de toutes les boutiques."
+
+#: includes/views/admin-tabs.php:268
+msgid "Produkte übertragen"
+msgstr "Transférer les produits"
+
+#: includes/views/admin-tabs.php:268
+msgid ""
+"Produkte anlegen und aktuell halten (Titel, Beschreibung, Preise, Varianten,"
+" EAN, Gewicht; Bilder beim Anlegen)."
+msgstr ""
+"Créer les produits et les maintenir à jour (titre, description, prix, "
+"variations, EAN, poids ; images à la création)."
+
+#: includes/views/admin-tabs.php:269
+msgid "Angebotspreise übertragen"
+msgstr "Transférer les prix promo"
+
+#: includes/views/admin-tabs.php:269
+msgid ""
+"Angebote als reduzierter Preis mit Vergleichspreis. Ausgeschaltet wird nur "
+"der reguläre Preis übertragen – Vergleichspreise in Shopify bleiben "
+"unangetastet."
+msgstr ""
+"Promotions sous forme de prix réduit avec prix de comparaison. Si désactivé,"
+" seul le prix normal est transféré – les prix de comparaison dans Shopify "
+"restent inchangés."
+
+#: includes/views/admin-tabs.php:282
+msgid "Status neuer Produkte"
+msgstr "État des nouveaux produits"
+
+#: includes/views/admin-tabs.php:284
+msgid "Entwurf (erst prüfen, dann veröffentlichen)"
+msgstr "Brouillon (vérifier d’abord, puis publier)"
+
+#: includes/views/admin-tabs.php:285
+msgid "Aktiv (sofort sichtbar)"
+msgstr "Actif (visible immédiatement)"
+
+#: includes/views/admin-tabs.php:291
+msgid "Nur diese Kategorien:"
+msgstr "Uniquement ces catégories :"
+
+#: includes/views/admin-tabs.php:296
+msgid "Preisregeln für diesen Shopify-Shop"
+msgstr "Règles de prix pour cette boutique Shopify"
+
+#: includes/views/admin-tabs.php:297
+msgid ""
+"Auf-/Abschläge gelten nur für die an Shopify übertragenen Preise. Preise "
+"werden automatisch brutto oder netto übertragen – passend zur Shopify-"
+"Einstellung „Preise inkl. Steuern\"."
+msgstr ""
+"Les majorations/remises s’appliquent uniquement aux prix transférés vers "
+"Shopify. Les prix sont transférés automatiquement TTC ou HT – selon le "
+"réglage Shopify « Prix taxes incluses »."
+
+#: includes/views/admin-tabs.php:300
+msgid "Shopify-Shop hinzufügen"
+msgstr "Ajouter une boutique Shopify"
+
+#: includes/views/admin-tabs.php:307
+msgid "Angebundene Shopify-Shops"
+msgstr "Boutiques Shopify connectées"
+
+#: includes/views/admin-tabs.php:308
+msgid ""
+"Shopify-Shops werden direkt vom Hauptshop beliefert (kein Plugin in Shopify "
+"nötig). Zuordnung per SKU."
+msgstr ""
+"Les boutiques Shopify sont approvisionnées directement par la boutique "
+"principale (aucune extension nécessaire dans Shopify). Correspondance par "
+"SKU."
+
+#: includes/views/admin-tabs.php:311
+msgid "Noch kein Shopify-Shop angebunden."
+msgstr "Aucune boutique Shopify connectée pour le moment."
+
+#: includes/views/admin-tabs.php:319 includes/views/admin-tabs.php:502
+msgid "inaktiv"
+msgstr "inactif"
+
+#. translators: 1: Lagerort, 2: Währung, 3: brutto/netto
+#: includes/views/admin-tabs.php:327
+#, php-format
+msgid "Lagerort: %1$s · %2$s · Preise %3$s · Webhook: %4$s"
+msgstr "Emplacement de stock : %1$s · %2$s · Prix %3$s · Webhook : %4$s"
+
+#: includes/views/admin-tabs.php:330
+msgid "brutto"
+msgstr "TTC"
+
+#: includes/views/admin-tabs.php:330
+msgid "netto"
+msgstr "HT"
+
+#: includes/views/admin-tabs.php:331
+msgid "fehlt"
+msgstr "manquant"
+
+#: includes/views/admin-tabs.php:335
+msgid "Noch nicht getestet – bitte „Verbindung testen\" ausführen."
+msgstr "Pas encore testé – veuillez lancer « Tester la connexion »."
+
+#: includes/views/admin-tabs.php:344
+msgid "Verbindung testen"
+msgstr "Tester la connexion"
+
+#: includes/views/admin-tabs.php:345
+msgid ""
+"Shopify-Shop entfernen? Produkte in Shopify bleiben erhalten, werden aber "
+"nicht mehr synchronisiert."
+msgstr ""
+"Supprimer la boutique Shopify ? Les produits dans Shopify sont conservés, "
+"mais ne seront plus synchronisés."
+
+#: includes/views/admin-tabs.php:349 includes/views/settings-page.php:308
+msgid "Entfernen"
+msgstr "Supprimer"
+
+#: includes/views/admin-tabs.php:355 includes/views/admin-tabs.php:556
+msgid "Einstellungen bearbeiten"
+msgstr "Modifier les réglages"
+
+#: includes/views/admin-tabs.php:369
+msgid "Übertragung an Shopify"
+msgstr "Transfert vers Shopify"
+
+#: includes/views/admin-tabs.php:370
+msgid ""
+"Erstbefüllung oder kompletter Abgleich. Laufende Änderungen werden danach "
+"automatisch übertragen."
+msgstr ""
+"Remplissage initial ou rapprochement complet. Les modifications ultérieures "
+"sont ensuite transférées automatiquement."
+
+#: includes/views/admin-tabs.php:379
+msgid "Produkte (inkl. Bestand)"
+msgstr "Produits (stock compris)"
+
+#: includes/views/admin-tabs.php:380
+msgid "Nur Bestände"
+msgstr "Stocks uniquement"
+
+#: includes/views/admin-tabs.php:382
+msgid "Übertragung starten"
+msgstr "Lancer le transfert"
+
+#: includes/views/admin-tabs.php:391
+msgid "Shopify-Shop anbinden"
+msgstr "Connecter une boutique Shopify"
+
+#: includes/views/admin-tabs.php:394
+msgid "Anleitung: Zugangsdaten in Shopify erstellen"
+msgstr "Guide : créer les identifiants dans Shopify"
+
+#: includes/views/admin-tabs.php:396
+msgid ""
+"Im Shopify Dev Dashboard (dev.shopify.com) mit dem Konto des Shop-Inhabers "
+"eine App erstellen."
+msgstr ""
+"Dans le Shopify Dev Dashboard (dev.shopify.com), créez une application avec "
+"le compte du propriétaire de la boutique."
+
+#: includes/views/admin-tabs.php:397
+msgid ""
+"Unter „Versionen\" folgende Admin-API-Berechtigungen (Scopes) wählen: "
+"read_products, write_products, read_inventory, write_inventory, "
+"read_locations. Version freigeben."
+msgstr ""
+"Sous « Versions », sélectionnez les autorisations Admin API (scopes) "
+"suivantes : read_products, write_products, read_inventory, write_inventory, "
+"read_locations. Publiez la version."
+
+#: includes/views/admin-tabs.php:398
+msgid "App im Shopify-Shop installieren."
+msgstr "Installez l’application dans la boutique Shopify."
+
+#: includes/views/admin-tabs.php:399
+msgid ""
+"Unter „Einstellungen\" der App Client-ID und Client-Secret kopieren und hier"
+" eintragen. Der Zugriffstoken wird automatisch geholt und alle 24 Stunden "
+"erneuert."
+msgstr ""
+"Sous « Paramètres » de l’application, copiez l’ID client et le secret client"
+" et saisissez-les ici. Le jeton d’accès est récupéré automatiquement et "
+"renouvelé toutes les 24 heures."
+
+#: includes/views/admin-tabs.php:400
+msgid ""
+"Speichern, dann „Verbindung testen\" – dabei werden Lagerort, Währung und "
+"Brutto/Netto erkannt und der Webhook für Verkaufsmeldungen eingerichtet."
+msgstr ""
+"Enregistrez, puis « Tester la connexion » – l’emplacement de stock, la "
+"devise et le mode TTC/HT sont alors détectés, et le webhook pour les "
+"notifications de ventes est configuré."
+
+#: includes/views/admin-tabs.php:402
+msgid ""
+"Ältere „Legacy Custom Apps\" (vor 2026 im Shopify-Admin erstellt) "
+"funktionieren weiterhin mit ihrem Admin-API-Token (shpat_…) und dem API-"
+"Geheimschlüssel."
+msgstr ""
+"Les anciennes « Legacy Custom Apps » (créées dans l’admin Shopify avant "
+"2026) continuent de fonctionner avec leur jeton Admin API (shpat_…) et la "
+"clé secrète API."
+
+#: includes/views/admin-tabs.php:403
+#, php-format
+msgid ""
+"Webhook-Adresse dieses Shops: %s – muss per HTTPS aus dem Internet "
+"erreichbar sein."
+msgstr ""
+"Adresse webhook de cette boutique : %s – elle doit être accessible depuis "
+"Internet en HTTPS."
+
+#: includes/views/admin-tabs.php:436
+msgid "z. B. Feed für Jimdo-Shop XY"
+msgstr "p. ex. flux pour la boutique Jimdo XY"
+
+#: includes/views/admin-tabs.php:439 includes/views/partner-page.php:38
+#: includes/views/settings-page.php:69
+msgid "Preise"
+msgstr "Prix"
+
+#: includes/views/admin-tabs.php:441
+msgid "Brutto (inkl. MwSt.)"
+msgstr "TTC (TVA incluse)"
+
+#: includes/views/admin-tabs.php:442
+msgid "Netto (zzgl. MwSt.)"
+msgstr "HT (hors TVA)"
+
+#: includes/views/admin-tabs.php:446
+msgid "Trennzeichen"
+msgstr "Séparateur"
+
+#: includes/views/admin-tabs.php:448
+msgid "Semikolon ; (Excel Deutschland)"
+msgstr "Point-virgule ; (Excel Allemagne/France)"
+
+#: includes/views/admin-tabs.php:449
+msgid "Komma ,"
+msgstr "Virgule ,"
+
+#: includes/views/admin-tabs.php:450
+msgid "Tabulator"
+msgstr "Tabulation"
+
+#: includes/views/admin-tabs.php:456
+msgid "Feed ist über die Abruf-URL erreichbar."
+msgstr "Le flux est accessible via l’URL de récupération."
+
+#: includes/views/admin-tabs.php:457
+msgid "Nur lieferbare Artikel"
+msgstr "Uniquement les articles disponibles"
+
+#: includes/views/admin-tabs.php:457
+msgid "Artikel mit Status „nicht vorrätig\" weglassen."
+msgstr "Omettre les articles ayant l’état « En rupture de stock »."
+
+#: includes/views/admin-tabs.php:458
+msgid "Eltern-Zeilen variabler Produkte"
+msgstr "Lignes parentes des produits variables"
+
+#: includes/views/admin-tabs.php:458
+msgid ""
+"Zusätzlich eine Zeile je variablem Produkt (type „variable\"); Varianten "
+"verweisen per parent_sku darauf."
+msgstr ""
+"Ajoute une ligne par produit variable (type « variable ») ; les variations y"
+" font référence via parent_sku."
+
+#: includes/views/admin-tabs.php:459
+msgid "Beschreibungen mitliefern"
+msgstr "Inclure les descriptions"
+
+#: includes/views/admin-tabs.php:459
+msgid "Kurz- und Langbeschreibung (HTML). Ausschalten für kleinere Dateien."
+msgstr ""
+"Description courte et longue (HTML). Désactivez pour des fichiers plus "
+"légers."
+
+#: includes/views/admin-tabs.php:460
+msgid "Angebotspreise mitliefern"
+msgstr "Inclure les prix promo"
+
+#: includes/views/admin-tabs.php:460
+msgid ""
+"Spalte sale_price füllen. Ausgeschaltet bleibt sie leer – nur der reguläre "
+"Preis wird geliefert."
+msgstr ""
+"Remplit la colonne sale_price. Si désactivé, elle reste vide – seul le prix "
+"normal est fourni."
+
+#: includes/views/admin-tabs.php:461
+msgid "UTF-8-BOM"
+msgstr "BOM UTF-8"
+
+#: includes/views/admin-tabs.php:461
+msgid ""
+"Damit Excel Umlaute korrekt anzeigt. Für reine Import-Schnittstellen ggf. "
+"ausschalten."
+msgstr ""
+"Pour qu’Excel affiche correctement les caractères accentués. À désactiver "
+"éventuellement pour les interfaces d’import pures."
+
+#: includes/views/admin-tabs.php:474
+msgid "Gesamtes Sortiment (veröffentlichte Produkte)"
+msgstr "Catalogue complet (produits publiés)"
+
+#: includes/views/admin-tabs.php:479
+msgid "Preisregeln für diesen Feed"
+msgstr "Règles de prix pour ce flux"
+
+#: includes/views/admin-tabs.php:480
+msgid ""
+"Auf-/Abschläge gelten nur für die Preise in diesem Feed – die Preise im Shop"
+" bleiben unverändert."
+msgstr ""
+"Les majorations/remises s’appliquent uniquement aux prix de ce flux – les "
+"prix de la boutique restent inchangés."
+
+#: includes/views/admin-tabs.php:483
+msgid "Feed anlegen"
+msgstr "Créer le flux"
+
+#: includes/views/admin-tabs.php:490
+msgid "CSV-Produktfeeds"
+msgstr "Flux produits CSV"
+
+#: includes/views/admin-tabs.php:491
+msgid ""
+"Für Shops und Systeme ohne Plugin (z. B. Jimdo, Marktplätze, "
+"Warenwirtschaft): Jeder Feed hat eine eigene, geheime Abruf-URL. Die CSV "
+"aktualisiert sich automatisch, sobald sich Bestand, Preis oder Produktdaten "
+"ändern – Abrufer erhalten immer den aktuellen Stand."
+msgstr ""
+"Pour les boutiques et systèmes sans extension (p. ex. Jimdo, places de "
+"marché, ERP) : chaque flux dispose de sa propre URL de récupération secrète."
+" Le CSV se met à jour automatiquement dès que le stock, le prix ou les "
+"données produit changent – les destinataires obtiennent toujours l’état "
+"actuel."
+
+#: includes/views/admin-tabs.php:494
+msgid "Noch kein Feed angelegt."
+msgstr "Aucun flux créé pour le moment."
+
+#. translators: 1: Produkte, 2: Status
+#: includes/views/admin-tabs.php:511
+#, php-format
+msgid "%1$d Produkte · %2$s"
+msgstr "%1$d produits · %2$s"
+
+#: includes/views/admin-tabs.php:513
+#, php-format
+msgid "%d Änderung(en) werden beim nächsten Abruf übernommen"
+msgstr ""
+"%d modification(s) seront prises en compte lors de la prochaine récupération"
+
+#: includes/views/admin-tabs.php:513
+msgid "aktuell"
+msgstr "à jour"
+
+#: includes/views/admin-tabs.php:517
+#, php-format
+msgid "Wird im Hintergrund aufgebaut … (%d Produkte offen)"
+msgstr "Construction en arrière-plan… (%d produits restants)"
+
+#: includes/views/admin-tabs.php:520
+#, php-format
+msgid "zuletzt abgerufen vor %1$s (%2$d×)"
+msgstr "dernière récupération il y a %1$s (%2$d×)"
+
+#: includes/views/admin-tabs.php:531
+msgid "Herunterladen"
+msgstr "Télécharger"
+
+#: includes/views/admin-tabs.php:532
+msgid "Komplett neu aufbauen"
+msgstr "Reconstruire entièrement"
+
+#: includes/views/admin-tabs.php:533
+msgid "Neue URL"
+msgstr "Nouvelle URL"
+
+#: includes/views/admin-tabs.php:533
+msgid ""
+"Neue Abruf-URL erzeugen? Die bisherige URL funktioniert danach nicht mehr."
+msgstr ""
+"Générer une nouvelle URL de récupération ? L’ancienne URL ne fonctionnera "
+"plus."
+
+#: includes/views/admin-tabs.php:534
+msgid "Feed löschen? Die Abruf-URL funktioniert danach nicht mehr."
+msgstr "Supprimer le flux ? L’URL de récupération ne fonctionnera plus."
+
+#: includes/views/admin-tabs.php:549
+msgid "Abruf-URL (geheim halten – wer sie kennt, kann den Feed lesen)"
+msgstr ""
+"URL de récupération (à garder secrète – quiconque la connaît peut lire le "
+"flux)"
+
+#: includes/views/admin-tabs.php:552
+msgid "Kopieren"
+msgstr "Copier"
+
+#: includes/views/admin-tabs.php:565
+msgid "Neuen CSV-Feed anlegen"
+msgstr "Créer un nouveau flux CSV"
+
+#: includes/views/admin-tabs.php:569
+msgid "Spalten der CSV"
+msgstr "Colonnes du CSV"
+
+#: includes/views/admin-tabs.php:575
+msgid ""
+"Eine Zeile je Artikel (einfache Produkte und Varianten). Zuordnung beim "
+"Import am besten über die SKU. Abrufer können „If-Modified-Since\"/ETag "
+"nutzen – unveränderte Feeds werden dann mit HTTP 304 beantwortet."
+msgstr ""
+"Une ligne par article (produits simples et variations). Lors de l’import, la"
+" correspondance se fait de préférence via le SKU. Les clients peuvent "
+"utiliser « If-Modified-Since »/ETag – les flux inchangés reçoivent alors une"
+" réponse HTTP 304."
+
+#: includes/views/admin-tabs.php:576
+msgid ""
+"Effizient: Es wird keine Datei ständig neu geschrieben. Jede Produktzeile "
+"ist einzeln gespeichert; ändert sich ein Bestand oder Preis, wird nur die "
+"Zeile dieses Produkts neu berechnet. Beim Abruf wird die CSV direkt aus den "
+"gespeicherten Zeilen ausgeliefert. „Komplett neu aufbauen\" ist nur nötig, "
+"wenn sich z. B. Steuersätze oder Kategorienamen geändert haben."
+msgstr ""
+"Efficace : aucun fichier n’est réécrit en permanence. Chaque ligne produit "
+"est enregistrée séparément ; si un stock ou un prix change, seule la ligne "
+"de ce produit est recalculée. Lors de la récupération, le CSV est servi "
+"directement à partir des lignes enregistrées. « Reconstruire entièrement » "
+"n’est nécessaire que si, p. ex., les taux de TVA ou les noms de catégories "
+"ont changé."
+
+#: includes/views/admin-tabs.php:593 includes/views/admin-tabs.php:608
+#: includes/views/admin-tabs.php:658 includes/views/settings-page.php:74
+msgid "Lizenz"
+msgstr "Licence"
+
+#: includes/views/admin-tabs.php:594
+msgid ""
+"Dieser Shop ist ein Neben-Shop. Er braucht keinen eigenen Schlüssel – die "
+"Lizenz wird im Hauptshop eingetragen und deckt alle verbundenen Shops im "
+"Rahmen ihrer Plätze ab. Auch Updates kommen darüber."
+msgstr ""
+"Cette boutique est une boutique secondaire. Elle n’a pas besoin de sa propre"
+" clé – la licence est saisie dans la boutique principale et couvre toutes "
+"les boutiques connectées dans la limite de ses emplacements. Les mises à "
+"jour passent également par elle."
+
+#: includes/views/admin-tabs.php:597
+#, php-format
+msgid "Hauptshop-Lizenz: %s"
+msgstr "Licence de la boutique principale : %s"
+
+#: includes/views/admin-tabs.php:598
+#, php-format
+msgid "geprüft vor %s"
+msgstr "vérifiée il y a %s"
+
+#: includes/views/admin-tabs.php:602
+msgid "Beim Hauptshop prüfen"
+msgstr "Vérifier auprès de la boutique principale"
+
+#: includes/views/admin-tabs.php:609
+msgid ""
+"Die Lizenz wird nur hier im Hauptshop eingetragen. Jeder verbundene Shop "
+"belegt einen Platz: Hauptshop, eigene Shops, Partnershops und Shopify-Shops."
+" Neben- und Partnershops brauchen keinen eigenen Schlüssel."
+msgstr ""
+"La licence se saisit uniquement ici, dans la boutique principale. Chaque "
+"boutique connectée occupe un emplacement : boutique principale, boutiques "
+"propres, boutiques partenaires et boutiques Shopify. Les boutiques "
+"secondaires et partenaires n’ont pas besoin de leur propre clé."
+
+#. translators: %d: verbleibende Tage
+#: includes/views/admin-tabs.php:614
+#, php-format
+msgid ""
+"Testphase: noch %d Tag mit vollem Funktionsumfang. Danach pausiert die "
+"Synchronisation, bis ein Lizenzschlüssel eingetragen ist."
+msgid_plural ""
+"Testphase: noch %d Tage mit vollem Funktionsumfang. Danach pausiert die "
+"Synchronisation, bis ein Lizenzschlüssel eingetragen ist."
+msgstr[0] ""
+"Période d’essai : encore %d jour avec toutes les fonctionnalités. Ensuite, "
+"la synchronisation est suspendue jusqu’à la saisie d’une clé de licence."
+msgstr[1] ""
+"Période d’essai : encore %d jours avec toutes les fonctionnalités. Ensuite, "
+"la synchronisation est suspendue jusqu’à la saisie d’une clé de licence."
+
+#: includes/views/admin-tabs.php:616
+msgid ""
+"Die Testphase ist abgelaufen – die Synchronisation ist pausiert. Bitte einen"
+" Lizenzschlüssel eintragen."
+msgstr ""
+"La période d’essai a expiré – la synchronisation est en pause. Veuillez "
+"saisir une clé de licence."
+
+#: includes/views/admin-tabs.php:622
+msgid "Aktivieren"
+msgstr "Activer"
+
+#: includes/views/admin-tabs.php:623
+msgid "Lizenz kaufen"
+msgstr "Acheter une licence"
+
+#: includes/views/admin-tabs.php:627
+msgid "Lizenzschlüssel"
+msgstr "Clé de licence"
+
+#: includes/views/admin-tabs.php:628
+msgid "Stufe"
+msgstr "Niveau"
+
+#: includes/views/admin-tabs.php:629
+msgid "Plätze"
+msgstr "Emplacements"
+
+#: includes/views/admin-tabs.php:629 includes/views/admin-tabs.php:630
+msgid "unbegrenzt"
+msgstr "illimité"
+
+#: includes/views/admin-tabs.php:630
+msgid "Updates & Support bis"
+msgstr "Mises à jour et support jusqu’au"
+
+#: includes/views/admin-tabs.php:631
+msgid "Zuletzt geprüft"
+msgstr "Dernière vérification"
+
+#: includes/views/admin-tabs.php:637
+msgid "Jetzt prüfen"
+msgstr "Vérifier maintenant"
+
+#: includes/views/admin-tabs.php:640
+msgid "Verlängern / Upgrade"
+msgstr "Renouveler / Mettre à niveau"
+
+#: includes/views/admin-tabs.php:642
+msgid ""
+"Lizenz in diesem Shop deaktivieren? Nach der Testphase pausiert die "
+"Synchronisation, bis sie wieder aktiviert ist."
+msgstr ""
+"Désactiver la licence sur cette boutique ? Après la période d’essai, la "
+"synchronisation sera mise en pause jusqu’à sa réactivation."
+
+#: includes/views/admin-tabs.php:645
+msgid "Deaktivieren (Umzug)"
+msgstr "Désactiver (migration)"
+
+#: includes/views/admin-tabs.php:653
+msgid "Verbundene Shops & Plätze"
+msgstr "Boutiques connectées et emplacements"
+
+#: includes/views/admin-tabs.php:654
+msgid ""
+"Reihenfolge der Plätze: Hauptshop, eigene Shops (wie unter Netzwerk "
+"eingetragen), Partner, Shopify. Shops ohne freien Platz werden nicht "
+"beliefert."
+msgstr ""
+"Ordre des emplacements : boutique principale, boutiques propres (telles que "
+"renseignées sous Réseau), partenaires, Shopify. Les boutiques sans "
+"emplacement libre ne sont pas approvisionnées."
+
+#: includes/views/admin-tabs.php:658
+msgid "Shop"
+msgstr "Boutique"
+
+#: includes/views/admin-tabs.php:658
+msgid "Art"
+msgstr "Type"
+
+#: includes/views/admin-tabs.php:660 includes/views/partner-page.php:116
+#: includes/views/settings-page.php:94 includes/views/settings-page.php:321
+msgid "Hauptshop"
+msgstr "Boutique principale"
+
+#: includes/views/admin-tabs.php:663
+msgid "Eigener Shop"
+msgstr "Boutique propre"
+
+#: includes/views/admin-tabs.php:665 includes/views/settings-page.php:66
+msgid "Shopify"
+msgstr "Shopify"
+
+#: includes/views/admin-tabs.php:675
+msgid "kein Platz frei"
+msgstr "aucun emplacement libre"
+
+#: includes/views/partner-page.php:36 includes/views/partner-page.php:113
+msgid "Verbindung"
+msgstr "Connexion"
+
+#: includes/views/partner-page.php:42
+msgid "Ja"
+msgstr "Oui"
+
+#: includes/views/partner-page.php:42 includes/views/partner-page.php:144
+msgid "Nein"
+msgstr "Non"
+
+#: includes/views/partner-page.php:53
+#, php-format
+msgid "Partner-Edition · v%s"
+msgstr "Édition Partenaire · v%s"
+
+#: includes/views/partner-page.php:58
+#, php-format
+msgid "Verbunden mit %s"
+msgstr "Connecté à %s"
+
+#: includes/views/partner-page.php:58
+msgid "Nicht verbunden"
+msgstr "Non connecté"
+
+#: includes/views/partner-page.php:61 includes/views/settings-page.php:101
+#, php-format
+msgid "Queue %1$d/%2$d"
+msgstr "File d’attente %1$d/%2$d"
+
+#: includes/views/partner-page.php:71
+msgid ""
+"Erfolgreich mit dem Hauptshop verbunden. Jetzt unter „Produkte\" die "
+"Produkte holen."
+msgstr ""
+"Connexion à la boutique principale réussie. Récupérez maintenant les "
+"produits sous « Produits »."
+
+#: includes/views/partner-page.php:72
+msgid "Verbindung getrennt. Es werden keine Daten mehr ausgetauscht."
+msgstr "Connexion interrompue. Plus aucune donnée n’est échangée."
+
+#: includes/views/partner-page.php:73
+msgid "Vorgaben vom Hauptshop aktualisiert."
+msgstr "Paramètres imposés par la boutique principale mis à jour."
+
+#: includes/views/partner-page.php:74
+msgid "Verbindung fehlgeschlagen."
+msgstr "Échec de la connexion."
+
+#: includes/views/partner-page.php:96
+msgid "Mit dem Hauptshop verbinden"
+msgstr "Se connecter à la boutique principale"
+
+#: includes/views/partner-page.php:97
+msgid ""
+"Den Verbindungscode erhältst du vom Betreiber des Hauptshops. Er verbindet "
+"diesen Shop sicher mit dem Verbund – mit einem nur für dich gültigen "
+"Schlüssel."
+msgstr ""
+"Vous obtenez le code de connexion auprès de l’exploitant de la boutique "
+"principale. Il connecte cette boutique au réseau de manière sécurisée – avec"
+" une clé valable uniquement pour vous."
+
+#: includes/views/partner-page.php:103
+msgid "Verbindungscode"
+msgstr "Code de connexion"
+
+#: includes/views/partner-page.php:106
+msgid "Verbinden"
+msgstr "Connecter"
+
+#: includes/views/partner-page.php:108
+#, php-format
+msgid ""
+"Dein Shop wird beim Hauptshop unter der Adresse %s erwartet. Weicht sie ab, "
+"bitte dem Betreiber mitteilen."
+msgstr ""
+"Votre boutique est attendue par la boutique principale à l’adresse %s. Si "
+"elle diffère, veuillez en informer l’exploitant."
+
+#: includes/views/partner-page.php:117
+msgid "Verbunden als"
+msgstr "Connecté en tant que"
+
+#: includes/views/partner-page.php:118
+msgid "Seit"
+msgstr "Depuis"
+
+#: includes/views/partner-page.php:125
+msgid "Verbindung prüfen & Vorgaben aktualisieren"
+msgstr "Vérifier la connexion et mettre à jour les paramètres imposés"
+
+#: includes/views/partner-page.php:127
+msgid ""
+"Verbindung zum Hauptshop wirklich trennen? Bestände und Produkte werden dann"
+" nicht mehr abgeglichen."
+msgstr ""
+"Voulez-vous vraiment déconnecter la boutique principale ? Les stocks et les "
+"produits ne seront alors plus rapprochés."
+
+#: includes/views/partner-page.php:130
+msgid "Verbindung trennen"
+msgstr "Déconnecter"
+
+#: includes/views/partner-page.php:137
+msgid "Vorgaben des Hauptshops"
+msgstr "Paramètres imposés par la boutique principale"
+
+#: includes/views/partner-page.php:138
+msgid ""
+"Diese Einstellungen legt der Betreiber des Hauptshops fest. Sie gelten für "
+"deinen Shop und können hier nicht geändert werden."
+msgstr ""
+"Ces réglages sont définis par l’exploitant de la boutique principale. Ils "
+"s’appliquent à votre boutique et ne peuvent pas être modifiés ici."
+
+#: includes/views/partner-page.php:141
+msgid "Produktdaten werden aktuell gehalten"
+msgstr "Les données produit sont maintenues à jour"
+
+#: includes/views/partner-page.php:142
+msgid "Preisänderungen des Hauptshops werden übernommen"
+msgstr "Les changements de prix de la boutique principale sont repris"
+
+#: includes/views/partner-page.php:143
+msgid "Bilder werden übertragen"
+msgstr "Les images sont transférées"
+
+#: includes/views/partner-page.php:144
+msgid "Eigene Preisregeln erlaubt"
+msgstr "Règles de prix propres autorisées"
+
+#: includes/views/partner-page.php:144
+#, php-format
+msgid "Ja, von %1$s %% bis %2$s %%"
+msgstr "Oui, de %1$s %% à %2$s %%"
+
+#: includes/views/partner-page.php:145
+msgid "Verkäufe werden automatisch an den Hauptshop gemeldet"
+msgstr "Les ventes sont automatiquement signalées à la boutique principale"
+
+#: includes/views/partner-page.php:145
+msgid "Ja (aus Bestellungen)"
+msgstr "Oui (à partir des commandes)"
+
+#: includes/views/partner-page.php:147
+msgid ""
+"Hinweis: Den Lagerbestand gibt der Hauptshop vor. Manuelle "
+"Bestandsänderungen in diesem Shop werden beim nächsten Abgleich "
+"überschrieben – Verkäufe aus Bestellungen werden dagegen immer korrekt "
+"zurückgemeldet."
+msgstr ""
+"Remarque : le stock est défini par la boutique principale. Les modifications"
+" manuelles du stock dans cette boutique seront écrasées lors du prochain "
+"rapprochement – les ventes issues des commandes sont en revanche toujours "
+"correctement signalées."
+
+#: includes/views/partner-page.php:161 includes/views/partner-page.php:168
+#: includes/views/settings-page.php:624
+msgid "Produkte vom Hauptshop holen"
+msgstr "Récupérer les produits de la boutique principale"
+
+#: includes/views/partner-page.php:162
+msgid ""
+"Holt alle für dich freigegebenen Produkte des Hauptshops in diesen Shop "
+"(neue werden angelegt, bestehende gemäß Vorgaben aktualisiert). Danach "
+"laufen Bestände und Änderungen automatisch."
+msgstr ""
+"Récupère dans cette boutique tous les produits de la boutique principale "
+"autorisés pour vous (les nouveaux sont créés, les existants mis à jour selon"
+" les paramètres imposés). Ensuite, les stocks et les modifications sont "
+"synchronisés automatiquement."
+
+#: includes/views/partner-page.php:165
+msgid "Zuerst unter „Verbindung\" mit dem Hauptshop verbinden."
+msgstr "Connectez-vous d’abord à la boutique principale sous « Connexion »."
+
+#: includes/views/partner-page.php:180
+msgid "Eigene Einstellungen"
+msgstr "Réglages propres"
+
+#: includes/views/partner-page.php:181
+msgid "Diese Optionen betreffen nur deinen Shop."
+msgstr "Ces options concernent uniquement votre boutique."
+
+#: includes/views/partner-page.php:187 includes/views/settings-page.php:282
+msgid "Name dieses Shops"
+msgstr "Nom de cette boutique"
+
+#: includes/views/partner-page.php:193 includes/views/settings-page.php:404
+msgid "Kleinunternehmer: Preise als Brutto übernehmen"
+msgstr "Micro-entreprise (§19 UStG, sans TVA) : reprendre les prix en TTC"
+
+#: includes/views/partner-page.php:193
+msgid ""
+"Für §19-Shops ohne USt.: eingehende Preise werden als Bruttopreis übernommen"
+" statt als Nettopreis. WooCommerce-Steuer in diesem Shop entsprechend "
+"deaktivieren."
+msgstr ""
+"Pour les boutiques relevant du §19 sans TVA : les prix entrants sont repris "
+"comme prix TTC au lieu de prix HT. Désactivez la TVA WooCommerce dans cette "
+"boutique en conséquence."
+
+#: includes/views/partner-page.php:199
+msgid "Angebotspreise des Hauptshops übernehmen"
+msgstr "Reprendre les prix promo de la boutique principale"
+
+#: includes/views/partner-page.php:199
+msgid ""
+"Ausgeschaltet werden nur reguläre Preise übernommen – deine eigenen "
+"Angebotspreise bleiben unangetastet."
+msgstr ""
+"Si désactivé, seuls les prix normaux sont repris – vos propres prix promo "
+"restent inchangés."
+
+#: includes/views/partner-page.php:203
+msgid "Steuerklassen-Zuordnung"
+msgstr "Correspondance des classes de TVA"
+
+#: includes/views/partner-page.php:205
+msgid ""
+"Nur nötig, wenn die automatische Zuordnung über den Steuersatz nicht greift."
+" Eine Zuordnung pro Zeile: „slug-im-hauptshop=slug-hier\"."
+msgstr ""
+"Nécessaire uniquement si la correspondance automatique via le taux de TVA ne"
+" fonctionne pas. Une correspondance par ligne : « slug-boutique-"
+"principale=slug-ici »."
+
+#: includes/views/partner-page.php:208 includes/views/settings-page.php:245
+msgid "Protokoll-Umfang"
+msgstr "Niveau de journalisation"
+
+#: includes/views/partner-page.php:210 includes/views/settings-page.php:247
+msgid "Alles (Info + Fehler)"
+msgstr "Tout (infos + erreurs)"
+
+#: includes/views/partner-page.php:211 includes/views/settings-page.php:248
+msgid "Nur Fehler"
+msgstr "Erreurs uniquement"
+
+#: includes/views/settings-page.php:21
+msgid "(dieser Shop)"
+msgstr "(cette boutique)"
+
+#: includes/views/settings-page.php:63 includes/views/settings-page.php:229
+msgid "Allgemein"
+msgstr "Général"
+
+#: includes/views/settings-page.php:64
+msgid "Netzwerk"
+msgstr "Réseau"
+
+#: includes/views/settings-page.php:67
+msgid "Abgleich"
+msgstr "Rapprochement"
+
+#: includes/views/settings-page.php:68
+msgid "Produkt-Sync"
+msgstr "Synchronisation des produits"
+
+#: includes/views/settings-page.php:70
+msgid "CSV-Feeds"
+msgstr "Flux CSV"
+
+#: includes/views/settings-page.php:71
+msgid "Sync-Filter"
+msgstr "Filtre de synchronisation"
+
+#: includes/views/settings-page.php:86
+#, php-format
+msgid "Admin-Edition · v%s"
+msgstr "Édition Admin · v%s"
+
+#: includes/views/settings-page.php:91
+msgid "Sync aktiv"
+msgstr "Synchronisation active"
+
+#: includes/views/settings-page.php:91
+msgid "Sync inaktiv"
+msgstr "Synchronisation inactive"
+
+#: includes/views/settings-page.php:94
+msgid "Neben-Shop"
+msgstr "Boutique secondaire"
+
+#: includes/views/settings-page.php:96
+#, php-format
+msgid "%d Shops"
+msgstr "%d boutiques"
+
+#: includes/views/settings-page.php:98
+#, php-format
+msgid "%1$d Partner · %2$d Shopify"
+msgstr "%1$d partenaire(s) · %2$d Shopify"
+
+#: includes/views/settings-page.php:106
+msgid "Abgleich: aus"
+msgstr "Rapprochement : désactivé"
+
+#: includes/views/settings-page.php:108
+#, php-format
+msgid "Abgleich in %s"
+msgstr "Rapprochement dans %s"
+
+#: includes/views/settings-page.php:126
+msgid ""
+"Einstellungen gespeichert – aber das Netzwerk-Secret war zu kurz (mind. 16 "
+"Zeichen) und wurde NICHT geändert. Bitte „Neu erzeugen\" nutzen."
+msgstr ""
+"Réglages enregistrés – mais le secret réseau était trop court (16 caractères"
+" min.) et n’a PAS été modifié. Veuillez utiliser « Régénérer »."
+
+#: includes/views/settings-page.php:127
+msgid "Voll-Synchronisation ausgeführt."
+msgstr "Synchronisation complète effectuée."
+
+#: includes/views/settings-page.php:128
+msgid ""
+"Voll-Synchronisation fehlgeschlagen – sind Ziel-Shops und Secret gesetzt?"
+msgstr ""
+"Échec de la synchronisation complète – les boutiques cibles et le secret "
+"sont-ils définis ?"
+
+#: includes/views/settings-page.php:129
+msgid "Konfiguration an die Shops verteilt."
+msgstr "Configuration distribuée aux boutiques."
+
+#: includes/views/settings-page.php:130
+msgid "Warteschlange wird erneut verarbeitet."
+msgstr "La file d’attente est à nouveau traitée."
+
+#: includes/views/settings-page.php:132
+msgid "Abgleich ausgeführt."
+msgstr "Rapprochement effectué."
+
+#: includes/views/settings-page.php:133
+msgid "Lizenz aktiviert."
+msgstr "Licence activée."
+
+#: includes/views/settings-page.php:134
+msgid "Lizenz in diesem Shop deaktiviert."
+msgstr "Licence désactivée sur cette boutique."
+
+#: includes/views/settings-page.php:135
+msgid "Lizenz geprüft."
+msgstr "Licence vérifiée."
+
+#: includes/views/settings-page.php:136
+msgid "Lizenz:"
+msgstr "Licence :"
+
+#: includes/views/settings-page.php:137
+msgid ""
+"Partner angelegt. Verbindungscode unten kopieren und an den Partner geben."
+msgstr ""
+"Partenaire créé. Copiez le code de connexion ci-dessous et transmettez-le au"
+" partenaire."
+
+#: includes/views/settings-page.php:138
+msgid "Partner gespeichert und Vorgaben übertragen."
+msgstr "Partenaire enregistré et paramètres imposés transférés."
+
+#: includes/views/settings-page.php:139
+msgid "Partner gesperrt."
+msgstr "Partenaire bloqué."
+
+#: includes/views/settings-page.php:140
+msgid "Partner entsperrt."
+msgstr "Partenaire débloqué."
+
+#: includes/views/settings-page.php:141
+msgid ""
+"Neuer Schlüssel erzeugt – der alte Verbindungscode ist ungültig. Neuen Code "
+"an den Partner geben."
+msgstr ""
+"Nouvelle clé générée – l’ancien code de connexion n’est plus valide. "
+"Transmettez le nouveau code au partenaire."
+
+#: includes/views/settings-page.php:142
+msgid "Partner gelöscht."
+msgstr "Partenaire supprimé."
+
+#: includes/views/settings-page.php:144
+msgid "Partner konnte nicht gespeichert werden."
+msgstr "Impossible d’enregistrer le partenaire."
+
+#: includes/views/settings-page.php:145
+msgid "Partner-Vorgaben gespeichert und verteilt."
+msgstr "Paramètres imposés aux partenaires enregistrés et distribués."
+
+#: includes/views/settings-page.php:146
+msgid "Shopify-Shop gespeichert. Jetzt „Verbindung testen\" ausführen."
+msgstr ""
+"Boutique Shopify enregistrée. Lancez maintenant « Tester la connexion »."
+
+#: includes/views/settings-page.php:147
+msgid "Shopify-Shop entfernt."
+msgstr "Boutique Shopify supprimée."
+
+#: includes/views/settings-page.php:149
+msgid "CSV-Feed gespeichert. Die Abruf-URL steht in der Liste."
+msgstr "Flux CSV enregistré. L’URL de récupération figure dans la liste."
+
+#: includes/views/settings-page.php:150
+msgid "CSV-Feed wird komplett neu aufgebaut."
+msgstr "Le flux CSV est en cours de reconstruction complète."
+
+#: includes/views/settings-page.php:151
+msgid "Neue Abruf-URL erzeugt – die alte ist ungültig."
+msgstr "Nouvelle URL de récupération générée – l’ancienne n’est plus valide."
+
+#: includes/views/settings-page.php:152
+msgid "CSV-Feed gelöscht."
+msgstr "Flux CSV supprimé."
+
+#: includes/views/settings-page.php:153
+msgid "CSV-Feed nicht gefunden."
+msgstr "Flux CSV introuvable."
+
+#: includes/views/settings-page.php:154
+msgid "CSV-Feed konnte nicht erzeugt werden."
+msgstr "Impossible de créer le flux CSV."
+
+#: includes/views/settings-page.php:166
+#, php-format
+msgid "%1$d Partner erreicht, %2$d nicht erreichbar."
+msgstr "%1$d partenaire(s) joint(s), %2$d injoignable(s)."
+
+#: includes/views/settings-page.php:179
+#, php-format
+msgid ""
+"%1$d Artikel an %2$d Shop(s): %3$d Batches gesendet, %4$d fehlgeschlagen (in"
+" Warteschlange)."
+msgstr ""
+"%1$d article(s) vers %2$d boutique(s) : %3$d lot(s) envoyé(s), %4$d en échec"
+" (en file d’attente)."
+
+#: includes/views/settings-page.php:188
+#, php-format
+msgid "%1$d Shop(s) erfolgreich, %2$d fehlgeschlagen."
+msgstr "%1$d boutique(s) avec succès, %2$d en échec."
+
+#: includes/views/settings-page.php:197
+#, php-format
+msgid ""
+"Abgleich: %1$d Shop(s) geprüft, %2$d SKUs, %3$d Abweichungen, %4$d "
+"korrigiert, %5$d nachzureichen (Warteschlange), %6$d nicht erreichbar."
+msgstr ""
+"Rapprochement : %1$d boutique(s) vérifiée(s), %2$d SKU, %3$d écart(s), %4$d "
+"corrigé(s), %5$d à transmettre ultérieurement (file d’attente), %6$d "
+"injoignable(s)."
+
+#: includes/views/settings-page.php:234
+msgid "Synchronisation aktiv"
+msgstr "Synchronisation active"
+
+#: includes/views/settings-page.php:234
+msgid "Bestandsänderungen automatisch an alle verbundenen Shops senden."
+msgstr ""
+"Envoyer automatiquement les modifications de stock à toutes les boutiques "
+"connectées."
+
+#: includes/views/settings-page.php:240
+msgid "Lagerstatus mitsynchronisieren"
+msgstr "Synchroniser aussi l’état du stock"
+
+#: includes/views/settings-page.php:240
+msgid ""
+"Für Produkte ohne Mengenverwaltung „auf Lager / nicht auf Lager\" "
+"übertragen."
+msgstr ""
+"Transférer « En stock / En rupture de stock » pour les produits sans gestion"
+" des quantités."
+
+#: includes/views/settings-page.php:252
+msgid "Batchgröße"
+msgstr "Taille des lots"
+
+#: includes/views/settings-page.php:254
+msgid "Artikel pro Anfrage (1–500). Empfehlung: 50–100."
+msgstr "Articles par requête (1–500). Recommandé : 50–100."
+
+#: includes/views/settings-page.php:257
+msgid "HTTP-Timeout"
+msgstr "Délai d’expiration HTTP"
+
+#: includes/views/settings-page.php:259
+msgid "Sekunden je Anfrage (5–60)."
+msgstr "Secondes par requête (5–60)."
+
+#: includes/views/settings-page.php:269
+msgid "Netzwerk-Verbindung"
+msgstr "Connexion réseau"
+
+#: includes/views/settings-page.php:270
+msgid ""
+"Alle EIGENEN Shops im Verbund benötigen dasselbe Netzwerk-Secret. "
+"Partnershops werden NICHT hier eingetragen, sondern im Reiter „Partner\" – "
+"sie erhalten einen eigenen Schlüssel."
+msgstr ""
+"Toutes les boutiques PROPRES du réseau doivent avoir le même secret réseau. "
+"Les boutiques partenaires ne sont PAS renseignées ici, mais dans l’onglet "
+"« Partenaire » – elles reçoivent leur propre clé."
+
+#: includes/views/settings-page.php:273
+msgid "Netzwerk-Secret"
+msgstr "Secret réseau"
+
+#: includes/views/settings-page.php:276
+msgid "Neu erzeugen"
+msgstr "Régénérer"
+
+#: includes/views/settings-page.php:278
+msgid "Geheimschlüssel zum Signieren aller Sync-Anfragen (HMAC-SHA256)."
+msgstr ""
+"Clé secrète pour signer toutes les requêtes de synchronisation (HMAC-"
+"SHA256)."
+
+#: includes/views/settings-page.php:286
+msgid "URL dieses Shops"
+msgstr "URL de cette boutique"
+
+#: includes/views/settings-page.php:288
+msgid "Basis-URL ohne abschließenden Schrägstrich."
+msgstr "URL de base sans barre oblique finale."
+
+#: includes/views/settings-page.php:295
+msgid "Verbundene Shops"
+msgstr "Boutiques connectées"
+
+#: includes/views/settings-page.php:296
+msgid ""
+"Alle Shops des Verbunds eintragen (empfohlen 3+). Dieser Shop wird beim "
+"Senden automatisch übersprungen."
+msgstr ""
+"Renseignez toutes les boutiques du réseau (3 ou plus recommandées). Cette "
+"boutique est automatiquement ignorée lors de l’envoi."
+
+#: includes/views/settings-page.php:304
+msgid "z. B. Shop B"
+msgstr "p. ex. Boutique B"
+
+#: includes/views/settings-page.php:312
+msgid "Shop hinzufügen"
+msgstr "Ajouter une boutique"
+
+#: includes/views/settings-page.php:317
+msgid "Hauptshop (Master)"
+msgstr "Boutique principale (maître)"
+
+#: includes/views/settings-page.php:318
+msgid ""
+"Quelle für die erste Voll-Synchronisation. Jederzeit änderbar; danach "
+"„Konfiguration verteilen\" nutzen."
+msgstr ""
+"Source de la première synchronisation complète. Modifiable à tout moment ; "
+"utilisez ensuite « Distribuer la configuration »."
+
+#: includes/views/settings-page.php:337
+msgid "Automatischer Abgleich"
+msgstr "Rapprochement automatique"
+
+#: includes/views/settings-page.php:338
+msgid ""
+"Periodischer Konsistenz-Check: erkennt Abweichungen und reicht Korrekturen "
+"nach. Wird vom Hauptshop koordiniert."
+msgstr ""
+"Contrôle de cohérence périodique : détecte les écarts et transmet les "
+"corrections. Coordonné par la boutique principale."
+
+#: includes/views/settings-page.php:341
+msgid "Abgleich-Intervall"
+msgstr "Intervalle de rapprochement"
+
+#: includes/views/settings-page.php:343
+msgid "Aus"
+msgstr "Désactivé"
+
+#: includes/views/settings-page.php:344
+msgid "Stündlich"
+msgstr "Toutes les heures"
+
+#: includes/views/settings-page.php:345
+msgid "Alle 6 Stunden"
+msgstr "Toutes les 6 heures"
+
+#: includes/views/settings-page.php:346
+msgid "Täglich"
+msgstr "Quotidien"
+
+#: includes/views/settings-page.php:348
+msgid "Läuft nur auf dem Hauptshop. Voraussetzung: WP-Cron aktiv."
+msgstr ""
+"S’exécute uniquement sur la boutique principale. Prérequis : WP-Cron actif."
+
+#: includes/views/settings-page.php:351
+msgid "Konflikt-Strategie"
+msgstr "Stratégie en cas de conflit"
+
+#: includes/views/settings-page.php:352
+msgid "Niedrigster Bestand gewinnt (empfohlen – schützt vor Überverkauf)"
+msgstr "Le stock le plus bas l’emporte (recommandé – évite la survente)"
+
+#: includes/views/settings-page.php:353
+msgid "Hauptshop ist maßgeblich (Wert des Hauptshops wird verteilt)"
+msgstr "La boutique principale fait foi (sa valeur est distribuée)"
+
+#: includes/views/settings-page.php:354
+msgid ""
+"Nach einem Wareneingang im Hauptshop „Voll-Synchronisation\" nutzen, um "
+"erhöhte Bestände zu verteilen."
+msgstr ""
+"Après une réception de marchandises dans la boutique principale, utilisez "
+"« Synchronisation complète » pour distribuer les stocks augmentés."
+
+#: includes/views/settings-page.php:363
+msgid "Produkt-Sync (neue Produkte)"
+msgstr "Synchronisation des produits (nouveaux produits)"
+
+#: includes/views/settings-page.php:364
+msgid ""
+"Optional: neue Produkte 1:1 an die anderen Shops übertragen (einfach & "
+"variabel, inkl. Status). Zuordnung per SKU."
+msgstr ""
+"Facultatif : transférer les nouveaux produits à l’identique vers les autres "
+"boutiques (simples et variables, statut compris). Correspondance par SKU."
+
+#: includes/views/settings-page.php:369
+msgid "Produkt-Sync aktiv"
+msgstr "Synchronisation des produits active"
+
+#: includes/views/settings-page.php:369
+msgid "Muss auch auf jedem Empfänger-Shop aktiv sein."
+msgstr "Doit également être active sur chaque boutique destinataire."
+
+#: includes/views/settings-page.php:373
+msgid "Quelle"
+msgstr "Source"
+
+#: includes/views/settings-page.php:374
+msgid "Nur der Hauptshop überträgt neue Produkte (empfohlen)"
+msgstr ""
+"Seule la boutique principale transfère les nouveaux produits (recommandé)"
+
+#: includes/views/settings-page.php:375
+msgid "Jeder Shop darf neue Produkte übertragen"
+msgstr "Chaque boutique peut transférer de nouveaux produits"
+
+#: includes/views/settings-page.php:380
+msgid "Produktbilder per URL mitübertragen (nur beim Neuanlegen)."
+msgstr ""
+"Transférer aussi les images produit par URL (uniquement à la création)."
+
+#: includes/views/settings-page.php:386
+msgid "Bestehende Produkte aktualisieren"
+msgstr "Mettre à jour les produits existants"
+
+#: includes/views/settings-page.php:386
+msgid ""
+"Vorhandene (gleiche SKU) mit Quelldaten überschreiben – inkl. Status. "
+"Standard aus."
+msgstr ""
+"Écraser les produits existants (même SKU) avec les données source – statut "
+"compris. Désactivé par défaut."
+
+#: includes/views/settings-page.php:392
+msgid "Preise bestehender Produkte aktualisieren"
+msgstr "Mettre à jour les prix des produits existants"
+
+#: includes/views/settings-page.php:392
+msgid ""
+"Zieht bei vorhandenen Produkten NUR die Preise nach (Beschreibung, Bilder "
+"usw. bleiben unangetastet). Auch ohne „Bestehende Produkte aktualisieren\". "
+"Preisänderungen im Quellshop werden automatisch verteilt."
+msgstr ""
+"Met à jour UNIQUEMENT les prix des produits existants (description, images, "
+"etc. restent inchangées). Fonctionne aussi sans « Mettre à jour les produits"
+" existants ». Les changements de prix dans la boutique source sont "
+"distribués automatiquement."
+
+#: includes/views/settings-page.php:398
+msgid "Angebotspreise übernehmen"
+msgstr "Reprendre les prix promo"
+
+#: includes/views/settings-page.php:398
+msgid ""
+"Eingehende Angebotspreise übernehmen. Ausgeschaltet werden nur reguläre "
+"Preise übernommen – eigene Angebotspreise dieses Shops bleiben unangetastet."
+msgstr ""
+"Reprendre les prix promo entrants. Si désactivé, seuls les prix normaux sont"
+" repris – les prix promo propres à cette boutique restent inchangés."
+
+#: includes/views/settings-page.php:404
+msgid ""
+"Für §19-Shops ohne USt.: eingehende Preise werden als Bruttopreis (inkl. "
+"Steuer des Quellshops) übernommen, statt als Nettopreis. So bleibt die Marge"
+" erhalten. WooCommerce-Steuer in diesem Shop entsprechend deaktivieren."
+msgstr ""
+"Pour les boutiques relevant du §19 sans TVA : les prix entrants sont repris "
+"comme prix TTC (TVA de la boutique source incluse) au lieu de prix HT. La "
+"marge est ainsi préservée. Désactivez la TVA WooCommerce dans cette boutique"
+" en conséquence."
+
+#: includes/views/settings-page.php:408
+msgid "Zu übertragende Felder"
+msgstr "Champs à transférer"
+
+#: includes/views/settings-page.php:425
+msgid ""
+"Nur ausgewählte Felder werden übertragen. Tipp: „Preis (regulär)\" und "
+"„Angebotspreis\" sind getrennt wählbar – z. B. nur reguläre Preise senden, "
+"Angebote macht jeder Shop selbst."
+msgstr ""
+"Seuls les champs sélectionnés sont transférés. Astuce : « Prix (normal) » et"
+" « Prix promo » peuvent être sélectionnés séparément – p. ex. n’envoyer que "
+"les prix normaux et laisser chaque boutique gérer ses promotions."
+
+#: includes/views/settings-page.php:428
+msgid "Steuerklassen-Zuordnung (Empfänger)"
+msgstr "Correspondance des classes de TVA (destinataire)"
+
+#: includes/views/settings-page.php:430
+msgid ""
+"Übersetzt eingehende Steuerklassen-Slugs auf die hier vorhandenen. Eine "
+"Zuordnung pro Zeile, z. B. „reduzierter-preis=reduced-rate\". Nötig, wenn "
+"zwei Shops für dieselbe Steuer (z. B. 7 %) unterschiedliche Slugs verwenden."
+" Unbekannte, nicht zugeordnete Slugs werden übersprungen (Steuerklasse "
+"bleibt unverändert, statt auf Standard zu fallen)."
+msgstr ""
+"Convertit les slugs de classes de TVA entrants vers ceux existant ici. Une "
+"correspondance par ligne, p. ex. « taux-reduit=reduced-rate ». Nécessaire si"
+" deux boutiques utilisent des slugs différents pour la même taxe (p. ex. 7 "
+"%). Les slugs inconnus sans correspondance sont ignorés (la classe de TVA "
+"reste inchangée au lieu de revenir à la classe standard)."
+
+#: includes/views/settings-page.php:439
+msgid "Sync-Filter: Welche Produkte?"
+msgstr "Filtre de synchronisation : quels produits ?"
+
+#: includes/views/settings-page.php:440
+msgid ""
+"Legt fest, welche Produkte dieser Shop synchronisiert (Bestands- und "
+"Produkt-Sync) – in BEIDE Richtungen: Produkte außerhalb des Umfangs werden "
+"weder gesendet noch von anderen Shops angelegt oder verändert. Eine "
+"Kategorie gilt immer inklusive ihrer Unterkategorien."
+msgstr ""
+"Définit quels produits cette boutique synchronise (synchronisation des "
+"stocks et des produits) – dans les DEUX sens : les produits hors du "
+"périmètre ne sont ni envoyés, ni créés ou modifiés par d’autres boutiques. "
+"Une catégorie inclut toujours ses sous-catégories."
+
+#: includes/views/settings-page.php:443
+msgid "Umfang"
+msgstr "Périmètre"
+
+#: includes/views/settings-page.php:444
+msgid "Alle Produkte synchronisieren"
+msgstr "Synchroniser tous les produits"
+
+#: includes/views/settings-page.php:445
+msgid "Nur ausgewählte (nach Kategorie, Marke oder Einzelprodukt)"
+msgstr "Sélection uniquement (par catégorie, marque ou produit individuel)"
+
+#: includes/views/settings-page.php:469 includes/views/settings-page.php:531
+msgid "Marken wählen …"
+msgstr "Choisir des marques…"
+
+#: includes/views/settings-page.php:479
+#, php-format
+msgid "Erkannte Marken-Taxonomie: %s."
+msgstr "Taxonomie de marques détectée : %s."
+
+#: includes/views/settings-page.php:481
+msgid "Keine Marken-Taxonomie gefunden – Marken-Filter nicht verfügbar."
+msgstr "Aucune taxonomie de marques trouvée – filtre par marque indisponible."
+
+#: includes/views/settings-page.php:486
+msgid "Einzelne Produkte einschließen"
+msgstr "Inclure des produits individuels"
+
+#: includes/views/settings-page.php:487 includes/views/settings-page.php:500
+msgid "Produkte suchen …"
+msgstr "Rechercher des produits…"
+
+#: includes/views/settings-page.php:499
+msgid "Einzelne Produkte ausschließen"
+msgstr "Exclure des produits individuels"
+
+#: includes/views/settings-page.php:510
+msgid ""
+"Diese Produkte werden nie synchronisiert – aus- und eingehend (harter "
+"Ausschluss)."
+msgstr ""
+"Ces produits ne sont jamais synchronisés – ni en sortie, ni en entrée "
+"(exclusion stricte)."
+
+#: includes/views/settings-page.php:513
+msgid "Kategorien ausschließen"
+msgstr "Exclure des catégories"
+
+#: includes/views/settings-page.php:525
+msgid ""
+"Harter Ausschluss inkl. Unterkategorien – hat Vorrang vor allen Einschluss-"
+"Kriterien (außer den Ausnahme-Marken unten)."
+msgstr ""
+"Exclusion stricte, sous-catégories incluses – prioritaire sur tous les "
+"critères d’inclusion (sauf les marques en exception ci-dessous)."
+
+#: includes/views/settings-page.php:529
+msgid "Ausnahmen vom Kategorie-Ausschluss (Marken)"
+msgstr "Exceptions à l’exclusion de catégories (marques)"
+
+#: includes/views/settings-page.php:540
+msgid ""
+"Produkte dieser Marken werden trotz ausgeschlossener Kategorie "
+"synchronisiert – z. B. „Growshop\" ausschließen, außer Marke „Spider "
+"Farmer\". Einzeln ausgeschlossene Produkte bleiben ausgeschlossen."
+msgstr ""
+"Les produits de ces marques sont synchronisés malgré une catégorie exclue – "
+"p. ex. exclure « Growshop », sauf la marque « Spider Farmer ». Les produits "
+"exclus individuellement restent exclus."
+
+#: includes/views/settings-page.php:544
+msgid "Kategorien ignorieren"
+msgstr "Ignorer des catégories"
+
+#: includes/views/settings-page.php:555
+msgid ""
+"Z. B. „Angebote\": Diese Kategorien (inkl. Unterkategorien) zählen weder für"
+" Auswahl noch Ausschluss – ein Produkt wird nur nach seinen übrigen "
+"Kategorien beurteilt. Sie werden nicht übertragen, beim Empfang nicht "
+"angelegt oder zugeordnet, und eigene Zuordnungen in diesem Shop bleiben "
+"unverändert. Eingehende Kategorien werden dabei per Name erkannt."
+msgstr ""
+"P. ex. « Promotions » : ces catégories (sous-catégories incluses) ne "
+"comptent ni pour la sélection ni pour l’exclusion – un produit est évalué "
+"uniquement selon ses autres catégories. Elles ne sont pas transférées, ni "
+"créées ou associées à la réception, et les associations propres à cette "
+"boutique restent inchangées. Les catégories entrantes sont reconnues par "
+"leur nom."
+
+#: includes/views/settings-page.php:558
+msgid "Vorschau: Umfang anzeigen"
+msgstr "Aperçu : afficher le périmètre"
+
+#: includes/views/settings-page.php:576
+msgid "Bestand: Voll-Synchronisation"
+msgstr "Stock : synchronisation complète"
+
+#: includes/views/settings-page.php:577
+msgid ""
+"Sendet den gesamten Bestand dieses Shops an alle verbundenen Shops. "
+"Idealerweise vom Hauptshop."
+msgstr ""
+"Envoie l’intégralité du stock de cette boutique à toutes les boutiques "
+"connectées. Idéalement depuis la boutique principale."
+
+#: includes/views/settings-page.php:582
+msgid "Voll-Synchronisation starten"
+msgstr "Lancer la synchronisation complète"
+
+#: includes/views/settings-page.php:587
+#, php-format
+msgid "Läuft … %d %%"
+msgstr "En cours… %d %%"
+
+#: includes/views/settings-page.php:594
+msgid "Produkte: Massen-Übertragung"
+msgstr "Produits : transfert en masse"
+
+#: includes/views/settings-page.php:595
+msgid ""
+"Überträgt alle Produkte 1:1 (inkl. Status). Ideal für die erste Befüllung "
+"neuer Shops."
+msgstr ""
+"Transfère tous les produits à l’identique (statut compris). Idéal pour le "
+"remplissage initial de nouvelles boutiques."
+
+#: includes/views/settings-page.php:598
+msgid "Alle Produkte übertragen"
+msgstr "Transférer tous les produits"
+
+#: includes/views/settings-page.php:601 includes/views/settings-page.php:627
+msgid "Zuerst „Produkt-Sync aktiv\" einschalten und speichern."
+msgstr ""
+"Activez et enregistrez d’abord « Synchronisation des produits active »."
+
+#: includes/views/settings-page.php:617
+msgid "Produkte vom Hauptshop holen (Pull)"
+msgstr "Récupérer les produits de la boutique principale (pull)"
+
+#. translators: %s: Adresse des Hauptshops
+#: includes/views/settings-page.php:618
+#, php-format
+msgid ""
+"Dieser Shop holt sich die Produkte des Hauptshops (%s) selbst – ideal für "
+"die erste Befüllung eines Neben-Shops, ohne dass der Hauptshop an alle "
+"verteilt."
+msgstr ""
+"Cette boutique récupère elle-même les produits de la boutique principale "
+"(%s) – idéal pour le remplissage initial d’une boutique secondaire, sans que"
+" la boutique principale ne distribue à toutes les boutiques."
+
+#: includes/views/settings-page.php:621
+msgid ""
+"Dieser Shop ist selbst der Hauptshop – nutze oben „Alle Produkte "
+"übertragen\"."
+msgstr ""
+"Cette boutique est elle-même la boutique principale – utilisez « Transférer "
+"tous les produits » ci-dessus."
+
+#: includes/views/settings-page.php:647
+msgid "Aufräumen: Produkte außerhalb des Sync-Filters entfernen"
+msgstr "Nettoyage : supprimer les produits hors du filtre de synchronisation"
+
+#: includes/views/settings-page.php:648
+msgid ""
+"Findet Produkte, die vom Hauptshop übertragen wurden, aber nicht (mehr) im "
+"Sync-Umfang liegen – nach dem Sync-Filter dieses Shops (Reiter „Sync-"
+"Filter\") und dem des Hauptshops. Eigene Produkte dieses Shops, deren SKU es"
+" im Hauptshop nicht gibt, werden nie angefasst. Erst analysieren, dann die "
+"Liste prüfen und entfernen."
+msgstr ""
+"Trouve les produits transférés par la boutique principale mais qui ne sont "
+"pas (ou plus) dans le périmètre de synchronisation – selon le filtre de "
+"synchronisation de cette boutique (onglet « Filtre de synchronisation ») et "
+"celui de la boutique principale. Les produits propres à cette boutique dont "
+"le SKU n’existe pas dans la boutique principale ne sont jamais touchés. "
+"Analysez d’abord, puis vérifiez la liste et supprimez."
+
+#: includes/views/settings-page.php:652
+msgid "Welche Produkte kommen in Frage?"
+msgstr "Quels produits sont concernés ?"
+
+#: includes/views/settings-page.php:653
+msgid "Angelegt ab Datum:"
+msgstr "Créés à partir du :"
+
+#: includes/views/settings-page.php:655
+msgid "Alle vom Sync angelegten Produkte (Markierung ab Version 3.1.1)"
+msgstr ""
+"Tous les produits créés par la synchronisation (marquage à partir de la "
+"version 3.1.1)"
+
+#: includes/views/settings-page.php:656
+msgid ""
+"Produkte, die mit einer älteren Version übertragen wurden, haben noch keine "
+"Markierung – dafür das Datum der Übertragung wählen. Gespeicherte Filter-"
+"Einstellungen werden verwendet."
+msgstr ""
+"Les produits transférés avec une version antérieure n’ont pas encore de "
+"marquage – choisissez pour eux la date du transfert. Les réglages de filtre "
+"enregistrés sont utilisés."
+
+#: includes/views/settings-page.php:658
+msgid "Analysieren"
+msgstr "Analyser"
+
+#: includes/views/settings-page.php:668
+msgid "In den Papierkorb verschieben (wiederherstellbar)"
+msgstr "Déplacer vers la corbeille (restaurable)"
+
+#: includes/views/settings-page.php:669
+msgid "Endgültig löschen inkl. importierter Bilder"
+msgstr "Supprimer définitivement, images importées comprises"
+
+#: includes/views/settings-page.php:671
+msgid "Gefundene Produkte entfernen"
+msgstr "Supprimer les produits trouvés"
+
+#: includes/views/settings-page.php:683
+msgid "Weitere Aktionen"
+msgstr "Autres actions"
+
+#: includes/views/settings-page.php:688
+msgid "Konfiguration an alle Shops verteilen"
+msgstr "Distribuer la configuration à toutes les boutiques"
+
+#: includes/views/settings-page.php:689
+msgid ""
+"Verteilt Shop-Liste und Hauptshop-Auswahl an die eigenen Shops (Secret & "
+"eigene URL bleiben unverändert) sowie die Vorgaben an alle Partner."
+msgstr ""
+"Distribue la liste des boutiques et le choix de la boutique principale aux "
+"boutiques propres (le secret et l’URL propre restent inchangés), ainsi que "
+"les paramètres imposés à tous les partenaires."
+
+#: includes/views/settings-page.php:694
+msgid "Jetzt abgleichen"
+msgstr "Rapprocher maintenant"
+
+#: includes/views/settings-page.php:695
+msgid "Vergleicht Bestände sofort und korrigiert Abweichungen."
+msgstr "Compare immédiatement les stocks et corrige les écarts."
+
+#: includes/views/settings-page.php:700
+msgid "Warteschlange jetzt verarbeiten"
+msgstr "Traiter la file d’attente maintenant"

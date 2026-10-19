@@ -43,6 +43,10 @@ class WCIS_Plugin {
 		// Eigenes Cron-Intervall (jede Minute) registrieren.
 		add_filter( 'cron_schedules', array( $this, 'add_cron_schedule' ) );
 
+		// Lizenz (Plätze, Testphase) und automatische Updates über blocksocial.eu.
+		WCIS_License::init();
+		WCIS_Updater::init();
+
 		// Sync-Engine (Hooks für Bestandsänderungen + Cron-Queue).
 		WCIS_Sync_Engine::init();
 

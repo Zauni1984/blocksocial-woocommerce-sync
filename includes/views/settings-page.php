@@ -53,6 +53,7 @@ $wcis_icon = static function ( $name ) {
 		'shopify'   => '<path d="M5 7h14l-1.2 13H6.2L5 7z"/><path d="M9 7V5.5a3 3 0 0 1 6 0V7"/>',
 		'pricing'   => '<path d="M3 12V4h8l10 10-8 8L3 12z"/><circle cx="7.5" cy="8.5" r="1.5"/>',
 		'feeds'     => '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 13h7M9 17h7"/>',
+		'license'   => '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/>',
 	);
 	$d = isset( $p[ $name ] ) ? $p[ $name ] : '';
 	return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $d . '</svg>';
@@ -70,6 +71,7 @@ $wcis_tabs = array(
 	'filter'    => __( 'Sync-Filter', 'blocksocial-woocommerce-sync' ),
 	'actions'   => __( 'Aktionen', 'blocksocial-woocommerce-sync' ),
 	'log'       => __( 'Protokoll', 'blocksocial-woocommerce-sync' ),
+	'license'   => __( 'Lizenz', 'blocksocial-woocommerce-sync' ),
 );
 ?>
 <div class="wrap wcis-wrap">
@@ -107,6 +109,8 @@ $wcis_tabs = array(
 			}
 			?>
 			<span class="wcis-pill"><?php echo esc_html( $wcis_recon_txt ); ?></span>
+			<?php $wcis_lb = WCIS_License::badge(); ?>
+			<span class="wcis-pill <?php echo esc_attr( $wcis_lb[0] ); ?>"><?php echo esc_html( $wcis_lb[1] ); ?></span>
 		</div>
 		<button type="submit" form="wcis-settings-form" class="wcis-save">
 			<?php echo $wcis_icon( 'reconcile' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
@@ -126,6 +130,10 @@ $wcis_tabs = array(
 			'queue_retried'  => array( 'ok', __( 'Warteschlange wird erneut verarbeitet.', 'blocksocial-woocommerce-sync' ) ),
 			'log_cleared'    => array( 'ok', __( 'Protokoll geleert.', 'blocksocial-woocommerce-sync' ) ),
 			'reconciled'     => array( 'ok', __( 'Abgleich ausgeführt.', 'blocksocial-woocommerce-sync' ) ),
+			'license_activated'   => array( 'ok', __( 'Lizenz aktiviert.', 'blocksocial-woocommerce-sync' ) ),
+			'license_deactivated' => array( 'ok', __( 'Lizenz in diesem Shop deaktiviert.', 'blocksocial-woocommerce-sync' ) ),
+			'license_checked'     => array( 'ok', __( 'Lizenz geprüft.', 'blocksocial-woocommerce-sync' ) ),
+			'license_error'       => array( 'err', __( 'Lizenz:', 'blocksocial-woocommerce-sync' ) ),
 			'partner_added'     => array( 'ok', __( 'Partner angelegt. Verbindungscode unten kopieren und an den Partner geben.', 'blocksocial-woocommerce-sync' ) ),
 			'partner_updated'   => array( 'ok', __( 'Partner gespeichert und Vorgaben übertragen.', 'blocksocial-woocommerce-sync' ) ),
 			'partner_blocked'   => array( 'ok', __( 'Partner gesperrt.', 'blocksocial-woocommerce-sync' ) ),
@@ -145,7 +153,7 @@ $wcis_tabs = array(
 			'feed_missing'      => array( 'err', __( 'CSV-Feed nicht gefunden.', 'blocksocial-woocommerce-sync' ) ),
 			'feed_error'        => array( 'err', __( 'CSV-Feed konnte nicht erzeugt werden.', 'blocksocial-woocommerce-sync' ) ),
 		);
-		if ( in_array( $wcis_notice, array( 'partner_error', 'shopify_error', 'feed_error' ), true ) ) {
+		if ( in_array( $wcis_notice, array( 'partner_error', 'shopify_error', 'feed_error', 'license_error' ), true ) ) {
 			$wcis_err = get_transient( 'wcis_admin_error_' . get_current_user_id() );
 			if ( $wcis_err ) {
 				$wcis_messages[ $wcis_notice ][1] .= ' ' . $wcis_err;
@@ -607,7 +615,7 @@ $wcis_tabs = array(
 					?>
 					<div class="wcis-card">
 						<div class="wcis-card-head"><h2><?php esc_html_e( 'Produkte vom Hauptshop holen (Pull)', 'blocksocial-woocommerce-sync' ); ?></h2>
-							<p><?php echo esc_html( sprintf( __( 'Dieser Shop holt sich die Produkte des Hauptshops (%s) selbst – ideal für die erste Befüllung eines Neben-Shops, ohne dass der Hauptshop an alle verteilt.', 'blocksocial-woocommerce-sync' ), untrailingslashit( (string) $s['master_url'] ) ) ); ?></p></div>
+							<p><?php /* translators: %s: Adresse des Hauptshops */ echo esc_html( sprintf( __( 'Dieser Shop holt sich die Produkte des Hauptshops (%s) selbst – ideal für die erste Befüllung eines Neben-Shops, ohne dass der Hauptshop an alle verteilt.', 'blocksocial-woocommerce-sync' ), untrailingslashit( (string) $s['master_url'] ) ) ); ?></p></div>
 						<div class="wcis-card-body">
 							<?php if ( $wcis_master ) : ?>
 								<p class="wcis-hint"><?php esc_html_e( 'Dieser Shop ist selbst der Hauptshop – nutze oben „Alle Produkte übertragen".', 'blocksocial-woocommerce-sync' ); ?></p>

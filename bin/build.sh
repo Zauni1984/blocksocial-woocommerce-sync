@@ -68,3 +68,17 @@ rm -f "$OUT/blocksocial-woocommerce-sync-$VERSION.zip" "$OUT/blocksocial-woocomm
 echo "Gebaut:"
 echo "  $OUT/blocksocial-woocommerce-sync-$VERSION.zip"
 echo "  $OUT/blocksocial-woocommerce-sync-partner-$VERSION.zip"
+
+# Lizenzserver (für blocksocial.eu) – separat unter server/, NICHT Teil der
+# Plugin-Releases. Quelle: license-server/ (eigenes Repo) bzw. ../blocksocial-license-server/.
+for LS in "$SRC/license-server" "$SRC/../blocksocial-license-server"; do
+	if [ -f "$LS/blocksocial-license-server.php" ]; then
+		LV="$(sed -n 's/^ \* Version:[[:space:]]*\(.*\)$/\1/p' "$LS/blocksocial-license-server.php" | head -1)"
+		mkdir -p "$OUT/server" "$TMP/ls"
+		cp -R "$LS" "$TMP/ls/blocksocial-license-server"
+		rm -f "$OUT/server/blocksocial-license-server-$LV.zip"
+		( cd "$TMP/ls" && zip -rq "$OUT/server/blocksocial-license-server-$LV.zip" blocksocial-license-server )
+		echo "  $OUT/server/blocksocial-license-server-$LV.zip"
+		break
+	fi
+done

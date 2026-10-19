@@ -1,0 +1,504 @@
+# Copyright (C) 2026 BlockSocial UG (haftungsbeschränkt)
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: BlockSocial Lizenzserver 1.0.0\n"
+"Report-Msgid-Bugs-To: https://blocksocial.eu\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: BlockSocial <info@blocksocial.eu>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-19T20:13:58+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: blocksocial-license-server\n"
+
+#. Plugin Name of the plugin
+#: blocksocial-license-server.php
+msgid "BlockSocial Lizenzserver"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: blocksocial-license-server.php
+msgid "https://blocksocial.eu"
+msgstr ""
+
+#. Description of the plugin
+#: blocksocial-license-server.php
+msgid "Verkauf und Verwaltung von Plugin-Lizenzen über WooCommerce: Lizenzschlüssel beim Kauf, Plätze (verbundene Shops) je Lizenzstufe, Verlängerung und Upgrade im Kundenkonto, automatische Plugin-Updates für Lizenznehmer."
+msgstr ""
+
+#. Author of the plugin
+#: blocksocial-license-server.php
+msgid "BlockSocial UG (haftungsbeschränkt)"
+msgstr ""
+
+#: blocksocial-license-server.php:85
+msgid "BlockSocial Lizenzserver benötigt WooCommerce."
+msgstr ""
+
+#: includes/class-bsls-account.php:61
+#: includes/class-bsls-account.php:66
+#: includes/class-bsls-account.php:77
+#: includes/class-bsls-admin.php:33
+#: includes/class-bsls-admin.php:66
+#: includes/class-bsls-admin.php:71
+msgid "Lizenzen"
+msgstr ""
+
+#: includes/class-bsls-account.php:135
+msgid "Hauptshop freigegeben. Du kannst die Lizenz jetzt in einem anderen Hauptshop aktivieren."
+msgstr ""
+
+#: includes/class-bsls-account.php:152
+msgid "Du hast noch keine Lizenzen."
+msgstr ""
+
+#: includes/class-bsls-account.php:156
+#: includes/class-bsls-account.php:190
+msgid "Lizenzschlüssel"
+msgstr ""
+
+#: includes/class-bsls-account.php:156
+#: includes/class-bsls-admin.php:122
+#: includes/class-bsls-admin.php:171
+msgid "Stufe"
+msgstr ""
+
+#: includes/class-bsls-account.php:156
+msgid "Shops"
+msgstr ""
+
+#: includes/class-bsls-account.php:156
+#: includes/class-bsls-account.php:240
+msgid "Hauptshop"
+msgstr ""
+
+#: includes/class-bsls-account.php:156
+msgid "Gültig bis"
+msgstr ""
+
+#: includes/class-bsls-account.php:156
+#: includes/class-bsls-account.php:191
+#: includes/class-bsls-admin.php:178
+msgid "Status"
+msgstr ""
+
+#: includes/class-bsls-account.php:170
+msgid "Verwalten"
+msgstr ""
+
+#: includes/class-bsls-account.php:187
+#: includes/class-bsls-admin.php:166
+msgid "Alle Lizenzen"
+msgstr ""
+
+#: includes/class-bsls-account.php:192
+msgid "Plätze"
+msgstr ""
+
+#: includes/class-bsls-account.php:193
+msgid "Updates & Support bis"
+msgstr ""
+
+#: includes/class-bsls-account.php:197
+msgid "Verlängern"
+msgstr ""
+
+#. translators: %s: Stufe
+#: includes/class-bsls-account.php:203
+#, php-format
+msgid "Upgrade auf %s (unbegrenzt viele Shops)"
+msgstr ""
+
+#. translators: 1: Stufe, 2: Plätze
+#: includes/class-bsls-account.php:205
+#, php-format
+msgid "Upgrade auf %1$s (bis %2$d Shops)"
+msgstr ""
+
+#: includes/class-bsls-account.php:212
+msgid "Downloads"
+msgstr ""
+
+#: includes/class-bsls-account.php:214
+msgid "Downloads und Updates sind mit einer aktiven Lizenz verfügbar."
+msgstr ""
+
+#: includes/class-bsls-account.php:228
+msgid "Derzeit kein Download verfügbar."
+msgstr ""
+
+#: includes/class-bsls-account.php:230
+msgid "Admin-Plugin für Hauptshop und eigene Shops, Partner-Plugin für Partnershops. Updates kommen danach automatisch über WordPress."
+msgstr ""
+
+#: includes/class-bsls-account.php:235
+#: includes/class-bsls-admin.php:183
+msgid "Verbundene Shops"
+msgstr ""
+
+#: includes/class-bsls-account.php:237
+msgid "Noch nicht aktiviert. Trage den Schlüssel im Hauptshop unter WooCommerce → BlockSocial Sync → Lizenz ein."
+msgstr ""
+
+#: includes/class-bsls-account.php:241
+msgid "Eigener Shop"
+msgstr ""
+
+#: includes/class-bsls-account.php:242
+msgid "Partnershop"
+msgstr ""
+
+#: includes/class-bsls-account.php:243
+msgid "Shopify"
+msgstr ""
+
+#: includes/class-bsls-account.php:247
+msgid "abgedeckt"
+msgstr ""
+
+#: includes/class-bsls-account.php:247
+msgid "kein Platz frei"
+msgstr ""
+
+#: includes/class-bsls-account.php:250
+msgid "Hauptshop wirklich freigeben? Die Synchronisation pausiert, bis die Lizenz erneut aktiviert wird."
+msgstr ""
+
+#: includes/class-bsls-account.php:252
+msgid "Hauptshop freigeben (Umzug)"
+msgstr ""
+
+#: includes/class-bsls-admin.php:43
+msgid "Keine Berechtigung."
+msgstr ""
+
+#: includes/class-bsls-admin.php:71
+msgid "Releases & Updates"
+msgstr ""
+
+#: includes/class-bsls-admin.php:71
+msgid "Einstellungen"
+msgstr ""
+
+#: includes/class-bsls-admin.php:93
+msgid "Schlüssel, E-Mail, Shop, Bestellnr."
+msgstr ""
+
+#: includes/class-bsls-admin.php:93
+msgid "Suchen"
+msgstr ""
+
+#: includes/class-bsls-admin.php:100
+msgid "Keine Lizenzen gefunden."
+msgstr ""
+
+#: includes/class-bsls-admin.php:117
+msgid "Lizenz manuell anlegen"
+msgstr ""
+
+#: includes/class-bsls-admin.php:121
+#: includes/class-bsls-product.php:123
+msgid "Plugin"
+msgstr ""
+
+#: includes/class-bsls-admin.php:123
+#: includes/class-bsls-admin.php:172
+msgid "Plätze (0 = unbegrenzt)"
+msgstr ""
+
+#: includes/class-bsls-admin.php:124
+msgid "Laufzeit Monate (0 = lebenslang)"
+msgstr ""
+
+#: includes/class-bsls-admin.php:125
+msgid "E-Mail des Kunden"
+msgstr ""
+
+#: includes/class-bsls-admin.php:126
+#: includes/class-bsls-admin.php:180
+msgid "Notiz"
+msgstr ""
+
+#: includes/class-bsls-admin.php:127
+msgid "Lizenz anlegen"
+msgstr ""
+
+#: includes/class-bsls-admin.php:163
+msgid "Lizenz nicht gefunden."
+msgstr ""
+
+#: includes/class-bsls-admin.php:173
+msgid "Gültig bis (leer = lebenslang)"
+msgstr ""
+
+#: includes/class-bsls-admin.php:179
+msgid "E-Mail"
+msgstr ""
+
+#: includes/class-bsls-admin.php:181
+#: includes/class-bsls-admin.php:213
+#: includes/class-bsls-admin.php:246
+msgid "Speichern"
+msgstr ""
+
+#: includes/class-bsls-admin.php:187
+msgid "Noch nicht aktiviert."
+msgstr ""
+
+#: includes/class-bsls-admin.php:196
+msgid "Hauptshop freigeben"
+msgstr ""
+
+#: includes/class-bsls-admin.php:206
+msgid "GitHub (empfohlen)"
+msgstr ""
+
+#: includes/class-bsls-admin.php:207
+msgid "Das neueste GitHub-Release des Repositorys wird automatisch übernommen (stündlich). ZIP-Assets müssen <slug>-<version>.zip heißen – der Build-Workflow erledigt das. Das Token bleibt auf diesem Server; Kunden laden nur über signierte Links mit gültiger Lizenz."
+msgstr ""
+
+#: includes/class-bsls-admin.php:211
+msgid "Repository (owner/name)"
+msgstr ""
+
+#: includes/class-bsls-admin.php:212
+msgid "Zugriffstoken"
+msgstr ""
+
+#: includes/class-bsls-admin.php:212
+msgid "•••••• gespeichert – leer lassen zum Beibehalten"
+msgstr ""
+
+#: includes/class-bsls-admin.php:212
+msgid "Fine-grained Token, nur dieses Repository, Berechtigung „Contents: Read-only\"."
+msgstr ""
+
+#: includes/class-bsls-admin.php:216
+msgid "Jetzt bei GitHub nachsehen"
+msgstr ""
+
+#: includes/class-bsls-admin.php:221
+msgid "Aktuelle Versionen"
+msgstr ""
+
+#: includes/class-bsls-admin.php:225
+msgid "Noch kein Release."
+msgstr ""
+
+#: includes/class-bsls-admin.php:232
+msgid "Manueller Upload (Fallback)"
+msgstr ""
+
+#: includes/class-bsls-admin.php:235
+msgid "Hochladen"
+msgstr ""
+
+#: includes/class-bsls-admin.php:245
+msgid "Rabatt auf Verlängerungen (%)"
+msgstr ""
+
+#: includes/class-bsls-admin.php:247
+msgid "API"
+msgstr ""
+
+#: includes/class-bsls-admin.php:275
+#: includes/class-bsls-admin.php:327
+#: includes/class-bsls-admin.php:359
+msgid "Gespeichert."
+msgstr ""
+
+#: includes/class-bsls-admin.php:298
+msgid "Lizenz angelegt."
+msgstr ""
+
+#: includes/class-bsls-admin.php:308
+msgid "Hauptshop freigegeben."
+msgstr ""
+
+#. translators: %d: Anzahl
+#: includes/class-bsls-admin.php:337
+#, php-format
+msgid "%d Plugin-Version(en) bei GitHub gefunden."
+msgstr ""
+
+#: includes/class-bsls-admin.php:346
+msgid "Keine Datei gewählt."
+msgstr ""
+
+#: includes/class-bsls-api.php:54
+msgid "Zu viele Anfragen – bitte später erneut versuchen."
+msgstr ""
+
+#: includes/class-bsls-api.php:81
+msgid "Lizenzschlüssel ungültig."
+msgstr ""
+
+#: includes/class-bsls-api.php:107
+msgid "Shop-Adresse fehlt."
+msgstr ""
+
+#. translators: %s: Shop
+#: includes/class-bsls-api.php:114
+#, php-format
+msgid "Diese Lizenz ist bereits im Hauptshop %s aktiviert. Zum Umzug dort deaktivieren oder im Kundenkonto auf blocksocial.eu unter „Lizenzen\" freigeben."
+msgstr ""
+
+#: includes/class-bsls-api.php:164
+msgid "Die Lizenz ist für diesen Shop nicht (mehr) aktiviert."
+msgstr ""
+
+#: includes/class-bsls-api.php:187
+msgid "Kein Release für dieses Plugin vorhanden."
+msgstr ""
+
+#: includes/class-bsls-api.php:250
+msgid "Download-Link ungültig oder abgelaufen."
+msgstr ""
+
+#: includes/class-bsls-api.php:254
+msgid "Lizenz nicht aktiv."
+msgstr ""
+
+#: includes/class-bsls-api.php:258
+msgid "Kein Release vorhanden."
+msgstr ""
+
+#: includes/class-bsls-licenses.php:287
+msgid "Aktiv"
+msgstr ""
+
+#: includes/class-bsls-licenses.php:288
+msgid "Abgelaufen (Sync läuft weiter, keine Updates)"
+msgstr ""
+
+#: includes/class-bsls-licenses.php:289
+msgid "Widerrufen"
+msgstr ""
+
+#: includes/class-bsls-licenses.php:290
+msgid "Gesperrt"
+msgstr ""
+
+#: includes/class-bsls-licenses.php:302
+#: includes/class-bsls-orders.php:135
+msgid "unbegrenzt"
+msgstr ""
+
+#: includes/class-bsls-orders.php:73
+msgid "Verlängert"
+msgstr ""
+
+#: includes/class-bsls-orders.php:86
+msgid "Upgrade"
+msgstr ""
+
+#: includes/class-bsls-orders.php:183
+msgid "Diese Lizenz gehört nicht zu deinem Konto."
+msgstr ""
+
+#: includes/class-bsls-orders.php:191
+msgid "Dieses Lizenzprodukt ist derzeit nicht erhältlich."
+msgstr ""
+
+#: includes/class-bsls-orders.php:195
+msgid "Upgrade nur auf eine Stufe mit mehr Plätzen möglich."
+msgstr ""
+
+#: includes/class-bsls-orders.php:268
+msgid "Verlängerung für"
+msgstr ""
+
+#: includes/class-bsls-orders.php:271
+msgid "Upgrade für"
+msgstr ""
+
+#: includes/class-bsls-orders.php:362
+msgid "So aktivierst du deine Lizenz"
+msgstr ""
+
+#: includes/class-bsls-orders.php:363
+msgid "Plugin herunterladen: Mein Konto → Lizenzen → Download."
+msgstr ""
+
+#: includes/class-bsls-orders.php:364
+msgid "Im Hauptshop installieren und aktivieren (WordPress → Plugins → Installieren → Plugin hochladen)."
+msgstr ""
+
+#: includes/class-bsls-orders.php:365
+msgid "WooCommerce → BlockSocial Sync → Lizenz: Lizenzschlüssel einfügen → „Aktivieren\"."
+msgstr ""
+
+#: includes/class-bsls-orders.php:366
+msgid "Neben- und Partnershops brauchen keinen eigenen Schlüssel – sie werden über den Hauptshop abgedeckt."
+msgstr ""
+
+#: includes/class-bsls-product.php:113
+msgid "BlockSocial-Lizenz"
+msgstr ""
+
+#: includes/class-bsls-product.php:114
+msgid "Beim Kauf einen Lizenzschlüssel erzeugen"
+msgstr ""
+
+#: includes/class-bsls-product.php:133
+msgid "Lizenzstufe"
+msgstr ""
+
+#: includes/class-bsls-product.php:143
+msgid "Plätze (Shops)"
+msgstr ""
+
+#: includes/class-bsls-product.php:144
+msgid "Anzahl verbundener Shops inkl. Hauptshop. 0 = unbegrenzt."
+msgstr ""
+
+#: includes/class-bsls-product.php:155
+msgid "Laufzeit (Monate)"
+msgstr ""
+
+#: includes/class-bsls-product.php:156
+msgid "Updates & Support. 0 = lebenslang."
+msgstr ""
+
+#: includes/class-bsls-releases.php:109
+msgid "ZIP konnte nicht gespeichert werden."
+msgstr ""
+
+#: includes/class-bsls-releases.php:127
+msgid "PHP-Erweiterung „zip\" fehlt."
+msgstr ""
+
+#: includes/class-bsls-releases.php:131
+msgid "Keine gültige ZIP-Datei."
+msgstr ""
+
+#: includes/class-bsls-releases.php:163
+msgid "In der ZIP wurde kein Plugin mit Versionsangabe gefunden."
+msgstr ""
+
+#: includes/class-bsls-releases.php:286
+#, php-format
+msgid "GitHub antwortet mit HTTP %d."
+msgstr ""
+
+#. translators: %d: HTTP-Statuscode
+#: includes/class-bsls-releases.php:322
+#, php-format
+msgid "GitHub-Asset nicht abrufbar (HTTP %d)."
+msgstr ""
+
+#: includes/class-bsls-releases.php:326
+msgid "Download des GitHub-Assets fehlgeschlagen."
+msgstr ""
+
+#: includes/class-bsls-releases.php:345
+msgid "Release-Datei fehlt."
+msgstr ""
+
+#: includes/class-bsls-releases.php:356
+msgid "GitHub-Asset ist keine passende Plugin-ZIP."
+msgstr ""

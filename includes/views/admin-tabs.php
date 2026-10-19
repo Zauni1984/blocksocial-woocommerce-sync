@@ -578,3 +578,107 @@ $wcis_show_code = isset( $_GET['wcis_show_code'] ) ? sanitize_key( wp_unslash( $
 		</div>
 	</div>
 </section>
+
+<!-- TAB: Lizenz -->
+<?php
+$wcis_lrole  = WCIS_License::role();
+$wcis_ldata  = WCIS_License::data();
+$wcis_lstate = WCIS_License::state();
+$wcis_lbadge = WCIS_License::badge();
+?>
+<section class="wcis-tab" data-tab="license">
+	<?php if ( 'member' === $wcis_lrole ) : ?>
+		<?php $wcis_ml = (array) get_option( WCIS_License::MASTER_OPT, array() ); ?>
+		<div class="wcis-card">
+			<div class="wcis-card-head"><h2><?php esc_html_e( 'Lizenz', 'blocksocial-woocommerce-sync' ); ?></h2>
+				<p><?php esc_html_e( 'Dieser Shop ist ein Neben-Shop. Er braucht keinen eigenen Schlüssel – die Lizenz wird im Hauptshop eingetragen und deckt alle verbundenen Shops im Rahmen ihrer Plätze ab. Auch Updates kommen darüber.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+			<div class="wcis-card-body">
+				<p><span class="wcis-pill <?php echo esc_attr( $wcis_lbadge[0] ); ?>"><?php echo esc_html( $wcis_lbadge[1] ); ?></span>
+					<?php if ( ! empty( $wcis_ml['tier'] ) ) : ?> · <?php echo esc_html( sprintf( __( 'Hauptshop-Lizenz: %s', 'blocksocial-woocommerce-sync' ), $wcis_ml['tier'] ) ); ?><?php endif; ?>
+					<?php if ( ! empty( $wcis_ml['checked_at'] ) ) : ?> · <?php echo esc_html( sprintf( __( 'geprüft vor %s', 'blocksocial-woocommerce-sync' ), human_time_diff( (int) $wcis_ml['checked_at'] ) ) ); ?><?php endif; ?></p>
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+					<input type="hidden" name="action" value="wcis_license_check" />
+					<?php wp_nonce_field( 'wcis_license_check' ); ?>
+					<button type="submit" class="wcis-btn wcis-btn--ghost"><?php esc_html_e( 'Beim Hauptshop prüfen', 'blocksocial-woocommerce-sync' ); ?></button>
+				</form>
+			</div>
+		</div>
+	<?php else : ?>
+		<div class="wcis-card">
+			<div class="wcis-card-head"><h2><?php esc_html_e( 'Lizenz', 'blocksocial-woocommerce-sync' ); ?></h2>
+				<p><?php esc_html_e( 'Die Lizenz wird nur hier im Hauptshop eingetragen. Jeder verbundene Shop belegt einen Platz: Hauptshop, eigene Shops, Partnershops und Shopify-Shops. Neben- und Partnershops brauchen keinen eigenen Schlüssel.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+			<div class="wcis-card-body">
+				<p><span class="wcis-pill <?php echo esc_attr( $wcis_lbadge[0] ); ?>"><?php echo esc_html( $wcis_lbadge[1] ); ?></span></p>
+				<?php if ( '' === $wcis_ldata['key'] ) : ?>
+					<?php if ( 'trial' === $wcis_lstate ) : ?>
+						<p class="wcis-hint"><?php $wcis_days = WCIS_License::trial_days_left(); /* translators: %d: verbleibende Tage */ echo esc_html( sprintf( _n( 'Testphase: noch %d Tag mit vollem Funktionsumfang. Danach pausiert die Synchronisation, bis ein Lizenzschlüssel eingetragen ist.', 'Testphase: noch %d Tage mit vollem Funktionsumfang. Danach pausiert die Synchronisation, bis ein Lizenzschlüssel eingetragen ist.', $wcis_days, 'blocksocial-woocommerce-sync' ), $wcis_days ) ); ?></p>
+					<?php else : ?>
+						<div class="wcis-alert is-err"><?php esc_html_e( 'Die Testphase ist abgelaufen – die Synchronisation ist pausiert. Bitte einen Lizenzschlüssel eintragen.', 'blocksocial-woocommerce-sync' ); ?></div>
+					<?php endif; ?>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="wcis-actionrow">
+						<input type="hidden" name="action" value="wcis_license_activate" />
+						<?php wp_nonce_field( 'wcis_license_activate' ); ?>
+						<input type="text" name="license_key" class="code" placeholder="BSWS-XXXXX-XXXXX-XXXXX-XXXXX" style="min-width:340px" autocomplete="off" />
+						<button type="submit" class="wcis-btn wcis-btn--primary"><?php esc_html_e( 'Aktivieren', 'blocksocial-woocommerce-sync' ); ?></button>
+						<a class="wcis-btn wcis-btn--ghost" href="<?php echo esc_url( WCIS_License::shop_url() ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Lizenz kaufen', 'blocksocial-woocommerce-sync' ); ?></a>
+					</form>
+				<?php else : ?>
+					<table class="wcis-kv">
+						<tr><th><?php esc_html_e( 'Lizenzschlüssel', 'blocksocial-woocommerce-sync' ); ?></th><td><code><?php echo esc_html( WCIS_License::mask( $wcis_ldata['key'] ) ); ?></code></td></tr>
+						<tr><th><?php esc_html_e( 'Stufe', 'blocksocial-woocommerce-sync' ); ?></th><td><?php echo esc_html( $wcis_ldata['tier'] ); ?></td></tr>
+						<tr><th><?php esc_html_e( 'Plätze', 'blocksocial-woocommerce-sync' ); ?></th><td><?php echo esc_html( sprintf( '%1$d / %2$s', count( WCIS_License::seat_list() ) + 1, 0 === (int) $wcis_ldata['sites'] ? __( 'unbegrenzt', 'blocksocial-woocommerce-sync' ) : (int) $wcis_ldata['sites'] ) ); ?></td></tr>
+						<tr><th><?php esc_html_e( 'Updates & Support bis', 'blocksocial-woocommerce-sync' ); ?></th><td><?php echo esc_html( $wcis_ldata['expires'] ? date_i18n( get_option( 'date_format' ), strtotime( $wcis_ldata['expires'] ) ) : __( 'unbegrenzt', 'blocksocial-woocommerce-sync' ) ); ?></td></tr>
+						<tr><th><?php esc_html_e( 'Zuletzt geprüft', 'blocksocial-woocommerce-sync' ); ?></th><td><?php echo esc_html( $wcis_ldata['checked_at'] ? sprintf( __( 'vor %s', 'blocksocial-woocommerce-sync' ), human_time_diff( (int) $wcis_ldata['checked_at'] ) ) : '–' ); ?><?php if ( '' !== $wcis_ldata['message'] ) : ?> – <?php echo esc_html( $wcis_ldata['message'] ); ?><?php endif; ?></td></tr>
+					</table>
+					<div class="wcis-actionrow">
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+							<input type="hidden" name="action" value="wcis_license_check" />
+							<?php wp_nonce_field( 'wcis_license_check' ); ?>
+							<button type="submit" class="wcis-btn wcis-btn--ghost"><?php esc_html_e( 'Jetzt prüfen', 'blocksocial-woocommerce-sync' ); ?></button>
+						</form>
+						<?php if ( '' !== $wcis_ldata['account_url'] ) : ?>
+							<a class="wcis-btn wcis-btn--ghost" href="<?php echo esc_url( $wcis_ldata['account_url'] ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Verlängern / Upgrade', 'blocksocial-woocommerce-sync' ); ?></a>
+						<?php endif; ?>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" data-confirm="<?php esc_attr_e( 'Lizenz in diesem Shop deaktivieren? Nach der Testphase pausiert die Synchronisation, bis sie wieder aktiviert ist.', 'blocksocial-woocommerce-sync' ); ?>">
+							<input type="hidden" name="action" value="wcis_license_deactivate" />
+							<?php wp_nonce_field( 'wcis_license_deactivate' ); ?>
+							<button type="submit" class="wcis-btn wcis-btn--ghost"><?php esc_html_e( 'Deaktivieren (Umzug)', 'blocksocial-woocommerce-sync' ); ?></button>
+						</form>
+					</div>
+				<?php endif; ?>
+			</div>
+		</div>
+
+		<div class="wcis-card">
+			<div class="wcis-card-head"><h2><?php esc_html_e( 'Verbundene Shops & Plätze', 'blocksocial-woocommerce-sync' ); ?></h2>
+				<p><?php esc_html_e( 'Reihenfolge der Plätze: Hauptshop, eigene Shops (wie unter Netzwerk eingetragen), Partner, Shopify. Shops ohne freien Platz werden nicht beliefert.', 'blocksocial-woocommerce-sync' ); ?></p></div>
+			<div class="wcis-card-body">
+				<div class="wcis-logwrap">
+					<table class="wcis-log wcis-table">
+						<thead><tr><th>#</th><th><?php esc_html_e( 'Shop', 'blocksocial-woocommerce-sync' ); ?></th><th><?php esc_html_e( 'Art', 'blocksocial-woocommerce-sync' ); ?></th><th><?php esc_html_e( 'Lizenz', 'blocksocial-woocommerce-sync' ); ?></th></tr></thead>
+						<tbody>
+							<tr><td>1</td><td><code><?php echo esc_html( WCIS_Settings::this_url() ); ?></code></td><td><?php esc_html_e( 'Hauptshop', 'blocksocial-woocommerce-sync' ); ?></td><td>✓</td></tr>
+							<?php
+							$wcis_roles = array(
+								'network' => __( 'Eigener Shop', 'blocksocial-woocommerce-sync' ),
+								'partner' => __( 'Partner', 'blocksocial-woocommerce-sync' ),
+								'shopify' => __( 'Shopify', 'blocksocial-woocommerce-sync' ),
+							);
+							$wcis_i = 2;
+							foreach ( WCIS_License::seat_list() as $wcis_seat ) :
+								$wcis_ok = WCIS_License::is_covered( $wcis_seat['url'] );
+								?>
+								<tr>
+									<td><?php echo (int) $wcis_i++; ?></td>
+									<td><strong><?php echo esc_html( $wcis_seat['name'] ); ?></strong><br /><code><?php echo esc_html( $wcis_seat['url'] ); ?></code></td>
+									<td><?php echo esc_html( isset( $wcis_roles[ $wcis_seat['role'] ] ) ? $wcis_roles[ $wcis_seat['role'] ] : $wcis_seat['role'] ); ?></td>
+									<td><?php echo $wcis_ok ? '✓' : '<span class="wcis-err-text">✗ ' . esc_html__( 'kein Platz frei', 'blocksocial-woocommerce-sync' ) . '</span>'; ?></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	<?php endif; ?>
+</section>

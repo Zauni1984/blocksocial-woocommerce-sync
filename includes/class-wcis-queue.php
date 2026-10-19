@@ -122,7 +122,7 @@ class WCIS_Queue {
 			$error = is_wp_error( $result ) ? $result->get_error_message() : ( 'HTTP ' . $result['code'] );
 
 			// Ziel ist kein (aktiver) Empfänger mehr (Shop entfernt, Partner gesperrt) → verwerfen.
-			if ( is_wp_error( $result ) && 'wcis_no_credentials' === $result->get_error_code() ) {
+			if ( is_wp_error( $result ) && in_array( $result->get_error_code(), array( 'wcis_no_credentials', 'wcis_license' ), true ) ) {
 				self::mark_failed( (int) $row['id'], $error, $attempts );
 				continue;
 			}

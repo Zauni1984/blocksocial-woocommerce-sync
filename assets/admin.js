@@ -81,7 +81,7 @@
 			var $result = $row.find( '.wcis-test-result' );
 
 			if ( ! url ) {
-				$result.removeClass( 'ok' ).addClass( 'err' ).text( '✗ URL fehlt' );
+				$result.removeClass( 'ok' ).addClass( 'err' ).text( '✗ ' + WCIS.i18n.urlMissing );
 				return;
 			}
 
@@ -96,10 +96,10 @@
 				if ( resp && resp.success ) {
 					$result.removeClass( 'err' ).addClass( 'ok' ).text( '✓ ' + resp.data.message );
 				} else {
-					$result.removeClass( 'ok' ).addClass( 'err' ).text( '✗ ' + ( resp.data ? resp.data.message : 'Fehler' ) );
+					$result.removeClass( 'ok' ).addClass( 'err' ).text( '✗ ' + ( resp.data ? resp.data.message : WCIS.i18n.genericError ) );
 				}
 			} ).fail( function () {
-				$result.removeClass( 'ok' ).addClass( 'err' ).text( '✗ Anfrage fehlgeschlagen' );
+				$result.removeClass( 'ok' ).addClass( 'err' ).text( '✗ ' + WCIS.i18n.requestFailed );
 			} ).always( function () {
 				$btn.prop( 'disabled', false );
 			} );

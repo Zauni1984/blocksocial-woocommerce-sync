@@ -19,7 +19,7 @@ foreach ( array( 'blocksocial-woocommerce-sync/blocksocial-woocommerce-sync.php'
 }
 
 // Optionen entfernen.
-foreach ( array( 'wcis_settings', 'wcis_fullsync_job', 'wcis_productsync_job', 'wcis_productpull_job', 'wcis_db_version', 'wcis_partners', 'wcis_shopify_stores', 'wcis_pricing_job', 'wcis_shopify_job', 'wcis_reprice_offset', 'wcis_feeds', 'wcis_cleanup_job', 'wcis_cleanup_master', 'wcis_cleanup_ids' ) as $wcis_opt ) {
+foreach ( array( 'wcis_settings', 'wcis_fullsync_job', 'wcis_productsync_job', 'wcis_productpull_job', 'wcis_db_version', 'wcis_partners', 'wcis_shopify_stores', 'wcis_pricing_job', 'wcis_shopify_job', 'wcis_reprice_offset', 'wcis_feeds', 'wcis_cleanup_job', 'wcis_cleanup_master', 'wcis_cleanup_ids', 'wcis_license', 'wcis_master_license' ) as $wcis_opt ) {
 	delete_option( $wcis_opt );
 }
 
@@ -32,6 +32,7 @@ foreach ( array( 'wcis_fullsync_result', 'wcis_pushconfig_result', 'wcis_fullsyn
 wp_clear_scheduled_hook( 'wcis_process_queue' );
 wp_clear_scheduled_hook( 'wcis_daily_cleanup' );
 wp_clear_scheduled_hook( 'wcis_reconcile' );
+wp_clear_scheduled_hook( 'wcis_license_daily' );
 wp_clear_scheduled_hook( 'wcis_reprice_batch' );
 wp_clear_scheduled_hook( 'wcis_feed_refresh' );
 

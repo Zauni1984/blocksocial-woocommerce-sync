@@ -74,6 +74,7 @@ class WCIS_Install {
 		wp_clear_scheduled_hook( 'wcis_process_queue' );
 		wp_clear_scheduled_hook( 'wcis_daily_cleanup' );
 		wp_clear_scheduled_hook( 'wcis_reconcile' );
+		wp_clear_scheduled_hook( 'wcis_license_daily' );
 		flush_rewrite_rules();
 	}
 

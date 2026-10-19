@@ -1,0 +1,545 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: BlockSocial Lizenzserver 1.0.0\n"
+"Report-Msgid-Bugs-To: https://blocksocial.eu\n"
+"POT-Creation-Date: 2026-10-19T20:13:58+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: BlockSocial <info@blocksocial.eu>\n"
+"Language: pl_PL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Domain: blocksocial-license-server\n"
+"X-Generator: WP-CLI 2.12.0\n"
+
+#. Plugin Name of the plugin
+#: blocksocial-license-server.php
+msgid "BlockSocial Lizenzserver"
+msgstr "BlockSocial Lizenzserver"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: blocksocial-license-server.php
+msgid "https://blocksocial.eu"
+msgstr "https://blocksocial.eu"
+
+#. Description of the plugin
+#: blocksocial-license-server.php
+msgid ""
+"Verkauf und Verwaltung von Plugin-Lizenzen über WooCommerce: Lizenzschlüssel"
+" beim Kauf, Plätze (verbundene Shops) je Lizenzstufe, Verlängerung und "
+"Upgrade im Kundenkonto, automatische Plugin-Updates für Lizenznehmer."
+msgstr ""
+"Sprzedaż i zarządzanie licencjami wtyczek przez WooCommerce: klucz "
+"licencyjny przy zakupie, stanowiska (połączone sklepy) zależne od poziomu "
+"licencji, przedłużenie i upgrade na koncie klienta, automatyczne "
+"aktualizacje wtyczek dla licencjobiorców."
+
+#. Author of the plugin
+#: blocksocial-license-server.php
+msgid "BlockSocial UG (haftungsbeschränkt)"
+msgstr "BlockSocial UG (haftungsbeschränkt)"
+
+#: blocksocial-license-server.php:85
+msgid "BlockSocial Lizenzserver benötigt WooCommerce."
+msgstr "BlockSocial Lizenzserver wymaga WooCommerce."
+
+#: includes/class-bsls-account.php:61 includes/class-bsls-account.php:66
+#: includes/class-bsls-account.php:77 includes/class-bsls-admin.php:33
+#: includes/class-bsls-admin.php:66 includes/class-bsls-admin.php:71
+msgid "Lizenzen"
+msgstr "Licencje"
+
+#: includes/class-bsls-account.php:135
+msgid ""
+"Hauptshop freigegeben. Du kannst die Lizenz jetzt in einem anderen Hauptshop"
+" aktivieren."
+msgstr ""
+"Sklep główny został zwolniony. Możesz teraz aktywować licencję w innym "
+"sklepie głównym."
+
+#: includes/class-bsls-account.php:152
+msgid "Du hast noch keine Lizenzen."
+msgstr "Nie masz jeszcze żadnych licencji."
+
+#: includes/class-bsls-account.php:156 includes/class-bsls-account.php:190
+msgid "Lizenzschlüssel"
+msgstr "Klucz licencyjny"
+
+#: includes/class-bsls-account.php:156 includes/class-bsls-admin.php:122
+#: includes/class-bsls-admin.php:171
+msgid "Stufe"
+msgstr "Poziom"
+
+#: includes/class-bsls-account.php:156
+msgid "Shops"
+msgstr "Sklepy"
+
+#: includes/class-bsls-account.php:156 includes/class-bsls-account.php:240
+msgid "Hauptshop"
+msgstr "Sklep główny"
+
+#: includes/class-bsls-account.php:156
+msgid "Gültig bis"
+msgstr "Ważna do"
+
+#: includes/class-bsls-account.php:156 includes/class-bsls-account.php:191
+#: includes/class-bsls-admin.php:178
+msgid "Status"
+msgstr "Status"
+
+#: includes/class-bsls-account.php:170
+msgid "Verwalten"
+msgstr "Zarządzaj"
+
+#: includes/class-bsls-account.php:187 includes/class-bsls-admin.php:166
+msgid "Alle Lizenzen"
+msgstr "Wszystkie licencje"
+
+#: includes/class-bsls-account.php:192
+msgid "Plätze"
+msgstr "Stanowiska"
+
+#: includes/class-bsls-account.php:193
+msgid "Updates & Support bis"
+msgstr "Aktualizacje i wsparcie do"
+
+#: includes/class-bsls-account.php:197
+msgid "Verlängern"
+msgstr "Przedłuż"
+
+#. translators: %s: Stufe
+#: includes/class-bsls-account.php:203
+#, php-format
+msgid "Upgrade auf %s (unbegrenzt viele Shops)"
+msgstr "Upgrade do %s (nieograniczona liczba sklepów)"
+
+#. translators: 1: Stufe, 2: Plätze
+#: includes/class-bsls-account.php:205
+#, php-format
+msgid "Upgrade auf %1$s (bis %2$d Shops)"
+msgstr "Upgrade do %1$s (do %2$d sklepów)"
+
+#: includes/class-bsls-account.php:212
+msgid "Downloads"
+msgstr "Pliki do pobrania"
+
+#: includes/class-bsls-account.php:214
+msgid "Downloads und Updates sind mit einer aktiven Lizenz verfügbar."
+msgstr "Pobieranie plików i aktualizacje są dostępne przy aktywnej licencji."
+
+#: includes/class-bsls-account.php:228
+msgid "Derzeit kein Download verfügbar."
+msgstr "Obecnie brak plików do pobrania."
+
+#: includes/class-bsls-account.php:230
+msgid ""
+"Admin-Plugin für Hauptshop und eigene Shops, Partner-Plugin für "
+"Partnershops. Updates kommen danach automatisch über WordPress."
+msgstr ""
+"Wtyczka administracyjna dla sklepu głównego i własnych sklepów, wtyczka "
+"partnerska dla sklepów partnerskich. Kolejne aktualizacje są instalowane "
+"automatycznie przez WordPress."
+
+#: includes/class-bsls-account.php:235 includes/class-bsls-admin.php:183
+msgid "Verbundene Shops"
+msgstr "Połączone sklepy"
+
+#: includes/class-bsls-account.php:237
+msgid ""
+"Noch nicht aktiviert. Trage den Schlüssel im Hauptshop unter WooCommerce → "
+"BlockSocial Sync → Lizenz ein."
+msgstr ""
+"Jeszcze nieaktywowana. Wpisz klucz w sklepie głównym w WooCommerce → "
+"BlockSocial Sync → Licencja."
+
+#: includes/class-bsls-account.php:241
+msgid "Eigener Shop"
+msgstr "Własny sklep"
+
+#: includes/class-bsls-account.php:242
+msgid "Partnershop"
+msgstr "Sklep partnerski"
+
+#: includes/class-bsls-account.php:243
+msgid "Shopify"
+msgstr "Shopify"
+
+#: includes/class-bsls-account.php:247
+msgid "abgedeckt"
+msgstr "objęty licencją"
+
+#: includes/class-bsls-account.php:247
+msgid "kein Platz frei"
+msgstr "brak wolnego stanowiska"
+
+#: includes/class-bsls-account.php:250
+msgid ""
+"Hauptshop wirklich freigeben? Die Synchronisation pausiert, bis die Lizenz "
+"erneut aktiviert wird."
+msgstr ""
+"Czy na pewno zwolnić sklep główny? Synchronizacja zostanie wstrzymana do "
+"ponownej aktywacji licencji."
+
+#: includes/class-bsls-account.php:252
+msgid "Hauptshop freigeben (Umzug)"
+msgstr "Zwolnij sklep główny (przeprowadzka)"
+
+#: includes/class-bsls-admin.php:43
+msgid "Keine Berechtigung."
+msgstr "Brak uprawnień."
+
+#: includes/class-bsls-admin.php:71
+msgid "Releases & Updates"
+msgstr "Wydania i aktualizacje"
+
+#: includes/class-bsls-admin.php:71
+msgid "Einstellungen"
+msgstr "Ustawienia"
+
+#: includes/class-bsls-admin.php:93
+msgid "Schlüssel, E-Mail, Shop, Bestellnr."
+msgstr "Klucz, e-mail, sklep, nr zamówienia"
+
+#: includes/class-bsls-admin.php:93
+msgid "Suchen"
+msgstr "Szukaj"
+
+#: includes/class-bsls-admin.php:100
+msgid "Keine Lizenzen gefunden."
+msgstr "Nie znaleziono licencji."
+
+#: includes/class-bsls-admin.php:117
+msgid "Lizenz manuell anlegen"
+msgstr "Utwórz licencję ręcznie"
+
+#: includes/class-bsls-admin.php:121 includes/class-bsls-product.php:123
+msgid "Plugin"
+msgstr "Wtyczka"
+
+#: includes/class-bsls-admin.php:123 includes/class-bsls-admin.php:172
+msgid "Plätze (0 = unbegrenzt)"
+msgstr "Stanowiska (0 = bez limitu)"
+
+#: includes/class-bsls-admin.php:124
+msgid "Laufzeit Monate (0 = lebenslang)"
+msgstr "Okres ważności w miesiącach (0 = dożywotnio)"
+
+#: includes/class-bsls-admin.php:125
+msgid "E-Mail des Kunden"
+msgstr "E-mail klienta"
+
+#: includes/class-bsls-admin.php:126 includes/class-bsls-admin.php:180
+msgid "Notiz"
+msgstr "Notatka"
+
+#: includes/class-bsls-admin.php:127
+msgid "Lizenz anlegen"
+msgstr "Utwórz licencję"
+
+#: includes/class-bsls-admin.php:163
+msgid "Lizenz nicht gefunden."
+msgstr "Nie znaleziono licencji."
+
+#: includes/class-bsls-admin.php:173
+msgid "Gültig bis (leer = lebenslang)"
+msgstr "Ważna do (puste = dożywotnio)"
+
+#: includes/class-bsls-admin.php:179
+msgid "E-Mail"
+msgstr "E-mail"
+
+#: includes/class-bsls-admin.php:181 includes/class-bsls-admin.php:213
+#: includes/class-bsls-admin.php:246
+msgid "Speichern"
+msgstr "Zapisz"
+
+#: includes/class-bsls-admin.php:187
+msgid "Noch nicht aktiviert."
+msgstr "Jeszcze nieaktywowana."
+
+#: includes/class-bsls-admin.php:196
+msgid "Hauptshop freigeben"
+msgstr "Zwolnij sklep główny"
+
+#: includes/class-bsls-admin.php:206
+msgid "GitHub (empfohlen)"
+msgstr "GitHub (zalecane)"
+
+#: includes/class-bsls-admin.php:207
+msgid ""
+"Das neueste GitHub-Release des Repositorys wird automatisch übernommen "
+"(stündlich). ZIP-Assets müssen <slug>-<version>.zip heißen – der Build-"
+"Workflow erledigt das. Das Token bleibt auf diesem Server; Kunden laden nur "
+"über signierte Links mit gültiger Lizenz."
+msgstr ""
+"Najnowsze wydanie GitHub z repozytorium jest pobierane automatycznie (co "
+"godzinę). Pliki ZIP muszą mieć nazwę <slug>-<version>.zip – workflow "
+"budowania robi to automatycznie. Token pozostaje na tym serwerze; klienci "
+"pobierają pliki tylko przez podpisane linki z ważną licencją."
+
+#: includes/class-bsls-admin.php:211
+msgid "Repository (owner/name)"
+msgstr "Repozytorium (owner/name)"
+
+#: includes/class-bsls-admin.php:212
+msgid "Zugriffstoken"
+msgstr "Token dostępu"
+
+#: includes/class-bsls-admin.php:212
+msgid "•••••• gespeichert – leer lassen zum Beibehalten"
+msgstr "•••••• zapisano – pozostaw puste, aby zachować"
+
+#: includes/class-bsls-admin.php:212
+msgid ""
+"Fine-grained Token, nur dieses Repository, Berechtigung „Contents: Read-"
+"only\"."
+msgstr ""
+"Token typu fine-grained, tylko to repozytorium, uprawnienie „Contents: Read-"
+"only”."
+
+#: includes/class-bsls-admin.php:216
+msgid "Jetzt bei GitHub nachsehen"
+msgstr "Sprawdź teraz w GitHub"
+
+#: includes/class-bsls-admin.php:221
+msgid "Aktuelle Versionen"
+msgstr "Aktualne wersje"
+
+#: includes/class-bsls-admin.php:225
+msgid "Noch kein Release."
+msgstr "Brak wydań."
+
+#: includes/class-bsls-admin.php:232
+msgid "Manueller Upload (Fallback)"
+msgstr "Ręczne przesyłanie (awaryjnie)"
+
+#: includes/class-bsls-admin.php:235
+msgid "Hochladen"
+msgstr "Prześlij"
+
+#: includes/class-bsls-admin.php:245
+msgid "Rabatt auf Verlängerungen (%)"
+msgstr "Rabat na przedłużenia (%)"
+
+#: includes/class-bsls-admin.php:247
+msgid "API"
+msgstr "API"
+
+#: includes/class-bsls-admin.php:275 includes/class-bsls-admin.php:327
+#: includes/class-bsls-admin.php:359
+msgid "Gespeichert."
+msgstr "Zapisano."
+
+#: includes/class-bsls-admin.php:298
+msgid "Lizenz angelegt."
+msgstr "Utworzono licencję."
+
+#: includes/class-bsls-admin.php:308
+msgid "Hauptshop freigegeben."
+msgstr "Zwolniono sklep główny."
+
+#. translators: %d: Anzahl
+#: includes/class-bsls-admin.php:337
+#, php-format
+msgid "%d Plugin-Version(en) bei GitHub gefunden."
+msgstr "Znaleziono wersje wtyczki w GitHub: %d."
+
+#: includes/class-bsls-admin.php:346
+msgid "Keine Datei gewählt."
+msgstr "Nie wybrano pliku."
+
+#: includes/class-bsls-api.php:54
+msgid "Zu viele Anfragen – bitte später erneut versuchen."
+msgstr "Zbyt wiele żądań – spróbuj ponownie później."
+
+#: includes/class-bsls-api.php:81
+msgid "Lizenzschlüssel ungültig."
+msgstr "Nieprawidłowy klucz licencyjny."
+
+#: includes/class-bsls-api.php:107
+msgid "Shop-Adresse fehlt."
+msgstr "Brak adresu sklepu."
+
+#. translators: %s: Shop
+#: includes/class-bsls-api.php:114
+#, php-format
+msgid ""
+"Diese Lizenz ist bereits im Hauptshop %s aktiviert. Zum Umzug dort "
+"deaktivieren oder im Kundenkonto auf blocksocial.eu unter „Lizenzen\" "
+"freigeben."
+msgstr ""
+"Ta licencja jest już aktywowana w sklepie głównym %s. Aby przenieść "
+"licencję, dezaktywuj ją tam lub zwolnij na koncie klienta na blocksocial.eu "
+"w sekcji „Licencje”."
+
+#: includes/class-bsls-api.php:164
+msgid "Die Lizenz ist für diesen Shop nicht (mehr) aktiviert."
+msgstr "Licencja nie jest (już) aktywowana dla tego sklepu."
+
+#: includes/class-bsls-api.php:187
+msgid "Kein Release für dieses Plugin vorhanden."
+msgstr "Brak wydania dla tej wtyczki."
+
+#: includes/class-bsls-api.php:250
+msgid "Download-Link ungültig oder abgelaufen."
+msgstr "Link do pobrania jest nieprawidłowy lub wygasł."
+
+#: includes/class-bsls-api.php:254
+msgid "Lizenz nicht aktiv."
+msgstr "Licencja nieaktywna."
+
+#: includes/class-bsls-api.php:258
+msgid "Kein Release vorhanden."
+msgstr "Brak wydania."
+
+#: includes/class-bsls-licenses.php:287
+msgid "Aktiv"
+msgstr "Aktywna"
+
+#: includes/class-bsls-licenses.php:288
+msgid "Abgelaufen (Sync läuft weiter, keine Updates)"
+msgstr "Wygasła (synchronizacja działa dalej, bez aktualizacji)"
+
+#: includes/class-bsls-licenses.php:289
+msgid "Widerrufen"
+msgstr "Unieważniona"
+
+#: includes/class-bsls-licenses.php:290
+msgid "Gesperrt"
+msgstr "Zablokowana"
+
+#: includes/class-bsls-licenses.php:302 includes/class-bsls-orders.php:135
+msgid "unbegrenzt"
+msgstr "bez limitu"
+
+#: includes/class-bsls-orders.php:73
+msgid "Verlängert"
+msgstr "Przedłużona"
+
+#: includes/class-bsls-orders.php:86
+msgid "Upgrade"
+msgstr "Upgrade"
+
+#: includes/class-bsls-orders.php:183
+msgid "Diese Lizenz gehört nicht zu deinem Konto."
+msgstr "Ta licencja nie należy do twojego konta."
+
+#: includes/class-bsls-orders.php:191
+msgid "Dieses Lizenzprodukt ist derzeit nicht erhältlich."
+msgstr "Ten produkt licencyjny jest obecnie niedostępny."
+
+#: includes/class-bsls-orders.php:195
+msgid "Upgrade nur auf eine Stufe mit mehr Plätzen möglich."
+msgstr "Upgrade jest możliwy tylko do poziomu z większą liczbą stanowisk."
+
+#: includes/class-bsls-orders.php:268
+msgid "Verlängerung für"
+msgstr "Przedłużenie dla"
+
+#: includes/class-bsls-orders.php:271
+msgid "Upgrade für"
+msgstr "Upgrade dla"
+
+#: includes/class-bsls-orders.php:362
+msgid "So aktivierst du deine Lizenz"
+msgstr "Jak aktywować licencję"
+
+#: includes/class-bsls-orders.php:363
+msgid "Plugin herunterladen: Mein Konto → Lizenzen → Download."
+msgstr "Pobierz wtyczkę: Moje konto → Licencje → Pobierz."
+
+#: includes/class-bsls-orders.php:364
+msgid ""
+"Im Hauptshop installieren und aktivieren (WordPress → Plugins → Installieren"
+" → Plugin hochladen)."
+msgstr ""
+"Zainstaluj i włącz ją w sklepie głównym (WordPress → Wtyczki → Dodaj nową → "
+"Wyślij wtyczkę na serwer)."
+
+#: includes/class-bsls-orders.php:365
+msgid ""
+"WooCommerce → BlockSocial Sync → Lizenz: Lizenzschlüssel einfügen → "
+"„Aktivieren\"."
+msgstr ""
+"WooCommerce → BlockSocial Sync → Licencja: wklej klucz licencyjny → "
+"„Aktywuj”."
+
+#: includes/class-bsls-orders.php:366
+msgid ""
+"Neben- und Partnershops brauchen keinen eigenen Schlüssel – sie werden über "
+"den Hauptshop abgedeckt."
+msgstr ""
+"Sklepy dodatkowe i partnerskie nie potrzebują własnego klucza – są objęte "
+"licencją sklepu głównego."
+
+#: includes/class-bsls-product.php:113
+msgid "BlockSocial-Lizenz"
+msgstr "Licencja BlockSocial"
+
+#: includes/class-bsls-product.php:114
+msgid "Beim Kauf einen Lizenzschlüssel erzeugen"
+msgstr "Generuj klucz licencyjny przy zakupie"
+
+#: includes/class-bsls-product.php:133
+msgid "Lizenzstufe"
+msgstr "Poziom licencji"
+
+#: includes/class-bsls-product.php:143
+msgid "Plätze (Shops)"
+msgstr "Stanowiska (sklepy)"
+
+#: includes/class-bsls-product.php:144
+msgid "Anzahl verbundener Shops inkl. Hauptshop. 0 = unbegrenzt."
+msgstr ""
+"Liczba połączonych sklepów łącznie ze sklepem głównym. 0 = bez limitu."
+
+#: includes/class-bsls-product.php:155
+msgid "Laufzeit (Monate)"
+msgstr "Okres ważności (miesiące)"
+
+#: includes/class-bsls-product.php:156
+msgid "Updates & Support. 0 = lebenslang."
+msgstr "Aktualizacje i wsparcie. 0 = dożywotnio."
+
+#: includes/class-bsls-releases.php:109
+msgid "ZIP konnte nicht gespeichert werden."
+msgstr "Nie udało się zapisać pliku ZIP."
+
+#: includes/class-bsls-releases.php:127
+msgid "PHP-Erweiterung „zip\" fehlt."
+msgstr "Brak rozszerzenia PHP „zip”."
+
+#: includes/class-bsls-releases.php:131
+msgid "Keine gültige ZIP-Datei."
+msgstr "To nie jest prawidłowy plik ZIP."
+
+#: includes/class-bsls-releases.php:163
+msgid "In der ZIP wurde kein Plugin mit Versionsangabe gefunden."
+msgstr "W pliku ZIP nie znaleziono wtyczki z informacją o wersji."
+
+#: includes/class-bsls-releases.php:286
+#, php-format
+msgid "GitHub antwortet mit HTTP %d."
+msgstr "GitHub odpowiada kodem HTTP %d."
+
+#. translators: %d: HTTP-Statuscode
+#: includes/class-bsls-releases.php:322
+#, php-format
+msgid "GitHub-Asset nicht abrufbar (HTTP %d)."
+msgstr "Nie można pobrać zasobu GitHub (HTTP %d)."
+
+#: includes/class-bsls-releases.php:326
+msgid "Download des GitHub-Assets fehlgeschlagen."
+msgstr "Pobieranie zasobu GitHub nie powiodło się."
+
+#: includes/class-bsls-releases.php:345
+msgid "Release-Datei fehlt."
+msgstr "Brak pliku wydania."
+
+#: includes/class-bsls-releases.php:356
+msgid "GitHub-Asset ist keine passende Plugin-ZIP."
+msgstr "Zasób GitHub nie jest pasującym plikiem ZIP wtyczki."

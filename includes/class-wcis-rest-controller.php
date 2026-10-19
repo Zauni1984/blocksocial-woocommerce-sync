@@ -86,6 +86,11 @@ class WCIS_REST_Controller {
 			);
 			return new WP_Error( 'wcis_forbidden', __( 'Für diesen Shop nicht erlaubt.', 'blocksocial-woocommerce-sync' ), array( 'status' => 403 ) );
 		}
+		// Lizenz: nur abgedeckte Shops werden bedient (Plätze).
+		$blocked = WCIS_License::inbound_block( $caller, $request->get_route() );
+		if ( $blocked ) {
+			return $blocked;
+		}
 		return true;
 	}
 
@@ -114,6 +119,7 @@ class WCIS_REST_Controller {
 				'version'   => WCIS_VERSION,
 				'edition'   => WCIS_Edition::current(),
 				'is_master' => WCIS_Settings::is_master(),
+				'license'   => WCIS_License::ping_info( (string) $request->get_header( 'x_wcis_from' ) ),
 			),
 			200
 		);

@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // -----------------------------------------------------------------------------
 // Konstanten
 // -----------------------------------------------------------------------------
-define( 'WCIS_VERSION', '3.1.2' );
+define( 'WCIS_VERSION', '3.2.0' );
 define( 'WCIS_PATH', plugin_dir_path( WCIS_FILE ) );
 define( 'WCIS_URL', plugin_dir_url( WCIS_FILE ) );
 define( 'WCIS_BASENAME', plugin_basename( WCIS_FILE ) );
@@ -58,12 +58,40 @@ register_activation_hook( WCIS_FILE, array( 'WCIS_Install', 'activate' ) );
 register_deactivation_hook( WCIS_FILE, array( 'WCIS_Install', 'deactivate' ) );
 
 // -----------------------------------------------------------------------------
+// Übersetzungen (Deutsch ist die Ausgangssprache).
+// -----------------------------------------------------------------------------
+
+/**
+ * Lädt die Übersetzung passend zur Sprache der Website bzw. des Benutzers.
+ * Gibt es keine Datei für die genaue Sprachvariante (z. B. fr_CH, en_GB,
+ * es_MX), wird eine Variante derselben Sprache verwendet (fr_FR, en_US, es_ES).
+ */
+function wcis_load_translations( $locale = '' ) {
+	$domain = 'blocksocial-woocommerce-sync';
+	$locale = '' !== (string) $locale ? (string) $locale : determine_locale();
+	$dir    = WCIS_PATH . 'languages/';
+	$file   = $dir . $domain . '-' . $locale . '.mo';
+	if ( ! file_exists( $file ) ) {
+		$same = glob( $dir . $domain . '-' . substr( $locale, 0, 2 ) . '_*.mo' );
+		$file = $same ? $same[0] : '';
+	}
+	unload_textdomain( $domain ); // bei Sprachwechsel alte Sprache entfernen
+	if ( '' !== $file ) {
+		load_textdomain( $domain, $file, $locale );
+	} else {
+		load_plugin_textdomain( $domain, false, dirname( WCIS_BASENAME ) . '/languages' );
+	}
+}
+// Bei Sprachwechsel (z. B. E-Mails in der Sprache des Kunden) neu laden.
+add_action( 'change_locale', 'wcis_load_translations' );
+
+// -----------------------------------------------------------------------------
 // Bootstrap – erst laden, wenn WooCommerce verfügbar ist.
 // -----------------------------------------------------------------------------
 add_action(
 	'plugins_loaded',
 	static function () {
-		load_plugin_textdomain( 'blocksocial-woocommerce-sync', false, dirname( WCIS_BASENAME ) . '/languages' );
+		wcis_load_translations();
 
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			add_action(

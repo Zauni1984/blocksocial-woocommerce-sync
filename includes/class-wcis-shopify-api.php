@@ -127,6 +127,10 @@ class WCIS_Shopify_Api {
 	 * @return array|WP_Error   Das „data"-Objekt oder Fehler.
 	 */
 	public function query( $query, array $variables = array(), $attempts = 4 ) {
+		$blocked = WCIS_License::outbound_block( 'shopify://' . $this->store['domain'] );
+		if ( $blocked ) {
+			return $blocked;
+		}
 		$token = $this->access_token();
 		if ( is_wp_error( $token ) ) {
 			return $token;

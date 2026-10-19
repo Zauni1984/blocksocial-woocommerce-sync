@@ -6,7 +6,7 @@ Tested up to: 7.1
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 3.1.2
+Stable tag: 3.2.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -38,6 +38,15 @@ Es gibt zwei Plugins aus demselben Code:
 * Automatischer Abgleich (Reconciliation) und Wiederholung fehlgeschlagener Zustellungen (Retry-Queue via Cron).
 * Sync-Filter pro Shop (Kategorie, Marke, Einzelprodukte, Feld-Auswahl) mit Umfang-Vorschau.
 * Moderne Admin-Oberfläche (App-Layout, Dark-Mode, Fortschrittsbalken), Verbindungstest und Protokoll.
+* Mehrsprachig: Deutsch, Englisch, Französisch, Spanisch, Italienisch, Niederländisch, Polnisch (regionale Varianten wie en_GB, fr_CH, es_MX nutzen automatisch die passende Sprache).
+* Automatische Updates über WordPress (Dashboard → Aktualisierungen) für alle lizenzierten Shops.
+
+**Lizenz & Plätze**
+
+* Der Lizenzschlüssel wird nur im Hauptshop eingetragen (Reiter „Lizenz"). Jeder verbundene Shop belegt einen Platz: Hauptshop, eigene Shops, Partnershops, Shopify-Shops. CSV-Feeds zählen nicht.
+* Standard: bis 3 Shops · Premium: bis 10 Shops · Enterprise: unbegrenzt. Erhältlich auf https://blocksocial.eu.
+* 14 Tage Testphase mit vollem Funktionsumfang. Nach Ablauf der Lizenz läuft die Synchronisation weiter, nur Updates und Support entfallen bis zur Verlängerung.
+* Ausführliche Anleitung mit Screenshots: docs/ANLEITUNG.md.
 
 == Installation ==
 
@@ -51,6 +60,9 @@ Es gibt zwei Plugins aus demselben Code:
 Admin- und Partner-Plugin dürfen nicht gleichzeitig im selben Shop aktiv sein.
 
 == Upgrade Notice ==
+
+= 3.2.0 =
+Neu: Lizenzierung über blocksocial.eu (Lizenzschlüssel im Hauptshop eintragen – 14 Tage Testphase ab dem Update), automatische Updates und 7 Sprachen. Bitte Hauptshop und alle Neben-Shops aktualisieren.
 
 = 3.1.2 =
 Aufräumen und Empfangs-Filter richten sich jetzt nach dem Kategoriebaum des eigenen Shops. Neu: Kategorien ignorieren (z. B. „Angebote"). Vor dem Aufräumen bitte neu analysieren.
@@ -68,6 +80,14 @@ Neu: Partner-Plugin, Preisregeln und Shopify-Anbindung. Das Update ist kompatibe
 Umbenennung von „WC Inventory Sync" zu „BlockSocial WooCommerce Sync". Interne REST-Namespaces und Options-Keys bleiben kompatibel – ein Update von 1.x läuft ohne Neukonfiguration.
 
 == Changelog ==
+
+= 3.2.0 =
+* Neu: Lizenz im Hauptshop (Reiter „Lizenz"): Aktivierung, Status, Plätze-Übersicht aller verbundenen Shops, Prüfen, Deaktivieren (Umzug). Neben- und Partnershops sind über den Hauptshop abgedeckt.
+* Neu: 14 Tage Testphase; nach Ablauf der Lizenz läuft die Synchronisation weiter (nur Updates/Support entfallen).
+* Neu: Automatische Updates über blocksocial.eu (Releases aus GitHub) – im Hauptshop, in Neben-Shops und bei Partnern, inkl. Changelog im Detail-Fenster.
+* Neu: Oberfläche auf Englisch, Französisch, Spanisch, Italienisch, Niederländisch und Polnisch; regionale Sprachvarianten greifen automatisch auf die Hauptsprache zurück.
+* Neu: Plugin-Header „Update URI" – Updates kommen ausschließlich von blocksocial.eu.
+* Fehlerbehebung: Nach einem Versions-Update wurden im Partner-Plugin Übersetzungen zu früh geladen (PHP-Hinweis).
 
 = 3.1.2 =
 * **Fehlerbehebung:** Der Sync-Filter des Empfängers wertete eingehende Produkte nach dem Kategoriebaum des Absenders aus. Hing z. B. „Vermehrungsmaterial" oder „Angebote" beim Hauptshop unter „Growshop", wurden solche Produkte beim Ausschluss von „Growshop" fälschlich erfasst – auch in der Aufräum-Analyse. Maßgeblich ist jetzt der Kategoriebaum des eigenen Shops (die Kategorie, in der das Produkt hier liegt bzw. landet).
